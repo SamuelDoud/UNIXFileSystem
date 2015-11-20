@@ -58,10 +58,13 @@ char BuildInodeBitmap()
 }
 bool *convertBytemapToBitmap(char *bytemap)
 {
-
+    //take each character, convert it to an integer. Convert that integer into binary
+    //use those eight bits to represent the bitmap for that byte
+    //stitch them all together to make the bitmap
 }
 char *convertBitmapToBytemap(bool *bitmap)
 {
-
+    //take every eight bits and convert them into a character
+    //stitch together all results to make the bytemap
 }
 
