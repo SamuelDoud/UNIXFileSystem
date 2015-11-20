@@ -18,6 +18,7 @@
 #define NUM_SECTORS  10000
 #define MAX_FILE_SIZE 30
 #define ROOT_INODE 0
+#define MAX_NUM_FILES NUM_SECTORS / MAX_FILE_SIZE
 // disk errors
 typedef enum {
   E_MEM_OP,

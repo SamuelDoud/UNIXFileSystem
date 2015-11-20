@@ -12,6 +12,7 @@
 #define DATA_BLOCK_ID 4
 #define DIRECTORY_ID 5
 
+
 char nullChar = '\0'; // the null character in C
 
 char *BuildSuperBlock()
@@ -53,8 +54,8 @@ char *BuildDirectory(char *root)
 }
 char BuildInodeBitmap()
 {
-    bool *bitmap = malloc(MAX_NUM_FILES * sizeof(bool));
-    memset(bitmap,false, sizeof(bitmap);
+    bool *bitmap = malloc(MAX_NUM_FILES * sizeof(bool));//make a bitmap of the size of the max number of files
+    memset(bitmap,false, sizeof(bitmap));//set them all to false, analogus to unoccupied
 }
 bool *convertBytemapToBitmap(char *bytemap)
 {
