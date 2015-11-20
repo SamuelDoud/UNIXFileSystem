@@ -5,7 +5,7 @@
 static Sector* disk;
 
 typedef struct FileTableElement{
-int inode;
+int inodeNum;
 int fileDescriptor;
 int fileAccessCount;
 } FileTableElement;
