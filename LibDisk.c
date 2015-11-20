@@ -1,11 +1,22 @@
 #include "LibDisk.h"
+#include "Builder.c"
 #include <string.h>
+
+#define MAX_FILES_OPEN 256
+#define SUPER_BLOCK_INDEX 0
+#define INODE_BITMAP_INDEX 1
+#define DATA_BLOCK_BITMAP_INDEX 2
 
 // the disk in memory (static makes it private to the file)
 static Sector* disk;
 
+typedef struct FileTableElement{
+int inodeNum;
+int fileDescriptor;
+int fileAccessCount;
+} FileTableElement;
 // used to see what happened w/ disk ops
-Disk_Error_t diskErrno; 
+Disk_Error_t diskErrno;
 
 // used for statistics
 // static int lastSector = 0;
@@ -27,6 +38,10 @@ int Disk_Init()
 	diskErrno = E_MEM_OP;
 	return -1;
     }
+    //an error has not occurred, create the file table
+    FileTableElement *OpenFileTable = (FileTableElement *)malloc(MAX_FILES_OPEN * sizeof(FileTableElement));
+    disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();
+    //creates a file table of 256 null entries
     return 0;
 }
 
@@ -38,26 +53,26 @@ int Disk_Init()
  */
 int Disk_Save(char* file) {
     FILE* diskFile;
-    
+
     // error check
     if (file == NULL) {
 	diskErrno = E_INVALID_PARAM;
 	return -1;
     }
-    
+
     // open the diskFile
     if ((diskFile = fopen(file, "w")) == NULL) {
 	diskErrno = E_OPENING_FILE;
 	return -1;
     }
-    
+
     // actually write the disk image to a file
     if ((fwrite(disk, sizeof(Sector), NUM_SECTORS, diskFile)) != NUM_SECTORS) {
 	fclose(diskFile);
 	diskErrno = E_WRITING_FILE;
 	return -1;
     }
-    
+
     // clean up and return
     fclose(diskFile);
     return 0;
@@ -71,26 +86,26 @@ int Disk_Save(char* file) {
  */
 int Disk_Load(char* file) {
     FILE* diskFile;
-    
+
     // error check
     if (file == NULL) {
 	diskErrno = E_INVALID_PARAM;
 	return -1;
     }
-    
+
     // open the diskFile
     if ((diskFile = fopen(file, "r")) == NULL) {
 	diskErrno = E_OPENING_FILE;
 	return -1;
     }
-    
+
     // actually read the disk image into memory
     if ((fread(disk, sizeof(Sector), NUM_SECTORS, diskFile)) != NUM_SECTORS) {
 	fclose(diskFile);
 	diskErrno = E_READING_FILE;
 	return -1;
     }
-    
+
     // clean up and return
     fclose(diskFile);
     return 0;
@@ -108,13 +123,13 @@ int Disk_Read(int sector, char* buffer) {
 	diskErrno = E_INVALID_PARAM;
 	return -1;
     }
-    
+
     // copy the memory for the user
     if((memcpy((void*)buffer, (void*)(disk + sector), sizeof(Sector))) == NULL) {
 	diskErrno = E_MEM_OP;
 	return -1;
     }
-    
+
     return 0;
 }
 
@@ -123,14 +138,14 @@ int Disk_Read(int sector, char* buffer) {
  *
  * Writes a single sector from memory to "disk".
  */
-int Disk_Write(int sector, char* buffer) 
+int Disk_Write(int sector, char* buffer)
 {
     // quick error checks
     if((sector < 0) || (sector >= NUM_SECTORS) || (buffer == NULL)) {
 	diskErrno = E_INVALID_PARAM;
 	return -1;
     }
-    
+
     // copy the memory for the user
     if((memcpy((void*)(disk + sector), (void*)buffer, sizeof(Sector))) == NULL) {
 	diskErrno = E_MEM_OP;
