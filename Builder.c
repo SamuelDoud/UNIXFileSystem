@@ -37,10 +37,16 @@ char *BuildInode()
 {
     int size = 0;
     int fileType = INODE_DATA_BLOCK_ID;
-    int *pointers = malloc(sizeOf(int) * MAX_FILE_SIZE);
+    int *pointers = (int *)malloc(sizeOf(int)*(2+ MAX_FILE_SIZE));
     //An inode does not take up a full sector, it can be shared with other inodes
     //it needs the file size, the file type, and its pointers.
     char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
     return inode;
 }
-char *BuildDirectory
+char *BuildDirectory(char *root)
+{
+    char *directoryData = malloc( sizeof(int) * 2 + sizeof(root));
+    //What does a directory look like? Probably its just like an inode
+    int numberOfChildren = 0;
+    int *childrenPointers;
+}
