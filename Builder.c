@@ -4,11 +4,13 @@
 #include "LibDisk.h"
 
 #define MAGIC_NUMBER 8723
-
+char nullChar = '\0';
 char *BuildSuperBlock()
 {
     char *SuperBlock = malloc(SECTOR_SIZE * sizeof(char));
-    memset(SuperBlock, '\0', SECTOR_SIZE);
+    //set all the chars to be null
+    memset(SuperBlock, nullChar, SECTOR_SIZE);
+
     //create an empty and null superblock
     sprintf(SuperBlock, sizeof(SuperBlock), "%d", MAGIC_NUMBER);
     //put the magic number in the superblock and return it
@@ -16,3 +18,14 @@ char *BuildSuperBlock()
     return SuperBlock;
 }
 
+char *BuildDataBlock()
+{
+    char* dataBlock = malloc(SECTOR_SIZE * sizeof(char)); //allocate SECTOR_SIZE bytes to dataBlock
+    memset(dataBlock, nullChar ,SECTOR_SIZE);//set all the chars to null
+    return dataBlock;//return dataBlock
+}
+char *BuildInode()
+{
+    //An inode does not take up a full sector, it can be shared with other inodes
+    //it needs the file size, the file type, and its pointers.
+}

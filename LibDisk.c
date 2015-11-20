@@ -1,7 +1,11 @@
 #include "LibDisk.h"
+#include "Builder.c"
 #include <string.h>
 
 #define MAX_FILES_OPEN 256
+#define SUPER_BLOCK_INDEX 0
+#define INODE_BITMAP_INDEX 1
+#define DATA_BLOCK_BITMAP_INDEX 2
 
 // the disk in memory (static makes it private to the file)
 static Sector* disk;
@@ -36,6 +40,7 @@ int Disk_Init()
     }
     //an error has not occurred, create the file table
     FileTableElement *OpenFileTable = (FileTableElement *)malloc(MAX_FILES_OPEN * sizeof(FileTableElement));
+    disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();
     //creates a file table of 256 null entries
     return 0;
 }
