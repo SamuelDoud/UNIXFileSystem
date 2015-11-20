@@ -1,10 +1,12 @@
 #include "LibFS.h"
 #include "LibDisk.h"
+#include "Builder.c"
 
+#define SUCCESS 0
 // global errno value here
 int osErrno;
 
-int 
+int
 FS_Boot(char *path)
 {
     printf("FS_Boot %s\n", path);
@@ -32,7 +34,12 @@ FS_Sync()
 int
 File_Create(char *file)
 {
+
     printf("FS_Create\n");
+    //Build the inode for this file
+    char *myInode = BuildInode();
+    // place the inode in the file system
+
     return 0;
 }
 
@@ -108,3 +115,17 @@ Dir_Unlink(char *path)
     return 0;
 }
 
+
+//OUR METHODS
+
+int Insert_Inode(char* inode)
+{
+    //search for an inode block that has suffcient room in the file system.
+    //use the inode bitmap
+
+
+    //if one is found, place it in there!
+    //if not, create a new inode block
+
+    return SUCCESS;
+}

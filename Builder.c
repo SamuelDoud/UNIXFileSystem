@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "LibFS.h"
 #include "LibDisk.h"
@@ -50,3 +51,17 @@ char *BuildDirectory(char *root)
     int numberOfChildren = 0;
     int *childrenPointers;
 }
+char BuildInodeBitmap()
+{
+    bool *bitmap = malloc(MAX_NUM_FILES * sizeof(bool));
+    memset(bitmap,false, sizeof(bitmap);
+}
+bool *convertBytemapToBitmap(char *bytemap)
+{
+
+}
+char *convertBitmapToBytemap(bool *bitmap)
+{
+
+}
+
