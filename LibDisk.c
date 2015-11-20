@@ -1,6 +1,8 @@
 #include "LibDisk.h"
 #include <string.h>
 
+#define MAX_FILES_OPEN 256
+
 // the disk in memory (static makes it private to the file)
 static Sector* disk;
 
@@ -32,6 +34,9 @@ int Disk_Init()
 	diskErrno = E_MEM_OP;
 	return -1;
     }
+    //an error has not occured
+    FileTableElement OpenFileTable[] = malloc(MAX_FILES_OPEN * sizeof(FileTableElement))
+    //creates a file table of 256 null entries
     return 0;
 }
 
