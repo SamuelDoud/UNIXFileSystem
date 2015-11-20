@@ -7,6 +7,7 @@
 char nullChar = '\0';
 char *BuildSuperBlock()
 {
+    //CURRENTLY need to workaround c's restriction on returning arrays
     char *SuperBlock = malloc(SECTOR_SIZE * sizeof(char));
     //set all the chars to be null
     memset(SuperBlock, nullChar, SECTOR_SIZE);
@@ -24,8 +25,10 @@ char *BuildDataBlock()
     memset(dataBlock, nullChar ,SECTOR_SIZE);//set all the chars to null
     return dataBlock;//return dataBlock
 }
-char *BuildInode()
+char *BuildInode(int size, int fileType, int *pointers)
 {
     //An inode does not take up a full sector, it can be shared with other inodes
     //it needs the file size, the file type, and its pointers.
+    char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
+    return inode;
 }
