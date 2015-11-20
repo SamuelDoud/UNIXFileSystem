@@ -34,8 +34,8 @@ int Disk_Init()
 	diskErrno = E_MEM_OP;
 	return -1;
     }
-    //an error has not occured
-    FileTableElement OpenFileTable[] = malloc(MAX_FILES_OPEN * sizeof(FileTableElement))
+    //an error has not occurred, create the file table
+    FileTableElement *OpenFileTable = (FileTableElement *)malloc(MAX_FILES_OPEN * sizeof(FileTableElement));
     //creates a file table of 256 null entries
     return 0;
 }
