@@ -39,7 +39,7 @@ char *BuildInode()
 {
     int size = 0;
     int fileType = INODE_DATA_BLOCK_ID;
-    int *pointers = (int *)malloc(sizeOf(int)*(2+ MAX_FILE_SIZE));
+    int *pointers = (int *)malloc(sizeOf(int)*(2 + MAX_FILE_SIZE));//ERROR
     //An inode does not take up a full sector, it can be shared with other inodes
     //it needs the file size, the file type, and its pointers.
     char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
@@ -87,6 +87,26 @@ bool *ConvertBytemapToBitmap(char *bytemap)
     //take each character, convert it to an integer. Convert that integer into binary
     //use those eight bits to represent the bitmap for that byte
     //stitch them all together to make the bitmap
+
+    int i;
+    int secondIter;
+    int charAsInt;
+    char *IntAsBinary;
+    bool* bitmap = malloc(sizeof(bool) * (strlen(bytemap) * 8);//the bitmap will be 8 times longer than the length of the string
+    for (i = 0; i < strlen(bytemap); i++)
+    {
+        charAsInt = (int)(bytemap[i]);
+        //take the binary of the char
+
+        //place the binary in the bitmap
+        for (secondIter = 0; secondIter < 8; secondIter++)
+        {
+            bitmap[i * 8 + (8 - secondIter)] = charAsInt % 2;//this will take a decimal and convert it to binary
+            charAsInt = charAsInt / 2;
+            //see http://mathbits.com/MathBits/CompSci/Introduction/frombase10.htm for the method used
+        }
+    }
+    return bitmap;//
 }
 char *ConvertBitmapToBytemap(bool *bitmap)
 {
