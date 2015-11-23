@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "LibFS.h"
 #include "LibDisk.h"
@@ -45,12 +46,10 @@ char *BuildInode()
     char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
     return inode;
 }
-char *BuildDirectory(char *root, char *name, int *pointersToFiles)
+char *BuildDirectory(char *name, int pointer)
 {
-    char *directoryData = malloc( sizeof(int) * 2 + sizeof(root));
-    //What does a directory look like? Probably its just like an inode
-    int numberOfChildren = 0;
-    int *childrenPointers;
+    char *directoryData = malloc( 20 * sizeof(char));//this is definitional. 16 chars for name (one for null term) and pointer data (this could be 2 chars using base 256!!)
+
 }
 char *addBlocksToDirectory(char *dirArr, int *pointersToAddArr)
 {
@@ -111,8 +110,29 @@ bool *ConvertBytemapToBitmap(char *bytemap)
 }
 char *ConvertBitmapToBytemap(bool *bitmap)
 {
+    char *s;
     //take every eight bits and convert them into a character
     //stitch together all results to make the bytemap
-    return 'c';
+    return s;
+}
+char *convertIntToString(int i)
+{
+    //take an integer and convert it to base 256, which is essientally a char
+    int byte = 256;
+    int lengthOfString = (int)(log(i) / log(byte) + 1);//how long the string will end up being
+    char *s = malloc(sizeof(char) * lengthOfString);//this is how many chars will be in the array
+    int counter;
+    for (counter = 0; counter < lengthOfString; counter++)
+    {
+        s[lengthOfString - counter] = i % byte;
+        i = i / byte;
+        //see http://mathbits.com/MathBits/CompSci/Introduction/frombase10.htm for the method used
+    }
+
+    return s;
+}
+int convert StringToInt(char *s)
+{
+    return 0;
 }
 
