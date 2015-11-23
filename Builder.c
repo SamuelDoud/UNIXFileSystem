@@ -7,12 +7,14 @@
 
 #define MAGIC_NUMBER 8723
 #define SUPER_BLOCK_ID 0
-#define INODE_BITMAP_ID 1
-#define DIRECTORY_BITMAP_ID 2
-#define INODE_DATA_BLOCK_ID 3
+#define INODE_BITMAP_ID 2
+#define DIRECTORY_BITMAP_ID 1 //these previous three are also the intial indecies in the disk
+#define INODE_DATA_BLOCK_ID 3 //now these are just IDs
 #define DATA_BLOCK_ID 4
 #define DIRECTORY_ID 5
-
+#define NUM_DATA_BITMAP_BLOCKS 3
+#define NUM_INODE_BLOCKS 1000 //CHANGE ME!!!!
+#define NUM_DATA_BLOCKS (NUM_SECTORS - NUM_INODE_BLOCKS - 1 - 1 - 3)//1 - 1 - 3 SUPERBLOCK - INODE BITMAP - NUM_DATA_BLOCK_BITMAP
 
 char nullChar = '\0'; // the null character in C
 
@@ -128,11 +130,11 @@ char *convertIntToString(int i)
         i = i / byte;
         //see http://mathbits.com/MathBits/CompSci/Introduction/frombase10.htm for the method used
     }
-
     return s;
 }
 int convert StringToInt(char *s)
 {
+    //take an integer and convert it ot an ASCII string
     return 0;
 }
 
