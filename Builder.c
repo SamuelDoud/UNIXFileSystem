@@ -53,17 +53,25 @@ char *BuildDirectory(char *root)
     int *childrenPointers;
 }
 char BuildInodeBitmap()
-{
+{//What is the purpose of this method?
     bool *bitmap = malloc(MAX_NUM_FILES * sizeof(bool));//make a bitmap of the size of the max number of files
     memset(bitmap,false, sizeof(bitmap));//set them all to false, analogus to unoccupied
 }
-bool *convertBytemapToBitmap(char *bytemap)
+//Method alters the state of an element the bitmap to the passed bool
+//Effective in deletion and creation of a file
+void ChangeBitmap(char *bytemapInode, int inodeNum, bool TrueOrFalse)
+{
+    bool *bitmap = ConvertBytemapToBitmap();
+    bitmap[inodeNum] = TrueOrFalse;
+    return ConvertBitmapToBytemap(bitmap);
+}
+bool *ConvertBytemapToBitmap(char *bytemap)
 {
     //take each character, convert it to an integer. Convert that integer into binary
     //use those eight bits to represent the bitmap for that byte
     //stitch them all together to make the bitmap
 }
-char *convertBitmapToBytemap(bool *bitmap)
+char *ConvertBitmapToBytemap(bool *bitmap)
 {
     //take every eight bits and convert them into a character
     //stitch together all results to make the bytemap
