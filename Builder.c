@@ -45,12 +45,29 @@ char *BuildInode()
     char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
     return inode;
 }
-char *BuildDirectory(char *root)
+char *BuildDirectory(char *root, char *name, int *pointersToFiles)
 {
     char *directoryData = malloc( sizeof(int) * 2 + sizeof(root));
     //What does a directory look like? Probably its just like an inode
     int numberOfChildren = 0;
     int *childrenPointers;
+}
+char *addBlocksToDirectory(char *dirArr, int *pointersToAddArr)
+{
+    //method takes an array assumed to be representing a directiory
+    //finds the area to place the pointers (after any present pointers, i.e. append)
+    //adds them!
+
+    //return the directory
+}
+char *deleteBlocksFromDirectory(char *dirArr, int *pointersToDelete)
+{
+    //method takes an array assumed to be representing a directiory
+    //finds the area to place the pointers (after any present pointers, i.e. append)
+    //adds them!
+
+    //Should we take the last files and move them into the holes created?
+    //return the directory
 }
 char BuildInodeBitmap()
 {//What is the purpose of this method?
@@ -59,7 +76,7 @@ char BuildInodeBitmap()
 }
 //Method alters the state of an element the bitmap to the passed bool
 //Effective in deletion and creation of a file
-void ChangeBitmap(char *bytemapInode, int inodeNum, bool TrueOrFalse)
+char *ChangeBitmap(char *bytemapInode, int inodeNum, bool TrueOrFalse)
 {
     bool *bitmap = ConvertBytemapToBitmap();
     bitmap[inodeNum] = TrueOrFalse;
