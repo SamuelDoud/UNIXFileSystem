@@ -169,11 +169,28 @@ int getNextAvailibleSector()
         if(bitmap[sectorNum] == false) //false is analogous to empty
         {
             return sectorNum;
+            //TODO set sectorNum to occupied? Or let user methods do that?
         }
     }
     return -1; //code reached if no sectors are open
 }
+//this method returns a certain number of sectors...
+//simplifies fetching the sectors for a data file
 int *getAvailibleSectors(int sectorsRequested)
 {
+    int sectorsAlreadyCollected;
+    int *sectorsFound = malloc(sectorsRequested * sizeof(int));//an integer array of teh sectors
+    for (sectorsAlreadyCollected = 0; sectorsAlreadyCollected < sectorsRequested; sectorsRequested++)
+    {
+        int sectorFound = getNextAvailibleSector();//this integer is the next availible sector in the array
+        if (sectorFound < 0)
+        {
+            return E_GENERAL;//some out of sectors availble error
+
+        }
+        sectorsFound[sectorsAlreadyCollected] = sectorFound;//add the sector to the array of availible sectors
+
+    }
+    return sectorsFound;//return the array
 }
 
