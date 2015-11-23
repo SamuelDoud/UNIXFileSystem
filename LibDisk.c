@@ -13,8 +13,10 @@ static Sector* disk;
 typedef struct FileTableElement{
 int inodeNum;
 int fileDescriptor;
-int fileAccessCount;
+int fileAccessCount = 0;
+int index = 0;
 } FileTableElement;
+static *FileTableElement fileTable;
 // used to see what happened w/ disk ops
 Disk_Error_t diskErrno;
 
@@ -39,8 +41,9 @@ int Disk_Init()
 	return -1;
     }
     //an error has not occurred, create the file table
-    FileTableElement *OpenFileTable = (FileTableElement *)malloc(MAX_FILES_OPEN * sizeof(FileTableElement));
+    fileTable = (FileTableElement *)malloc(MAX_FILES_OPEN * sizeof(FileTableElement));
     disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();
+    disk[INODE_BITMAP_INDEX].data = BuildInodeBitmap();
     //creates a file table of 256 null entries
     return 0;
 }
@@ -152,5 +155,26 @@ int Disk_Write(int sector, char* buffer)
 	return -1;
     }
     return 0;
+}
+//The bitmap is going to require three sectors as 512 * 8 = 4096 < NUM_SECTORS. 512 * 8 * 3 = 12288 > NUM_SECTORS
+//More work to be done on this!
+int getNextAvailibleSector()
+{
+    //search for an empty sector
+    //use the bitmaps!
+    char *bytemap = disk[DATA_BLOCK_BITMAP_INDEX].data;
+    bool *bitmap = ConvertBytemapToBitmap(bytemap);
+    int sectorNum;
+    for (sectorNum = 0; sectorNum < NUM_SECTORS; sectors++)
+    {
+        if(bitmap[sectorNum] == false) //false is analogous to empty
+        {
+            return sectorNum;
+        }
+    }
+    return -1; //code reached if no sectors are open
+}
+int *getAvailibleSectors(int sectorsRequested)
+{
 }
 

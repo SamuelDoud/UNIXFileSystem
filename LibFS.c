@@ -34,12 +34,19 @@ FS_Sync()
 int
 File_Create(char *file)
 {
-
+    //what is char *file? the data? The name?
     printf("FS_Create\n");
     //Build the inode for this file
     char *myInode = BuildInode();
     // place the inode in the file system
-
+    int inodeNum = getAvailibleSector();
+    //TODO error check inodeNum beyond just checking if the number is non-negative
+    if (inodeNum > -1)
+    {
+        disk[inodeNum].data = myInode;//hopefully this is legal. Adds the created inode to the disk
+    }
+    //now need to add an entry to the file table? or is that handled by File_Open?
+    //if file is the data, split that into chunks
     return 0;
 }
 
@@ -68,6 +75,8 @@ int
 File_Seek(int fd, int offset)
 {
     printf("FS_Seek\n");
+    //move the index on the openfiletable element
+    //fileTable[fd].index = fileTable[fd].index + offset
     return 0;
 }
 
@@ -75,6 +84,7 @@ int
 File_Close(int fd)
 {
     printf("FS_Close\n");
+    //delete the file from the openFileTable
     return 0;
 }
 

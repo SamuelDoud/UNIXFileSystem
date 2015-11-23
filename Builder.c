@@ -67,7 +67,7 @@ char *deleteBlocksFromDirectory(char *dirArr, int *pointersToDelete)
     //adds them!
 
     //Should we take the last files and move them into the holes created?
-    //return the directory
+    return dirArr;
 }
 char BuildInodeBitmap()
 {//What is the purpose of this method?
@@ -92,25 +92,27 @@ bool *ConvertBytemapToBitmap(char *bytemap)
     int secondIter;
     int charAsInt;
     char *IntAsBinary;
-    bool* bitmap = malloc(sizeof(bool) * (strlen(bytemap) * 8);//the bitmap will be 8 times longer than the length of the string
+    bool *bitmap = malloc(sizeof(bool) * (strlen(bytemap) * 8));//the bitmap will be 8 times longer than the length of the string
     for (i = 0; i < strlen(bytemap); i++)
     {
         charAsInt = (int)(bytemap[i]);
         //take the binary of the char
 
         //place the binary in the bitmap
-        for (secondIter = 0; secondIter < 8; secondIter++)
+        for (secondIter = 0; secondIter < 8; secondIter++)//the integer is a 8 bit number, take those eight bits and place them in the array
         {
-            bitmap[i * 8 + (8 - secondIter)] = charAsInt % 2;//this will take a decimal and convert it to binary
+            bitmap[i * 8 + (8 - secondIter)] = charAsInt % 2;//this will take a decimal and convert it to binary HOPEFULLY THIS IS LEGAL
+            //MIGHT NEED TO USE FALSE AND TRUE
             charAsInt = charAsInt / 2;
             //see http://mathbits.com/MathBits/CompSci/Introduction/frombase10.htm for the method used
         }
     }
-    return bitmap;//
+    return bitmap;//return the map
 }
 char *ConvertBitmapToBytemap(bool *bitmap)
 {
     //take every eight bits and convert them into a character
     //stitch together all results to make the bytemap
+    return 'c';
 }
 
