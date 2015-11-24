@@ -122,9 +122,15 @@ bool *ConvertBytemapToBitmap(char *bytemap)
     }
     return bitmap;//return the map
 }
+//NEED SOME WAY TO DEFINE LENGTH OF BITMAP!!!!!
 char *ConvertBitmapToBytemap(bool *bitmap)
 {
     char *s;
+    //Take the lenght of the bitmap and append 0's unitl the 8 divides the length of bitmap
+    while (length % 8 != 0)
+    {
+
+    }
     //take every eight bits and convert them into a character
     //stitch together all results to make the bytemap
     return s;
@@ -146,7 +152,8 @@ char *convertIntToString(int i)
 }
 int convert StringToInt(char *s)
 {
+    int i;
     //take an integer and convert it ot an ASCII string
-    return 0;
+    return i;
 }
 
