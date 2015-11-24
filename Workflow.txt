@@ -1,0 +1,3 @@
+Sam: Devise a way so a function can know the length of an array... probably
+this means passing the length as an index or saving the length of, lets say
+the data bitmap, as a defined constant.
