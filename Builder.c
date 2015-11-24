@@ -15,6 +15,8 @@
 #define NUM_DATA_BITMAP_BLOCKS 3
 #define NUM_INODE_BLOCKS 1000 //CHANGE ME!!!!
 #define NUM_DATA_BLOCKS (NUM_SECTORS - NUM_INODE_BLOCKS - 1 - 1 - 3)//1 - 1 - 3 SUPERBLOCK - INODE BITMAP - NUM_DATA_BLOCK_BITMAP
+#define AVAILIBLE 0
+#define OCCUPIED 1 //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
 
 char nullChar = '\0'; // the null character in C
 
@@ -70,10 +72,20 @@ char *deleteBlocksFromDirectory(char *dirArr, int *pointersToDelete)
     //Should we take the last files and move them into the holes created?
     return dirArr;
 }
-char BuildInodeBitmap()
+char *BuildInodeBytemap()
 {//What is the purpose of this method?
     bool *bitmap = malloc(MAX_NUM_FILES * sizeof(bool));//make a bitmap of the size of the max number of files
-    memset(bitmap,false, sizeof(bitmap));//set them all to false, analogus to unoccupied
+    memset(bitmap,OCCUPIED, sizeof(bitmap));//set them all to false, analogus to unoccupied
+    //could use calloc..
+    return ConertBitmapToBytemap(bitmap);
+}
+
+char *BuildDataBytemap()
+{
+    bool *bitmap = malloc(NUM_DATA_BLOCKS * sizeof(bool));//make a bitmap of the size of the max number of files
+    memset(bitmap,OCCUPIED, sizeof(bitmap));//set them all to false, analogus to unoccupied
+    //could use calloc..
+    return ConertBitmapToBytemap(bitmap);
 }
 //Method alters the state of an element the bitmap to the passed bool
 //Effective in deletion and creation of a file

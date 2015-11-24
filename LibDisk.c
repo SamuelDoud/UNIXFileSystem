@@ -41,8 +41,20 @@ int Disk_Init()
     }
     //an error has not occurred, create the file table
     fileTable = (FileTableElement *)malloc(MAX_FILES_OPEN * sizeof(FileTableElement));
-    disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();
-    disk[INODE_BITMAP_INDEX].data = BuildInodeBitmap();
+    //built the fileTable with MAX_FILE_OPEN garbage elements of FileTableElement
+    disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();//Builds the superblock which is just a magic number
+    disk[INODE_BITMAP_INDEX].data = BuildInodeBitmap();//INODE BITMAP IS ONE SECTOR....
+    int indexOfDataBitmaps;
+    int dataBitmapIndexOffset = DATA_BLOCK_BITMAP_INDEX;
+    char *BytemapSplit;
+    char *dataBytemap = BuildDataBytemap();
+    for (indexOfDataBitmaps = 0; indexOfDataBitmaps < NUM_DATA_BITMAP_BLOCKS; indexOfDataBitmaps++)
+    {
+            BytemapSplit = malloc(SECTOR_SIZE * sizeof(char));//allocate some memory... do I need a null terminator?
+            //Take SECTOR_SIZE chars from the dataBytemap starting at (indexOfDataBitmaps * SECTOR_SIZE), store it in a block
+            //repeat until it is done writing the bytemap!
+            free(BytemapSplit);//deallocate the allocated memory for array temp
+    }
     //creates a file table of 256 null entries
     return 0;
 }
