@@ -5,7 +5,7 @@
 #include "LibFS.h"
 #include "LibDisk.h"
 
-#define MAGIC_NUMBER 8723
+#define MAGIC_NUMBER 8723 //Literally a magic number that will be stored in the super block to verify data
 #define SUPER_BLOCK_ID 0
 #define INODE_BITMAP_ID 2
 #define DIRECTORY_BITMAP_ID 1 //these previous three are also the intial indecies in the disk
@@ -20,12 +20,12 @@
 
 char nullChar = '\0'; // the null character in C
 
-typedef struct bitmap{
+typedef struct Map{
     int lengthBitmap;//integer indicating how long the bitmap array is. Could be a short or something
     int lengthBytemap;
     bool bitmap; //the bitmap itself
     char *bytemap;
-} bitmap;
+} Map;
 
 
 char *BuildSuperBlock()
@@ -131,17 +131,22 @@ bool *ConvertBytemapToBitmap(char *bytemap)
     return bitmap;//return the map
 }
 //NEED SOME WAY TO DEFINE LENGTH OF BITMAP!!!!!
-char *ConvertBitmapToBytemap(bool *bitmap)
+Map ConvertBitmapToBytemap(Map mapData)
 {
-    char *s;
+    bool *bitmap = mapData.bitmap;
+    int lengthOfBitmap = mapData.lengthBitmap;
     //Take the lenght of the bitmap and append 0's unitl the 8 divides the length of bitmap
-    while (length % 8 != 0)
+    for (lengthOfBitmap; lengthOfBitmap % 8 != 0; lengthOfBitmap++)
     {
-
+        //Some magical appending operation
     }
+    int lengthOfBytemap = mapData.lengthBitmap / 8; //bytemaps SHOULD be eight times shorter than bitmaps
+    int realLengthOfBytemap = 0; //use this vaiable to track how long the bytemap really is.
+    char *bytemap = malloc(sizeof(char) * lengthOfBytemap); //indicate how many chars will be needed for this to work
     //take every eight bits and convert them into a character
     //stitch together all results to make the bytemap
-    return s;
+
+    return mapData;
 }
 char *convertIntToString(int i)
 {
@@ -164,5 +169,9 @@ int convert StringToInt(char *s)
     //take an integer and convert it ot an ASCII string
     return i;
 }
-
+bool verify(Sector Superblock)
+{
+    return BuildSuperBlock() == Superblock; //this probably isn't a valid comparsion!
+    //change me!!
+}
 
