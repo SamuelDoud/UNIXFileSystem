@@ -20,6 +20,14 @@
 
 char nullChar = '\0'; // the null character in C
 
+typedef struct bitmap{
+    int lengthBitmap;//integer indicating how long the bitmap array is. Could be a short or something
+    int lengthBytemap;
+    bool bitmap; //the bitmap itself
+    char *bytemap;
+} bitmap;
+
+
 char *BuildSuperBlock()
 {
     //CURRENTLY need to workaround c's restriction on returning arrays
@@ -156,4 +164,5 @@ int convert StringToInt(char *s)
     //take an integer and convert it ot an ASCII string
     return i;
 }
+
 
