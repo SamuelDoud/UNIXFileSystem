@@ -10,7 +10,6 @@ int
 FS_Boot(char *path)
 {
     printf("FS_Boot %s\n", path);
-
     // oops, check for errors
     if (Disk_Init() == -1) {
 	printf("Disk_Init() failed\n");

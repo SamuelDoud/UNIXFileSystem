@@ -1,3 +1,10 @@
 Sam: Devise a way so a function can know the length of an array... probably
 this means passing the length as an index or saving the length of, lets say
 the data bitmap, as a defined constant.
+
+I think I have figured this out by using a struct to store both the bitmap
+and bytemaps along with their lengths.
+
+Sam: I need work done on the APIs so that I know what parts of the filesystem
+need immediate attn. I would like to have this project done by Friday so that
+we can have adequate time to debug it!
