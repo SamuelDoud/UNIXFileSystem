@@ -109,40 +109,18 @@ char *BuildDataBytemap()
 }
 //Method alters the state of an element the bitmap to the passed bool
 //Effective in deletion and creation of a file
-char *ChangeBitmap(char *bytemapInode, int inodeNum, bool TrueOrFalse)
+//MUST BE VERY CAREFUL!!
+//SectorNum should be the sector number that the maps understand
+//use the conversion methods for the data map
+Map ChangeBitmap(Map mapArg, int sectorNum, bool TrueOrFalse)
 {
-    bool *bitmap = ConvertBytemapToBitmap();
-    bitmap[inodeNum] = TrueOrFalse;
-    return ConvertBitmapToBytemap(bitmap);
-}
-bool *ConvertBytemapToBitmap(char *bytemap)
-{//getting some kind of "conflicting type errohere...
-    //take each character, convert it to an integer. Convert that integer into binary
-    //use those eight bits to represent the bitmap for that byte
-    //stitch them all together to make the bitmap
-
-    int i;
-    int secondIter;
-    int charAsInt;
-    char *IntAsBinary;
-    bool *bitmap = malloc(sizeof(bool) * (strlen(bytemap) * 8));//the bitmap will be 8 times longer than the length of the string
-    for (i = 0; i < strlen(bytemap); i++)
+    if (Sector < mapArg.lengthBitmap)
     {
-        charAsInt = (int)(bytemap[i]);
-        //take the binary of the char
-
-        //place the binary in the bitmap
-        for (secondIter = 0; secondIter < 8; secondIter++)//the integer is a 8 bit number, take those eight bits and place them in the array
-        {
-            bitmap[i * 8 + (8 - secondIter)] = charAsInt % 2;//this will take a decimal and convert it to binary HOPEFULLY THIS IS LEGAL
-            //MIGHT NEED TO USE FALSE AND TRUE
-            charAsInt = charAsInt / 2;
-            //see http://mathbits.com/MathBits/CompSci/Introduction/frombase10.htm for the method used
-        }
+        mapArg.bitmap[sectorNum] = TrueOrFalse;
+        return ConvertBitmapToBytemap(mapArg);//make sure the bytemap is reflective!
     }
-    return bitmap;//return the map
 }
-//NEED SOME WAY TO DEFINE LENGTH OF BITMAP!!!!!
+//THIS METHOD IS NOT COMPLETE
 Map ConvertBitmapToBytemap(Map mapData)
 {
     bool *bitmap = mapData.bitmap;
@@ -170,7 +148,7 @@ Map ConvertBitmapToBytemap(Map mapData)
 
     return mapData;
 }
-char *convertIntToString(int i)
+char *ConvertIntToString(int i)
 {
     //take an integer and convert it to base 256, which is essientally a char
     int byte = 256;
@@ -185,16 +163,26 @@ char *convertIntToString(int i)
     }
     return s;
 }
-int convert StringToInt(char *s)
+int Convert StringToInt(char *s)
 {
     int i = 0;
     //take an integer and convert it ot an ASCII string
     return i;
 }
 //this method checks to see if the superblock passed is really a valid superblock by comparing it to a new one
-bool verify(Sector Superblock)
+bool Verify(Sector Superblock)
 {
     return BuildSuperBlock() == Superblock.data; //this probably isn't a valid comparsion!
     //change me!!
 }
-
+//This method takes a data sector and makes it useable in the data map!
+int ConvertDataSectorToMapSectorNum(int sector)
+{
+    if (sector < FIRST_DATA_BLOCK_INDEX)
+        return sector - FIRST_DATA_BLOCK_INDEX;
+    return -1;
+}
+int ConvertDataMapSectorToAbsolute(int dataMapSector)
+{
+    return dataMapSector + FIRST_DATA_BLOCK_INDEX;
+}

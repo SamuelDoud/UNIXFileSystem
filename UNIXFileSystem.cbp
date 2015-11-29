@@ -31,13 +31,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-<<<<<<< HEAD
-		<Unit filename="FileTable.h" />
-=======
 		<Unit filename="Builder.c">
 			<Option compilerVar="CC" />
 		</Unit>
->>>>>>> 2e8003de90d60f9248797b6c2350748178647be5
 		<Unit filename="LibDisk.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -53,11 +49,11 @@
 		</Unit>
 		<Extensions>
 			<code_completion />
-<<<<<<< HEAD
+			<<<<<<< HEAD
 =======
 			<envvars />
 			<lib_finder disable_auto="1" />
->>>>>>> 2e8003de90d60f9248797b6c2350748178647be5
+			&#x0A;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 2e8003de90d60f9248797b6c2350748178647be5&#x0A;&#x09;&#x09;&#x09;
 			<debugger />
 		</Extensions>
 	</Project>

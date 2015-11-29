@@ -8,6 +8,7 @@
 #define DATA_BLOCK_BITMAP_INDEX 2
 #define MAX_PATH_LENGTH 16
 
+
 // the disk in memory (static makes it private to the file)
 static Sector* disk;
 
@@ -204,10 +205,12 @@ int getNextAvailibleSector()
     return -1; //code reached if no sectors are open
 }
 //this method returns a certain number of sectors... only for data files!!!
+//this is not needed for inodes because you would only need one inode at a time
 //simplifies fetching the sectors for a data file
 int *getAvailibleSectors(int sectorsRequested)
 {
     int sectorsAlreadyCollected;
+
     int *sectorsFound = malloc(sectorsRequested * sizeof(int));//an integer array of teh sectors
     for (sectorsAlreadyCollected = 0; sectorsAlreadyCollected < sectorsRequested; sectorsRequested++)
     {
