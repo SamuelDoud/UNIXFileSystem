@@ -21,7 +21,7 @@
 #define MAX_PATH_LENGTH 16
 
 char nullChar = '\0'; // the null character in C
-
+//map contains the data to track a bitmap and a bytemap! Should have two in the file system. One for the data and one for the inode bitmaps!
 typedef struct Map{
     int lengthBitmap;//integer indicating how long the bitmap array is. Could be a short or something
     int lengthBytemap;

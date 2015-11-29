@@ -16,6 +16,8 @@ int inodeNum;
 int fileAccessCount = 0;
 int index = 0;
 } FileTableElement;
+
+
 static *FileTableElement fileTable;
 // used to see what happened w/ disk ops
 Disk_Error_t diskErrno;
@@ -41,22 +43,27 @@ int Disk_Init()
 	return -1;
     }
     //an error has not occurred, create the file table
-    fileTable = (FileTableElement *)malloc(MAX_FILES_OPEN * sizeof(FileTableElement));
-    //built the fileTable with MAX_FILE_OPEN garbage elements of FileTableElement
+    //creates a file table of 256 null entries
+    fileTable = calloc(sizeof(FileTableElement), MAX_FILES_OPEN);
+    //built the fileTable with MAX_FILE_OPEN 0 elements of FileTableElement
     disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();//Builds the superblock which is just a magic number
     disk[INODE_BITMAP_INDEX].data = BuildInodeBitmap();//INODE BITMAP IS ONE SECTOR....
+
+    //there are three sectors of data block bitmaps... need a way to write them
     int indexOfDataBitmaps;
     int dataBitmapIndexOffset = DATA_BLOCK_BITMAP_INDEX;
     char *BytemapSplit;
-    char *dataBytemap = BuildDataBytemap();
+    char *dataBytemap = BuildDataBytemap();//this is the data block bytemaps
     for (indexOfDataBitmaps = 0; indexOfDataBitmaps < NUM_DATA_BITMAP_BLOCKS; indexOfDataBitmaps++)
     {
             BytemapSplit = malloc(SECTOR_SIZE * sizeof(char));//allocate some memory... do I need a null terminator?
             //Take SECTOR_SIZE chars from the dataBytemap starting at (indexOfDataBitmaps * SECTOR_SIZE), store it in a block
+            strncpy(BytemapSplit, dataBytemap + (indexOfDataBitmaps * SECTOR_SIZE), SECTOR_SIZE);
             //repeat until it is done writing the bytemap!
+            disk[DATA_BLOCK_BITMAP_INDEX + indexOfDataBitmaps] = BytemapSplit; // maybe this works?
             free(BytemapSplit);//deallocate the allocated memory for array temp
     }
-    //creates a file table of 256 null entries
+
     return 0;
 }
 
