@@ -6,6 +6,7 @@
 #define SUPER_BLOCK_INDEX 0
 #define INODE_BITMAP_INDEX 1
 #define DATA_BLOCK_BITMAP_INDEX 2
+#define MAX_PATH_LENGTH 16
 
 // the disk in memory (static makes it private to the file)
 static Sector* disk;
