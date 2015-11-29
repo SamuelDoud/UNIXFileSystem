@@ -14,7 +14,8 @@
 #define DATA_BLOCK_ID 4
 #define DIRECTORY_ID 5
 #define NUM_DATA_BITMAP_BLOCKS 3
-#define NUM_INODE_BLOCKS 1000 //CHANGE ME!!!!
+#define NUM_INODE_BLOCKS 1000 //CHANGE ME!!!
+#define FIRST_DATA_BLOCK_INDEX NUM_INODE_BLOCKS + 1 + 1 + NUM_DATA_BITMAP_BLOCKS //super blocks and both maps
 #define NUM_DATA_BLOCKS (NUM_SECTORS - NUM_INODE_BLOCKS - 1 - 1 - 3)//1 - 1 - 3 SUPERBLOCK - INODE BITMAP - NUM_DATA_BLOCK_BITMAP
 #define AVAILIBLE 0
 #define OCCUPIED 1 //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
