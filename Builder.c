@@ -136,13 +136,23 @@ Map ConvertBitmapToBytemap(Map mapData)
     bool *bitmap = mapData.bitmap;
     int lengthOfBitmap = mapData.lengthBitmap;
     //Take the lenght of the bitmap and append 0's unitl the 8 divides the length of bitmap
-    for (lengthOfBitmap; lengthOfBitmap % 8 != 0; lengthOfBitmap++)
-    {
-        //Some magical appending operation
-    }
+
     int lengthOfBytemap = mapData.lengthBitmap / 8; //bytemaps SHOULD be eight times shorter than bitmaps
-    int realLengthOfBytemap = 0; //use this vaiable to track how long the bytemap really is.
+    if (lengthOfBitmap % 8 != 0)
+    {
+        lengthOfBytemap++;
+    }
     char *bytemap = malloc(sizeof(char) * lengthOfBytemap); //indicate how many chars will be needed for this to work
+    int index;
+    int bitmapIndex;
+    for (index = lengthOfBytemap - 1; index >=0; index--)
+    {
+        for (bitmapIndex = 7; bitmapIndex >= 0; bitmapIndex--)
+        {
+            //math operations
+            //assume this works for now
+        }
+    }
     //take every eight bits and convert them into a character
     //stitch together all results to make the bytemap
 
