@@ -114,6 +114,9 @@ File_Unlink(char *file)
 int
 Dir_Create(char *path)
 {
+    //this is really similar the other file create
+    char *myPaths = GetPaths(path);//myPaths now contains the paths of the directory with the last being the one to be created
+    // we need to make sure that the files before this are real.. use the first values in myPath to find this out
     printf("Dir_Create %s\n", path);
     return 0;
 }
@@ -163,20 +166,20 @@ char *GetPaths(char *file)
     int index;//the location we are in the passed file argument
     int indexInDepth = 0;//these two indecies serve roles as their name suggests
     int indexInCurrentPath = 0;
-    for (index = 0; file[index] != '\0'; index++)
+    for (index = 0; file[index] != '\0'; index++)//go though each in the array
     {
-         if (file[index] != delimiter)
+         if (file[index] != delimiter)//make sure we aren't going to use a backslash
          {
-            partOfPath[indexInCurrentPath] = file[index];
-            indexInCurrentPath++;
+            partOfPath[indexInCurrentPath] = file[index];//add a character to the part of the path
+            indexInCurrentPath++;//count up by one
          }
          else//encountered a delimiter, store and reset!
          {
-            partOfPath[indexInCurrentPath] = '\0';
-            paths[indexInDepth] = partOfPath;
-            memset(partOfPath, '\0', strlen(file));
-            indexInCurrentPath = 0;
-            indexInDepth++
+            partOfPath[indexInCurrentPath] = '\0';//the last spot in the string is the null terminator char
+            paths[indexInDepth] = partOfPath; //add part of path to the paths array
+            memset(partOfPath, '\0', strlen(file));//clear the string totally.
+            indexInCurrentPath = 0;//reset the count
+            indexInDepth++//we added one to the the paths, so now we are at an index one greater
          }
 
     }
@@ -196,4 +199,12 @@ int GetDepthOfPath(char *file)
         }
     }
     return count;
+}
+//imcomplete method!
+bool DoesPathExist(char *path)
+{
+    return false;
+    //this method takes a path and navigates to it
+    //if it is reachable, return true
+    //if not, return false
 }
