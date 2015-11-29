@@ -52,6 +52,10 @@ File_Create(char *file)
 int
 File_Open(char *file)
 {
+    //this is going to involve moving a entry to the file table
+    //run around the directory pathing until the file is determined!
+    //if it does not exist, return a not found error
+    //if it exists, move it the open file table and return the File Descrriptor
     printf("FS_Open\n");
     return 0;
 }
@@ -59,8 +63,19 @@ File_Open(char *file)
 int
 File_Read(int fd, void *buffer, int size)
 {
+    //take the file from the file table using its descriptor
+    //if it does not exist, return a negative number and set osErrno to some value
+    //read a set number of bytes of size to buffer
+    //return the number of bytes actually in buffer
     printf("FS_Read\n");
-    return 0;
+    int count;
+    for (count = 0; count < size; count++)
+    {
+
+        //actually read the data, byte by byte
+        fileTable[fd].index++;//move up one spot on the index
+    }
+    return count + 1;
 }
 
 int
