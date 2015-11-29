@@ -6,6 +6,7 @@
 #include "LibDisk.h"
 
 #define MAGIC_NUMBER 8723 //Literally a magic number that will be stored in the super block to verify data
+
 #define SUPER_BLOCK_ID 0
 #define INODE_BITMAP_ID 2
 #define DIRECTORY_BITMAP_ID 1 //these previous three are also the intial indecies in the disk
@@ -58,9 +59,33 @@ char *BuildInode()
     char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
     return inode;
 }
-char *BuildDirectory(char *name, int pointer)
+char *BuildDirectoryEntry(char *name, int pointer)
 {
-    char *directoryData = malloc( 20 * sizeof(char));//this is definitional. 16 chars for name (one for null term) and pointer data (this could be 2 chars using base 256!!)
+    char ZERO = '0';
+    int lengthOfDir = 20;
+    char *directoryData = malloc( lengthOfDir * sizeof(char));//this is definitional. 16 chars for name (one for null term) and pointer data (this could be 2 chars using base 256!!)
+    char *integerPart = malloc(sizeof(char) * (lengthOfDir - MAX_PATH_LENGTH));//there is this many characters availible for the pointer!
+    sprintf(integerPart, "%d", pointer);//place pointer into a string integerPart
+    //test me!! I need to verify that this inputs pointer in a way that it goes 00## instead of ##00 if there is only two digits!
+
+    int index = 0;
+    for (index = 0; index < MAX_PATH_LENGTH; index++)
+    {
+        directoryData[index] = name[index];
+    }
+    int numOfDigits = (int)(ceil(log10(num))+1);
+    for (index = lengthOfDir - 1; index >= MAX_PATH_LENGTH; index--)
+    {
+        if (numOfDigits > 0)
+        {
+            directoryData[index] = integerPart[numOfDigits - 1];
+            numOfDigits--;
+        }
+        else
+        {
+            directoryData[index] = ZERO;
+        }
+    }
 
 }
 char *addBlocksToDirectory(char *dirArr, int *pointersToAddArr)
