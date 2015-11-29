@@ -65,13 +65,7 @@ int Disk_Init()
             free(BytemapSplit);//deallocate the allocated memory for array temp
     }
     //populate the static maps
-    dataMap = BuildDataBytemap(dataMap);
-    dataMap.lengthBytemap = DATA_BYTEMAP_DEFAULT_LENGTH;//these aren't real values yet
 
-    inodeMap.bytemap = BuildInodeBytemap(inodeMap);
-    inodeMap.lengthBytemap = INODE_BYTEMAP_DEFAULT_LENGTH;
-    dataMap = ConvertBytemapToBitmap(dataMap);
-    inodeMap = ConvertBytemapToBitmap(inodeMap);
 
 
     return 0;

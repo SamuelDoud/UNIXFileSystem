@@ -35,18 +35,27 @@ File_Create(char *file)
 {
     //what is char *file? the data? The name?
     printf("FS_Create\n");
+    //NEED some way to check if it already exists
+    if (DoesPathExist(file))
+    {
+        osErrno = E_CREATE;
+        return -1;
+    }
+
+
     //Build the inode for this file
     char *myInode = BuildInode();
+
     // place the inode in the file system
-    int inodeNum = getAvailibleSector();
-    //TODO error check inodeNum beyond just checking if the number is non-negative
-    if (inodeNum > -1)
-    {
-        disk[inodeNum].data = myInode;//hopefully this is legal. Adds the created inode to the disk
-    }
+    FileTableElement thisFile;
+    thisFile.inodeNum = getAvailibleSector();
+    //NEED A function to place this file table element in the open file table, the index will be the return value
+    int firstOpen = FirstOpenSpotOnTheFileTable();
+    fileTable[firstOpen] = thisFile;
+    //A FUNCTION TO PUT the inode data into the inodeNUM
     //now need to add an entry to the file table? or is that handled by File_Open?
     //if file is the data, split that into chunks
-    return 0;
+    return firstOpen;
 }
 
 int
@@ -207,4 +216,17 @@ bool DoesPathExist(char *path)
     //this method takes a path and navigates to it
     //if it is reachable, return true
     //if not, return false
+}
+int FirstOpenSpotOnTheFileTable()
+{
+    int index;
+    for (index = 0; index < MAX_FILES_OPEN; index++)
+    {
+        if (fileTable[index] == null)//does this mean its null?
+        {
+            return index;//assuming null means availible, return this
+        }
+    }
+    osErrno = E_TOO_MANY_OPEN_FILES;
+    return -1;//if this is reached, return -1 as there are no availible spots on the file table
 }
