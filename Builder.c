@@ -4,7 +4,7 @@
 
 #include "LibFS.h"
 #include "LibDisk.h"
-
+//nicks comment
 #define MAGIC_NUMBER 8723 //Literally a magic number that will be stored in the super block to verify data
 
 #define SUPER_BLOCK_ID 0
