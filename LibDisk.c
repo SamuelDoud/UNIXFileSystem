@@ -206,4 +206,26 @@ int *getAvailibleSectors(int sectorsRequested)
     }
     return sectorsFound;//return the array
 }
+bool IsSectorEmpty(Sector s)
+{
+    //THIS MAY NEED TO BE USED by checking the bytemap!!!
 
+
+    int sectorLength = SECTOR_SIZE; //how many characters are in a sector
+    //we define a sector to be empty if ALL of its characters are null
+    int index;
+    for (index = 0; index < sectorLength; index++)
+    {
+        if (s.data[index] ! nullChar)
+        {
+            return false;//not null, therefore not empty
+        }
+    }
+    return true; //all the characters have been shown to be null
+}
+bool WipeSector(Sector *s)
+{
+    s.data = memset(s.data,nullChar, SECTOR_SIZE);
+    //this should wipe the passed sector
+    return true;//Successful
+}
