@@ -13,7 +13,7 @@
 static Sector* disk;
 
 typedef struct FileTableElement{
-int inodeNum;
+int inodeNum = 0;
 int fileAccessCount = 0;
 int index = 0;
 } FileTableElement;

@@ -14,22 +14,24 @@
 #define DATA_BLOCK_ID 4
 #define DIRECTORY_ID 5
 #define NUM_DATA_BITMAP_BLOCKS 3
-#define NUM_INODE_BLOCKS 1000 //CHANGE ME!!!
-#define FIRST_DATA_BLOCK_INDEX NUM_INODE_BLOCKS + 1 + 1 + NUM_DATA_BITMAP_BLOCKS //super blocks and both maps
+#define FIRST_INODE_BLOCK_INDEX 1 + 1 + NUM_DATA_BITMAP_BLOCKS
+#define NUM_INODE_BLOCKS 1000 //CHANGE ME!!!!!
+#define FIRST_DATA_BLOCK_INDEX NUM_INODE_BLOCKS + FIRST_INODE_BLOCK_INDEX//Data blocks begin after inodes
 #define NUM_DATA_BLOCKS (NUM_SECTORS - NUM_INODE_BLOCKS - 1 - 1 - 3)//1 - 1 - 3 SUPERBLOCK - INODE BITMAP - NUM_DATA_BLOCK_BITMAP
 #define AVAILIBLE 0
 #define OCCUPIED 1 //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
 #define MAX_PATH_LENGTH 16
 
 char nullChar = '\0'; // the null character in C
+
 //map contains the data to track a bitmap and a bytemap! Should have two in the file system. One for the data and one for the inode bitmaps!
 typedef struct Map{
     int lengthBitmap;//integer indicating how long the bitmap array is. Could be a short or something
     int lengthBytemap;
-    bool bitmap; //the bitmap itself
+    bool *bitmap; //the bitmap itself
     char *bytemap;
 } Map;
-
+Map ConvertBitmapToBytemap(Map mapData);
 
 char *BuildSuperBlock()
 {
@@ -114,11 +116,12 @@ char *BuildDataBytemap()
 //use the conversion methods for the data map
 Map ChangeBitmap(Map mapArg, int sectorNum, bool TrueOrFalse)
 {
-    if (Sector < mapArg.lengthBitmap)
+    if (sectorNum < mapArg.lengthBitmap)
     {
         mapArg.bitmap[sectorNum] = TrueOrFalse;
-        return ConvertBitmapToBytemap(mapArg);//make sure the bytemap is reflective!
+        mapArg = ConvertBitmapToBytemap(mapArg);//make sure the bytemap is reflective!
     }
+    return mapArg;
 }
 //THIS METHOD IS NOT COMPLETE
 Map ConvertBitmapToBytemap(Map mapData)
@@ -163,7 +166,7 @@ char *ConvertIntToString(int i)
     }
     return s;
 }
-int Convert StringToInt(char *s)
+int ConvertStringToInt(char *s)
 {
     int i = 0;
     //take an integer and convert it ot an ASCII string
