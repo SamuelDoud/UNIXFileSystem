@@ -49,7 +49,6 @@ int Disk_Init()
     fileTable = calloc(sizeof(FileTableElement), MAX_FILES_OPEN);
     //built the fileTable with MAX_FILE_OPEN 0 elements of FileTableElement
     disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();//Builds the superblock which is just a magic number
-    disk[INODE_BITMAP_INDEX].data = BuildInodeBitmap();//INODE BITMAP IS ONE SECTOR....
 
     //there are three sectors of data block bitmaps... need a way to write them
     int indexOfDataBitmaps;
@@ -194,7 +193,7 @@ int getNextAvailibleSector()
     //use the bitmaps!
 
     int sectorNum;
-    for (sectorNum = 0; sectorNum < NUM_SECTORS; sectors++)
+    for (sectorNum = 0; sectorNum < NUM_SECTORS; sectorNum++)
     {
         if(inodeMap.bitmap[index] == AVAILIBLE) //false is analogous to empty, or AVAILIBLE
         {//isn't data and inodes indecies in order???
@@ -263,4 +262,32 @@ bool WipeSector(Sector *s)
     s.data = memset(s.data,nullChar, SECTOR_SIZE);
     //this should wipe the passed sector
     return true;//Successful
+}
+void Update()
+{
+    //update the inode and the data bytemaps in the disk to reflect their Map structs
+    updateDataBlockByteMapSector();
+    UpdateInodeByteMapSector();
+}
+void UpdateInodeByteMapSector()
+{
+    //take the inode bytemap from the Map struct and store it in the disk
+    disk[INODE_BITMAP_INDEX].data = inodeMap.bytemap;
+}
+void updateDataBlockByteMapSector()
+{
+    //this function is a little more complex as the DataBlockByteMap is spread over three sectors
+    int indexOfDataBitmaps;
+    int dataBitmapIndexOffset = DATA_BLOCK_BITMAP_INDEX;
+    char *BytemapSplit;
+    char *dataBytemap = dataMap.bytemap;//this is the data block bytemap
+    for (indexOfDataBitmaps = 0; indexOfDataBitmaps < NUM_DATA_BITMAP_BLOCKS; indexOfDataBitmaps++)
+    {
+            BytemapSplit = malloc(SECTOR_SIZE * sizeof(char));//allocate some memory... do I need a null terminator?
+            //Take SECTOR_SIZE chars from the dataBytemap starting at (indexOfDataBitmaps * SECTOR_SIZE), store it in a block
+            strncpy(BytemapSplit, dataBytemap + (indexOfDataBitmaps * SECTOR_SIZE), SECTOR_SIZE);
+            //repeat until it is done writing the bytemap!
+            disk[DATA_BLOCK_BITMAP_INDEX + indexOfDataBitmaps] = BytemapSplit; // maybe this works?
+            free(BytemapSplit);//deallocate the allocated memory for array temp
+    }
 }
