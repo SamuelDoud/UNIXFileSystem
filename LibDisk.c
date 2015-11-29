@@ -195,15 +195,15 @@ int getNextAvailibleSector()
     int sectorNum;
     for (sectorNum = 0; sectorNum < NUM_SECTORS; sectors++)
     {
-        if(dataMap.bitmap[index] == AVAILIBLE && inodeMap.bitmap[index] == AVAILIBLE) //false is analogous to empty, or AVAILIBLE
-        {
+        if(inodeMap.bitmap[index] == AVAILIBLE) //false is analogous to empty, or AVAILIBLE
+        {//isn't data and inodes indecies in order???
             return sectorNum;
             //TODO set sectorNum to occupied? Or let user methods do that?
         }
     }
     return -1; //code reached if no sectors are open
 }
-//this method returns a certain number of sectors...
+//this method returns a certain number of sectors... only for data files!!!
 //simplifies fetching the sectors for a data file
 int *getAvailibleSectors(int sectorsRequested)
 {
@@ -212,6 +212,8 @@ int *getAvailibleSectors(int sectorsRequested)
     for (sectorsAlreadyCollected = 0; sectorsAlreadyCollected < sectorsRequested; sectorsRequested++)
     {
         int sectorFound = getNextAvailibleSector();//this integer is the next availible sector in the array
+        //this won't work unless sectorFound is set to OCCUPIED
+        disk[sectorFound]
         if (sectorFound < 0)
         {
             return E_GENERAL;//some out of sectors availble error
@@ -221,6 +223,20 @@ int *getAvailibleSectors(int sectorsRequested)
 
     }
     return sectorsFound;//return the array
+}
+bool setStatus(int sector, bool status)
+{
+    if (sector > NUM_INODE_BLOCKS)
+    {
+        //its a data block
+        dataMap.bitmap[sector - NUM_INODE_BLOCKS] = status;
+    }
+    else
+    {
+        //its an inode
+        inodeMap.bitmap[sector] = status;
+
+    }
 }
 bool IsSectorEmpty(Sector s)
 {
