@@ -17,7 +17,8 @@ int fileAccessCount = 0;
 int index = 0;
 } FileTableElement;
 
-
+static map inodeMap;
+static map dataMap;
 static *FileTableElement fileTable;
 // used to see what happened w/ disk ops
 Disk_Error_t diskErrno;
@@ -63,9 +64,7 @@ int Disk_Init()
             disk[DATA_BLOCK_BITMAP_INDEX + indexOfDataBitmaps] = BytemapSplit; // maybe this works?
             free(BytemapSplit);//deallocate the allocated memory for array temp
     }
-
-    Map dataMap;
-    Map inodeMap;
+    //populate the static maps
     dataMap = BuildDataBytemap(dataMap);
     dataMap.lengthBytemap = DATA_BYTEMAP_DEFAULT_LENGTH;//these aren't real values yet
 
@@ -192,12 +191,11 @@ int getNextAvailibleSector()
 {
     //search for an empty sector
     //use the bitmaps!
-    char *bytemap = disk[DATA_BLOCK_BITMAP_INDEX].data;
-    bool *bitmap = ConvertBytemapToBitmap(bytemap);
+
     int sectorNum;
     for (sectorNum = 0; sectorNum < NUM_SECTORS; sectors++)
     {
-        if(bitmap[sectorNum] == false) //false is analogous to empty
+        if(dataMap.bitmap[index] == AVAILIBLE && inodeMap.bitmap[index] == AVAILIBLE) //false is analogous to empty, or AVAILIBLE
         {
             return sectorNum;
             //TODO set sectorNum to occupied? Or let user methods do that?
