@@ -22,6 +22,10 @@
 #define OCCUPIED 1 //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
 #define MAX_PATH_LENGTH 16
 
+const int inodeBitmapLength = NUM_INODE_BLOCKS;
+const int inodeBytemapLength = (int)ceil(inodeBitmapLength / 8.0);
+const int dataBitmapLength = NUM_DATA_BLOCKS;
+const int dataBytemapLength = (int)ceil(dataBitmapLength / 8.0);
 char nullChar = '\0'; // the null character in C
 
 //map contains the data to track a bitmap and a bytemap! Should have two in the file system. One for the data and one for the inode bitmaps!
