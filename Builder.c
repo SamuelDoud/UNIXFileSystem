@@ -18,6 +18,7 @@
 #define NUM_DATA_BLOCKS (NUM_SECTORS - NUM_INODE_BLOCKS - 1 - 1 - 3)//1 - 1 - 3 SUPERBLOCK - INODE BITMAP - NUM_DATA_BLOCK_BITMAP
 #define AVAILIBLE 0
 #define OCCUPIED 1 //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
+#define MAX_PATH_LENGTH 16
 
 char nullChar = '\0'; // the null character in C
 
@@ -53,12 +54,13 @@ char *BuildInode()
 {
     int size = 0;
     int fileType = INODE_DATA_BLOCK_ID;
-    int *pointers = (int *)malloc(sizeOf(int)*(2 + MAX_FILE_SIZE));//ERROR
+    int *pointers = calloc(sizeof(int), 2 + MAX_FILE_SIZE);//ERROR
     //An inode does not take up a full sector, it can be shared with other inodes
     //it needs the file size, the file type, and its pointers.
     char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
     return inode;
 }
+//Function takes a path and a pointer and gives it back in the form of a directory entry
 char *BuildDirectoryEntry(char *name, int pointer)
 {
     char ZERO = '0';
@@ -73,7 +75,7 @@ char *BuildDirectoryEntry(char *name, int pointer)
     {
         directoryData[index] = name[index];
     }
-    int numOfDigits = (int)(ceil(log10(num))+1);
+    int numOfDigits = (int)(ceil(log10(pointer))+1);
     for (index = lengthOfDir - 1; index >= MAX_PATH_LENGTH; index--)
     {
         if (numOfDigits > 0)
@@ -129,7 +131,7 @@ char *ChangeBitmap(char *bytemapInode, int inodeNum, bool TrueOrFalse)
     return ConvertBitmapToBytemap(bitmap);
 }
 bool *ConvertBytemapToBitmap(char *bytemap)
-{
+{//getting some kind of "conflicting type errohere...
     //take each character, convert it to an integer. Convert that integer into binary
     //use those eight bits to represent the bitmap for that byte
     //stitch them all together to make the bitmap
@@ -200,13 +202,14 @@ char *convertIntToString(int i)
 }
 int convert StringToInt(char *s)
 {
-    int i;
+    int i = 0;
     //take an integer and convert it ot an ASCII string
     return i;
 }
+//this method checks to see if the superblock passed is really a valid superblock by comparing it to a new one
 bool verify(Sector Superblock)
 {
-    return BuildSuperBlock() == Superblock; //this probably isn't a valid comparsion!
+    return BuildSuperBlock() == Superblock.data; //this probably isn't a valid comparsion!
     //change me!!
 }
 
