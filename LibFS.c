@@ -5,7 +5,7 @@
 #define SUCCESS 0
 // global errno value here
 int osErrno;
-
+int FirstOpenSpotOnTheFileTable();
 int
 FS_Boot(char *path)
 {
@@ -46,16 +46,9 @@ File_Create(char *file)
     //Build the inode for this file
     char *myInode = BuildInode();
 
-    // place the inode in the file system
-    FileTableElement thisFile;
-    thisFile.inodeNum = getAvailibleSector();
-    //NEED A function to place this file table element in the open file table, the index will be the return value
-    int firstOpen = FirstOpenSpotOnTheFileTable();
-    fileTable[firstOpen] = thisFile;
-    //A FUNCTION TO PUT the inode data into the inodeNUM
-    //now need to add an entry to the file table? or is that handled by File_Open?
+
     //if file is the data, split that into chunks
-    return firstOpen;
+    return 0;
 }
 
 int
@@ -65,8 +58,22 @@ File_Open(char *file)
     //run around the directory pathing until the file is determined!
     //if it does not exist, return a not found error
     //if it exists, move it the open file table and return the File Descrriptor
+
+    if (DoesPathExist(file) == false)
+    {
+        osErrno = E_NO_SUCH_FILE;//the file does not exist
+        return -1;
+    }
+    int fileDes;
+    if (fileDes = FirstOpenSpotOnTheFileTable() == -1)
+    {
+        return fileDes; // file des is already -1 and osErrno is arledy set
+    }
+    FileTableElement thisFile;
+    thisFile.inodeNum; //this needs to be set!
+    fileTable[fileDes] = thisFile; //the file Des index on the file table is now equal to the file table element created
     printf("FS_Open\n");
-    return 0;
+    return fileDes;
 }
 
 int
