@@ -91,23 +91,7 @@ char *BuildDirectoryEntry(char *name, int pointer)
     }
 
 }
-char *addBlocksToDirectory(char *dirArr, int *pointersToAddArr)
-{
-    //method takes an array assumed to be representing a directiory
-    //finds the area to place the pointers (after any present pointers, i.e. append)
-    //adds them!
 
-    //return the directory
-}
-char *deleteBlocksFromDirectory(char *dirArr, int *pointersToDelete)
-{
-    //method takes an array assumed to be representing a directiory
-    //finds the area to place the pointers (after any present pointers, i.e. append)
-    //adds them!
-
-    //Should we take the last files and move them into the holes created?
-    return dirArr;
-}
 char *BuildInodeBytemap()
 {//What is the purpose of this method?
     bool *bitmap = malloc(MAX_NUM_FILES * sizeof(bool));//make a bitmap of the size of the max number of files
