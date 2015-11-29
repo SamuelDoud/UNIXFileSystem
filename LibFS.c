@@ -153,3 +153,47 @@ int Insert_Inode(char* inode)
 
     return SUCCESS;
 }
+char *GetPaths(char *file)
+{
+    char delimiter = '\0'; //the delimiter used throughout the project
+    int depth = GetDepthOfPath(file);
+    char *paths = malloc(sizeof(char) * (depth + 1));//how many elements are in the array
+    char partOfPath = calloc(sizeof(char) , strlen(file));//allocate enoungh space for nearly the entire array.
+    paths[depth] = '\0';//set the last path equal to null so we know it is useless and over
+    int index;//the location we are in the passed file argument
+    int indexInDepth = 0;//these two indecies serve roles as their name suggests
+    int indexInCurrentPath = 0;
+    for (index = 0; file[index] != '\0'; index++)
+    {
+         if (file[index] != delimiter)
+         {
+            partOfPath[indexInCurrentPath] = file[index];
+            indexInCurrentPath++;
+         }
+         else//encountered a delimiter, store and reset!
+         {
+            partOfPath[indexInCurrentPath] = '\0';
+            paths[indexInDepth] = partOfPath;
+            memset(partOfPath, '\0', strlen(file));
+            indexInCurrentPath = 0;
+            indexInDepth++
+         }
+
+    }
+    return paths;
+}
+//how deep does this path go?
+int GetDepthOfPath(char *file)
+{
+    char delimiter = '\';
+    int index;
+    int count = 0;
+    for (index = 0; file[index] != '\0'; index++)
+    {
+        if (file[index] == delimiter)
+        {
+            count++;
+        }
+    }
+    return count;
+}
