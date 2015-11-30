@@ -34,7 +34,6 @@
 		<Unit filename="Builder.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="FileTable" />
 		<Unit filename="FileTable.h" />
 		<Unit filename="LibDisk.c">
 			<Option compilerVar="CC" />
@@ -47,6 +46,7 @@
 		<Unit filename="Make.LibDisk" />
 		<Unit filename="Make.main" />
 		<Unit filename="Map.h" />
+		<Unit filename="Directory.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
