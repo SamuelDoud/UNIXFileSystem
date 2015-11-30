@@ -36,7 +36,6 @@ Disk_Error_t diskErrno;
  */
 int Disk_Init()
 {
-
     // create the disk image and fill every sector with zeroes
     disk = (Sector *) calloc(NUM_SECTORS, sizeof(Sector));
     if(disk == NULL) {

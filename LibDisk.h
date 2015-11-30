@@ -17,8 +17,9 @@
 #define SECTOR_SIZE  512
 #define NUM_SECTORS  10000
 #define MAX_FILE_SIZE 30
-#define ROOT_INODE FIRST_INODE_BLOCK_INDEX //the root inode is always at the first inode block
-#define MAX_NUM_FILES NUM_SECTORS - NUM_INODE_BLOCKS - 1 - 1 - 3 //super block, inode blocks, inode and file bitmaps also occupy this!
+#define ROOT_INODE 1+1+3 //the root inode is always at the first inode block
+#define MAX_NUM_FILES 1000 //super block, inode blocks, inode and file bitmaps also occupy this!
+#define NUM_DATA_BLOCKS NUM_SECTORS - 1 - 1 - 3 - MAX_NUM_FILES
 // disk errors
 typedef enum {
   E_MEM_OP,
