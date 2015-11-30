@@ -172,6 +172,9 @@ int Insert_Inode(char* inode)
 
     return SUCCESS;
 }
+//split the paths into parts
+//for example, the path /usr/sam/etc/
+//turns into {, usr, sam, etc, \0}
 char *GetPaths(char *file)
 {
     char delimiter = '\0'; //the delimiter used throughout the project
@@ -202,6 +205,7 @@ char *GetPaths(char *file)
     return paths;
 }
 //how deep does this path go?
+//for example, the path /usr/sam/etc/ has a depth of 4
 int GetDepthOfPath(char *file)
 {
     char delimiter = '\';
@@ -223,6 +227,9 @@ bool DoesPathExist(char *path)
     //this method takes a path and navigates to it
     //if it is reachable, return true
     //if not, return false
+    // TODO (Sam#6#): Create a method that allows us to check if a file exists ...
+//Reliant on directories being created and navigation of
+//directories being possible
 }
 int FirstOpenSpotOnTheFileTable()
 {
@@ -236,4 +243,12 @@ int FirstOpenSpotOnTheFileTable()
     }
     osErrno = E_TOO_MANY_OPEN_FILES;
     return -1;//if this is reached, return -1 as there are no availible spots on the file table
+}
+char charAt(int fd, int index)
+{
+    //fd is a file descriptor
+    //use the inode on the fileTableElement to find a block
+    //go to the index supplied
+    //return that character
+// TODO (Sam#6#): Reliant on inodes being implemented
 }
