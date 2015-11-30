@@ -13,10 +13,11 @@
 
 // the disk in memory (static makes it private to the file)
 static Sector* disk;
+// the inode and data bitmaps in memory
+static Map inodeMap;
+static Map dataMap;
 
-
-static map inodeMap;
-static map dataMap;
+//the filetable in memory
 static *FileTableElement fileTable;
 // used to see what happened w/ disk ops
 Disk_Error_t diskErrno;
@@ -35,6 +36,7 @@ Disk_Error_t diskErrno;
  */
 int Disk_Init()
 {
+
     // create the disk image and fill every sector with zeroes
     disk = (Sector *) calloc(NUM_SECTORS, sizeof(Sector));
     if(disk == NULL) {
