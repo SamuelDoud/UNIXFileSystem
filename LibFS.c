@@ -6,6 +6,7 @@
 // global errno value here
 int osErrno;
 int FirstOpenSpotOnTheFileTable();
+char charAt(int fd, int index);
 int
 FS_Boot(char *path)
 {
@@ -33,6 +34,7 @@ FS_Sync()
 int
 File_Create(char *file)
 {
+    //TODO (Evan#2#): I don't even know what this method is doing...
     //what is char *file? the data? The name?
     printf("FS_Create\n");
     //NEED some way to check if it already exists
@@ -98,9 +100,28 @@ int
 File_Write(int fd, void *buffer, int size)
 {
     printf("FS_Write\n");
-    return 0;
-}
 
+    //if the buffer is smaller than the size then an error should be thrown
+    if (fileTableElement[fd] == NULL)
+    {
+        osErrno = E_BAD_FD;
+        return -1;
+    }
+    if (size + fileTable[fd].size > MAX_FILE_SIZE)
+    {
+        osErrno = E_FILE_TOO_BIG;
+        return -1;
+    }
+    //TODO (Evan#6#): need some method to write to the next availible char
+    //also beware that new sectors maybe needed so we need a method to
+    //know when we need a new sector
+
+
+
+    return size;//if all goes well then size is returned
+
+}
+//I think this is done other than the helper functions!
 int
 File_Seek(int fd, int offset)
 {
