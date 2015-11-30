@@ -116,12 +116,14 @@ File_Write(int fd, void *buffer, int size)
     //also beware that new sectors maybe needed so we need a method to
     //know when we need a new sector
 
-
+    //each write NEEDS to use this
+    //fileTable[fd].size++;
 
     return size;//if all goes well then size is returned
 
 }
 //I think this is done other than the helper functions!
+//size of a file is important
 int
 File_Seek(int fd, int offset)
 {
@@ -135,7 +137,7 @@ File_Seek(int fd, int offset)
         }
         else
         {
-            osErrno = E_SEEK_OUT_OF_BOUNDS;
+            osErrno = E_SEEK_OUT_OF_BOUNDS;//the index of the file is going to be too high for the file
             return -1;
         }
 
