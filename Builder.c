@@ -27,12 +27,7 @@
 #define OCCUPIED 1 //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
 #define MAX_PATH_LENGTH 16
 
-int inodeBitmapLength = NUM_INODE_BLOCKS;
-int inodeBytemapLength = (int)ceil(inodeBitmapLength / 8.0);
-//home/samuel/Desktop/UNIXFileSystem/Builder.c|26|error: initializer element is not constant|
-// TODO (Sam#1#): What am I dealing with here
-int dataBitmapLength = NUM_DATA_BLOCKS;
-int dataBytemapLength = (int)ceil(dataBitmapLength / 8.0);
+
 char nullChar = '\0'; // the null character in C
 
 char *BuildSuperBlock()
@@ -41,8 +36,8 @@ char *BuildSuperBlock()
     char *SuperBlock = malloc(SECTOR_SIZE * sizeof(char));
     //set all the chars to be null
     memset(SuperBlock, nullChar, SECTOR_SIZE);
-
     //create an empty and null superblock
+
     sprintf(SuperBlock, sizeof(SuperBlock), "%d", MAGIC_NUMBER);
     //put the magic number in the superblock and return it
 
