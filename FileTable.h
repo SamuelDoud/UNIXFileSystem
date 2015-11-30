@@ -8,19 +8,22 @@ typedef struct FileTableElement {
   int fileOpenCount;
   int sizeOfFile;
 } FileTableElement;
+static FileTableElement ft;
+FileTableElement initFileTableElement();
 //should be all zeros initily
 void SetToNull(struct FileTableElement *entry);
 //checks if the file table element passed is empty
 bool IsEmpty(struct FileTableElement *passed)
 {
-    struct FileTableElement emptyElement;
-    SetToNull(emptyElement);
-    return emptyElement == passed;
+    return (passed == NULL);
 }
 
 void SetToNull(struct FileTableElement *entry)
 {
-    entry = NULL;
+    *entry = initFileTableElement();
 }
-
+FileTableElement initFileTableElement()
+{
+    return ft;
+}
 #endif // __Disk_H__

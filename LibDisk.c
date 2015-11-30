@@ -18,7 +18,7 @@ static Map inodeMap;
 static Map dataMap;
 
 //the filetable in memory
-static *FileTableElement fileTable;
+static FileTableElement* fileTable;
 // used to see what happened w/ disk ops
 Disk_Error_t diskErrno;
 
@@ -180,7 +180,7 @@ int Disk_Write(int sector, char* buffer)
 }
 //The bitmap is going to require three sectors as 512 * 8 = 4096 < NUM_SECTORS. 512 * 8 * 3 = 12288 > NUM_SECTORS
 //More work to be done on this!
-int getNextAvailibleDataSector()
+int GetNextAvailibleDataSector()
 {
     //search for an empty sector
     //use the bitmaps!
@@ -199,7 +199,7 @@ int getNextAvailibleDataSector()
 //this method returns a certain number of sectors... only for data files!!!
 //this is not needed for inodes because you would only need one inode at a time
 //simplifies fetching the sectors for a data file
-int *getAvailibleSectors(int sectorsRequested)
+int *GetAvailibleSectors(int sectorsRequested)
 {
     int sectorsAlreadyCollected;
 
@@ -218,20 +218,6 @@ int *getAvailibleSectors(int sectorsRequested)
 
     }
     return sectorsFound;//return the array
-}
-bool setStatus(int sector, bool status)
-{
-    if (sector > NUM_INODE_BLOCKS)
-    {
-        //its a data block
-        dataMap.bitmap[sector - NUM_INODE_BLOCKS] = status;
-    }
-    else
-    {
-        //its an inode
-        inodeMap.bitmap[sector] = status;
-
-    }
 }
 bool IsSectorEmpty(Sector s)
 {
@@ -252,9 +238,9 @@ bool IsSectorEmpty(Sector s)
 }
 bool WipeSector(Sector *s)
 {
-    s.data = memset(s.data,nullChar, SECTOR_SIZE);
+    s->data = memset(s.data,nullChar, SECTOR_SIZE);
     //this should wipe the passed sector
-    return true;//Successful
+    return IsSectorEmpty(s);//Successful
 }
 void Update()
 {

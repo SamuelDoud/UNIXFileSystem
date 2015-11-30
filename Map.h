@@ -27,7 +27,7 @@ bool ChangeBitmap(Map *mapArg, int sectorNum, bool TrueOrFalse)
     return true;
 }
 //THIS METHOD IS NOT COMPLETE
-bool ConvertBitmapToBytemap(Map *mapData)
+bool ConvertBitmapToBytemaps(Map *mapData)
 {
     bool *bitmap = mapData->bitmap;
     int lengthOfBitmap = mapData->lengthBitmap;
@@ -54,9 +54,5 @@ bool ConvertBitmapToBytemap(Map *mapData)
     //take every eight bits and convert them into a character
     //stitch together all results to make the bytemap
     return true;
-}
-bool UpdateBytemapOnDisk(Sector *someDisk, int startSector, int numOfSectors)
-{
-    //TODO (Sam#2#):
 }
 #endif // MAP_H_INCLUDED

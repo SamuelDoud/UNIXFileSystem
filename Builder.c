@@ -30,18 +30,16 @@
 
 char nullChar = '\0'; // the null character in C
 
-char *BuildSuperBlock()
+bool BuildSuperBlock(Sector *super)
 {
-    //CURRENTLY need to workaround c's restriction on returning arrays
-    char *SuperBlock = malloc(SECTOR_SIZE * sizeof(char));
     //set all the chars to be null
-    memset(SuperBlock, nullChar, SECTOR_SIZE);
+    memset(super->data, nullChar, SECTOR_SIZE);
     //create an empty and null superblock
 
-    sprintf(SuperBlock, sizeof(SuperBlock), "%d", MAGIC_NUMBER);
+    sprintf(super->data, sizeof(super->data), "%d", MAGIC_NUMBER);
     //put the magic number in the superblock and return it
 
-    return SuperBlock;
+    return true;
 }
 
 char *BuildDataBlock()
@@ -135,7 +133,9 @@ int ConvertStringToInt(char *s)
 //this method checks to see if the superblock passed is really a valid superblock by comparing it to a new one
 bool Verify(Sector Superblock)
 {
-    return BuildSuperBlock() == Superblock.data; //this probably isn't a valid comparsion!
+    Sector s;
+    BuildSuperBlock(s);
+    return s.data == Superblock.data; //this probably isn't a valid comparsion!
     //change me!!
 }
 //This method takes a data sector and makes it useable in the data map!

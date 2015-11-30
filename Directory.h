@@ -33,7 +33,16 @@ char *BuildDirectoryEntry(char *name, int pointer)
     }
 
 }
-
+bool InsertDirectory(Sector *block, char *entry)
+{
+    return true;
+    //find the spot on the directtory to insert the entry
+}
+int GetSize(Sector *directorySector)
+{
+    //drectories have a size
+    return 0;
+}
 
 
 #endif // DIRECTORY_H_INCLUDED
