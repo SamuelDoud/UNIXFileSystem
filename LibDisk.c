@@ -180,22 +180,22 @@ int Disk_Write(int sector, char* buffer)
 }
 //The bitmap is going to require three sectors as 512 * 8 = 4096 < NUM_SECTORS. 512 * 8 * 3 = 12288 > NUM_SECTORS
 //More work to be done on this!
-int getNextAvailibleSector()
+int getNextAvailibleDataSector()
 {
     //search for an empty sector
     //use the bitmaps!
-
     int sectorNum;
     for (sectorNum = 0; sectorNum < NUM_SECTORS; sectorNum++)
     {
-        if(inodeMap.bitmap[index] == AVAILIBLE) //false is analogous to empty, or AVAILIBLE
+        if(inodeMap.bitmap[sectorNum] == AVAILIBLE) //false is analogous to empty, or AVAILIBLE
         {//isn't data and inodes indecies in order???
-            return sectorNum;
-            //TODO set sectorNum to occupied? Or let user methods do that?
+            return ConvertDataMapSectorToAbsolute(sectorNum);
+            //TODO (Sam#2#): set sectorNum to occupied? Or let user methods do that?
         }
     }
     return -1; //code reached if no sectors are open
 }
+
 //this method returns a certain number of sectors... only for data files!!!
 //this is not needed for inodes because you would only need one inode at a time
 //simplifies fetching the sectors for a data file
