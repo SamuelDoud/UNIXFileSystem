@@ -10,14 +10,13 @@ typedef struct Map{
 } Map;
 
 //use the conversion methods for the data map
-Map ChangeBitmap(Map mapArg, int sectorNum, bool TrueOrFalse)
+bool ChangeBitmap(Map *mapArg, int sectorNum, bool TrueOrFalse)
 {
     if (sectorNum < mapArg.lengthBitmap)
     {
         mapArg.bitmap[sectorNum] = TrueOrFalse;
         mapArg = ConvertBitmapToBytemap(mapArg);//make sure the bytemap is reflective!
     }
-    return mapArg;
 }
 //THIS METHOD IS NOT COMPLETE
 Map ConvertBitmapToBytemap(Map mapData)
