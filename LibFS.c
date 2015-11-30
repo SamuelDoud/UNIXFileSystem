@@ -161,16 +161,21 @@ Dir_Unlink(char *path)
 
 //OUR METHODS
 
-int Insert_Inode(char* inode)
+bool Insert_Inode(FileTableElement element)
 {
-    //search for an inode block that has suffcient room in the file system.
-    //use the inode bitmap
+    // TODO (Sam#8#): take a file table element and place its inode in the disk... some where
 
+    //find an open inode
+    //this could be a method of its own
 
-    //if one is found, place it in there!
-    //if not, create a new inode block
 
     return SUCCESS;
+}
+int FreeInode()
+{
+    // TODO (Sam#3#): give a free inode to the calling function
+    int locationOfFreeInode;
+    return locationOfFreeInode;
 }
 //split the paths into parts
 //for example, the path /usr/sam/etc/
