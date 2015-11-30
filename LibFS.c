@@ -234,6 +234,17 @@ char *GetPaths(char *file)
     }
     return paths;
 }
+int IsAChildOf(int sectorNum, char *childName)
+{
+       //TODO (Nick#6#): I give you a sector that is asssumed to be a directory
+       //give me the inode of the child that is passed
+       //if it does not exist, return -1
+
+       //for example, /usr/ has children evan, nick, and sam
+       //if I send the call IsAChildOf(/usr, evan) return  evan's inode num
+       //if I send the call IsAChildOf(/usr, notReal), return -1
+       return -1;
+}
 //how deep does this path go?
 //for example, the path /usr/sam/etc/ has a depth of 4
 int GetDepthOfPath(char *file)
