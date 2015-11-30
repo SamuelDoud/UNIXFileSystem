@@ -77,7 +77,7 @@ File_Open(char *file)
     printf("FS_Open\n");
     return fileDes;
 }
-
+//other than the charAt function, this method is complete
 int
 File_Read(int fd, void *buffer, int size)
 {
@@ -89,11 +89,11 @@ File_Read(int fd, void *buffer, int size)
     int count;
     for (count = 0; count < size; count++)
     {
-
+        buffer[count] = (void *) charAt(fd, fileTable[fd].index);
         //actually read the data, byte by byte
         fileTable[fd].index++;//move up one spot on the index
     }
-    return count + 1;
+    return count;
 }
 
 int
