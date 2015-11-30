@@ -3,12 +3,14 @@
 
 #include "LibDisk.h"
 #include <math.h>
+#include "Params.h"
 
 #define NUM_INODE_BLOCKS 1000
 #define NUM_INODES_PER_BLOCK 4
 #define INODE_BYTEMAP_LENGTH (NUM_INODE_BLOCKS / NUM_INODES_PER_BLOCK) //should be 250
 
 #define NUM_DATA_BLOCKS_PER_CHAR 8
+
 #define DATA_BLOCK_BYTEMAP_LENGTH (NUM_DATA_BLOCKS / NUM_DATA_BLOCKS_PER_CHAR)
 
 typedef struct Map{
@@ -39,7 +41,7 @@ int FindFirstOpen(Map *mapArg)
     int index = 0;
     for (index = 0; index < mapArg->length; index++)
     {
-        if (mapArg->bytemap[index] != full)
+        if (mapArg->bytemap[index] != mapArg->full)
         {
             //this is it!
             //convert bytemap[index] to a string

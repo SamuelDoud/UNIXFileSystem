@@ -3,11 +3,13 @@
 #include "Builder.c"
 #include "FileTable.h"
 #include "Map.h"
+#include "Params.h"
 
 #define SUCCESS 0
 // global errno value here
 int osErrno;
 int FirstOpenSpotOnTheFileTable();
+static FileTableElement *fileTable;
 char charAt(int fd, int index);
 int
 FS_Boot(char *path)
@@ -21,7 +23,7 @@ FS_Boot(char *path)
     }
 
     // do all of the other stuff needed...
-
+    fileTable = calloc(MAX_NUM_OPEN_FILES, sizeof(FileTableElement)); // make a new file table
     return 0;
 }
 
@@ -74,7 +76,7 @@ File_Open(char *file)
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
     FileTableElement thisFile;
-    thisFile.inodeNum; //this needs to be set!
+    thisFile.inodePointer; //this needs to be set!
     fileTable[fileDes] = thisFile; //the file Des index on the file table is now equal to the file table element created
     printf("FS_Open\n");
     return fileDes;
@@ -91,7 +93,7 @@ File_Read(int fd, void *buffer, int size)
     int count;
     for (count = 0; count < size; count++)
     {
-        buffer[count] = (void *) charAt(fd, fileTable[fd].index);
+        buffer[count] = (void  *)charAt(fd, fileTable[fd].index);
         //actually read the data, byte by byte
         fileTable[fd].index++;//move up one spot on the index
     }
@@ -104,12 +106,12 @@ File_Write(int fd, void *buffer, int size)
     printf("FS_Write\n");
 
     //if the buffer is smaller than the size then an error should be thrown
-    if (fileTableElement[fd] == NULL)
+    if (fileTable[fd] == (FileTableElement)NULL)
     {
         osErrno = E_BAD_FD;
         return -1;
     }
-    if (size + fileTable[fd].size > MAX_FILE_SIZE)
+    if (size + fileTable[fd].sizeOfFile > MAX_NUM_SECTORS_PER_FILE * SECTOR_SIZE)
     {
         osErrno = E_FILE_TOO_BIG;
         return -1;
@@ -133,7 +135,7 @@ File_Seek(int fd, int offset)
     if (fileTable[fd] != NULL)
     {
         //check if the offset is less than the file size
-        if (offset <= fileTable[fd].size)
+        if (offset <= fileTable[fd].sizeOfFile)
         {
             fileTable[fd].index = offset;
         }
