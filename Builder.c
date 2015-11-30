@@ -26,7 +26,7 @@
 #define AVAILIBLE 0
 #define OCCUPIED 1 //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
 #define MAX_PATH_LENGTH 16
-
+bool BuildSuperBlock(Sector *);
 
 char nullChar = '\0'; // the null character in C
 
@@ -134,7 +134,7 @@ int ConvertStringToInt(char *s)
 bool Verify(Sector Superblock)
 {
     Sector s;
-    BuildSuperBlock(s);
+    //BuildSuperBlock(*s);
     return s.data == Superblock.data; //this probably isn't a valid comparsion!
     //change me!!
 }

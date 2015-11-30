@@ -47,7 +47,10 @@ int Disk_Init()
     //creates a file table of 256 null entries
     fileTable = calloc(sizeof(FileTableElement), MAX_FILES_OPEN);
     //built the fileTable with MAX_FILE_OPEN 0 elements of FileTableElement
-    disk[SUPER_BLOCK_INDEX].data = BuildSuperBlock();//Builds the superblock which is just a magic number
+    if (!BuildSuperBlock(disk[SUPER_BLOCK_INDEX])
+    {
+        return -1;//the creation failed
+    }//Builds the superblock which is just a magic number
 
     //there are three sectors of data block bitmaps... need a way to write them
     int indexOfDataBitmaps;
@@ -207,8 +210,8 @@ int *GetAvailibleSectors(int sectorsRequested)
     for (sectorsAlreadyCollected = 0; sectorsAlreadyCollected < sectorsRequested; sectorsRequested++)
     {
         int sectorFound = getNextAvailibleSector();//this integer is the next availible sector in the array
-        //this won't work unless sectorFound is set to OCCUPIED
-        disk[sectorFound]
+        //TODO (Sam#5#): this won't work unless sectorFound is set to OCCUPIED
+
         if (sectorFound < 0)
         {
             return E_GENERAL;//some out of sectors availble error
@@ -229,7 +232,7 @@ bool IsSectorEmpty(Sector s)
     int index;
     for (index = 0; index < sectorLength; index++)
     {
-        if (s.data[index] ! nullChar)
+        if (s.data[index] != nullChar)
         {
             return false;//not null, therefore not empty
         }
@@ -238,7 +241,7 @@ bool IsSectorEmpty(Sector s)
 }
 bool WipeSector(Sector *s)
 {
-    s->data = memset(s.data,nullChar, SECTOR_SIZE);
+    memset(s->data,nullChar, SECTOR_SIZE);
     //this should wipe the passed sector
     return IsSectorEmpty(s);//Successful
 }
@@ -251,22 +254,20 @@ void Update()
 void UpdateInodeByteMapSector()
 {
     //take the inode bytemap from the Map struct and store it in the disk
-    disk[INODE_BITMAP_INDEX].data = inodeMap.bytemap;
+    int index;
+    for (index = 0; index < inodeMap.lengthBytemap; index++)
+    {
+        disk[INODE_BITMAP_INDEX].data[index] = inodeMap.bytemap[index];
+    }
 }
 void updateDataBlockByteMapSector()
 {
     //this function is a little more complex as the DataBlockByteMap is spread over three sectors
     int indexOfDataBitmaps;
     int dataBitmapIndexOffset = DATA_BLOCK_BITMAP_INDEX;
-    char *BytemapSplit;
-    char *dataBytemap = dataMap.bytemap;//this is the data block bytemap
-    for (indexOfDataBitmaps = 0; indexOfDataBitmaps < NUM_DATA_BITMAP_BLOCKS; indexOfDataBitmaps++)
+    int index;
+    for (index = 0; index < dataMap.lengthBytemap; index++)
     {
-            BytemapSplit = malloc(SECTOR_SIZE * sizeof(char));//allocate some memory... do I need a null terminator?
-            //Take SECTOR_SIZE chars from the dataBytemap starting at (indexOfDataBitmaps * SECTOR_SIZE), store it in a block
-            strncpy(BytemapSplit, dataBytemap + (indexOfDataBitmaps * SECTOR_SIZE), SECTOR_SIZE);
-            //repeat until it is done writing the bytemap!
-            disk[DATA_BLOCK_BITMAP_INDEX + indexOfDataBitmaps] = BytemapSplit; // maybe this works?
-            free(BytemapSplit);//deallocate the allocated memory for array temp
+        disk[DATA_BLOCK_BITMAP_INDEX + index / SECTOR_SIZE].data[index % SECTOR_SIZE] = dataMap.bytemap[index];
     }
 }
