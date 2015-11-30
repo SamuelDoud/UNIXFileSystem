@@ -105,8 +105,25 @@ int
 File_Seek(int fd, int offset)
 {
     printf("FS_Seek\n");
-    //move the index on the openfiletable element
-    //fileTable[fd].index = fileTable[fd].index + offset
+    if (fileTable[fd] != NULL)
+    {
+        //check if the offset is less than the file size
+        if (offset <= fileTable[fd].size)
+        {
+            fileTable[fd].index = offset;
+        }
+        else
+        {
+            osErrno = E_SEEK_OUT_OF_BOUNDS;
+            return -1;
+        }
+
+    }
+    else
+    {
+        osErrno = E_BAD_FD;
+        return -1;
+    }
     return 0;
 }
 
@@ -127,6 +144,7 @@ File_Unlink(char *file)
 
 
 // directory ops
+// TODO (Nick#9#): Get the directory operations up and running
 int
 Dir_Create(char *path)
 {
@@ -140,6 +158,9 @@ Dir_Create(char *path)
 int
 Dir_Size(char *path)
 {
+    //I think dir size is stored in the dir
+    //should be a multiple of 20
+    //TODO (Nick#3#): get this method going
     printf("Dir_Size\n");
     return 0;
 }
