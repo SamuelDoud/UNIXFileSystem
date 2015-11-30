@@ -2,53 +2,67 @@
 #define MAP_H_INCLUDED
 
 #include "LibDisk.h"
-//map contains the data to track a bitmap and a bytemap! Should have two in the file system. One for the data and one for the inode bitmaps!
+#include <math.h>
+#include "Params.h"
+
+#define NUM_INODE_BLOCKS 1000
+#define NUM_INODES_PER_BLOCK 4
+#define INODE_BYTEMAP_LENGTH (NUM_INODE_BLOCKS / NUM_INODES_PER_BLOCK) //should be 250
+
+#define NUM_DATA_BLOCKS_PER_CHAR 8
+
+#define DATA_BLOCK_BYTEMAP_LENGTH (NUM_DATA_BLOCKS / NUM_DATA_BLOCKS_PER_CHAR)
+
 typedef struct Map{
-    int lengthBitmap;//integer indicating how long the bitmap array is. Could be a short or something
-    int lengthBytemap;
-    bool *bitmap; //the bitmap itself
+    int length;
+    int full;
     char *bytemap;
 } Map;
 
-//use the conversion methods for the data map
-bool ChangeBitmap(Map *mapArg, int sectorNum, bool TrueOrFalse)
+Map InodeMap()
 {
-    if (sectorNum < mapArg.lengthBitmap)
-    {
-        mapArg.bitmap[sectorNum] = TrueOrFalse;
-        mapArg = ConvertBitmapToBytemap(mapArg);//make sure the bytemap is reflective!
-    }
-    return true;
+    Map inodeMapInit;
+    inodeMapInit.length = INODE_BYTEMAP_LENGTH;
+    inodeMapInit.full = pow(2, NUM_INODES_PER_BLOCK) - 1;
+    inodeMapInit.bytemap = calloc(inodeMapInit.length, sizeof(char));//should set all of these to zero
+    return inodeMapInit;
 }
-//THIS METHOD IS NOT COMPLETE
-Map ConvertBitmapToBytemap(Map *mapData)
+Map DataMap()
 {
-    bool *bitmap = mapData.bitmap;
-    int lengthOfBitmap = mapData.lengthBitmap;
-    //Take the lenght of the bitmap and append 0's unitl the 8 divides the length of bitmap
-
-    int lengthOfBytemap = mapData.lengthBitmap / 8; //bytemaps SHOULD be eight times shorter than bitmaps
-    if (lengthOfBitmap % 8 != 0)
+    Map dataMapInit;
+    dataMapInit.length = DATA_BLOCK_BYTEMAP_LENGTH;
+    dataMapInit.full = pow(2, NUM_DATA_BLOCKS_PER_CHAR) - 1;
+    dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
+    return dataMapInit;
+}
+int FindFirstOpen(Map *mapArg)
+{
+    //go through each entry in the bytemap
+    int index = 0;
+    for (index = 0; index < mapArg->length; index++)
     {
-        lengthOfBytemap++;
-    }
-    char *bytemap = malloc(sizeof(char) * lengthOfBytemap); //indicate how many chars will be needed for this to work
-    int index;
-    int bitmapIndex;
-    for (index = lengthOfBytemap - 1; index >=0; index--)
-    {
-        for (bitmapIndex = 7; bitmapIndex >= 0; bitmapIndex--)
+        if (mapArg->bytemap[index] != mapArg->full)
         {
-            //math operations
-            //assume this works for now
+            //this is it!
+            //convert bytemap[index] to a string
+            //should the position I just found be set to closed?
+            int firstZero = IndexOfFirstZero(mapArg->bytemap[index], mapArg->length);
+            return index * mapArg->length + firstZero;
         }
     }
-    //take every eight bits and convert them into a character
-    //stitch together all results to make the bytemap
-    return true;
+    osErrno = E_NO_SPACE; //if we get here all the files are loaded in memory.
+    return -1;
 }
-bool UpdateBytemapOnDisk(Sector *someDisk, int startSector, int numOfSectors)
+//14 (1110) should return 3
+//1 (0001) shoulld return 0
+int IndexOfFirstZero(int n, int b)
 {
-    //TODO (Sam#2#):
+    while (n > b)
+    {
+        n = n % b;
+        b = b / 2;
+    }
+    return b;
 }
+
 #endif // MAP_H_INCLUDED

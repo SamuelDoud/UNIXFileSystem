@@ -15,10 +15,8 @@
 
 // a few disk parameters
 #define SECTOR_SIZE  512
-#define NUM_SECTORS  10000
-#define MAX_FILE_SIZE 30
-#define ROOT_INODE 0
-#define MAX_NUM_FILES NUM_SECTORS - NUM_INODE_BLOCKS - 1 - 1 - 3 //super block, inode blocks, inode and file bitmaps also occupy this!
+#define NUM_SECTORS  10000 
+
 // disk errors
 typedef enum {
   E_MEM_OP,

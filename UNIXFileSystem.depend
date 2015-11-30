@@ -8,3 +8,36 @@
 	<stdlib.h>
 	<unistd.h>
 
+1448912983 source:/home/samuel/C projects/UNIXFileSystem/Builder.c
+	<stdio.h>
+	<stdbool.h>
+	<math.h>
+	"LibFS.h"
+	"LibDisk.h"
+	"FileTable.h"
+	"Map.h"
+	"Params.h"
+
+1447987310 /home/samuel/C projects/UNIXFileSystem/LibFS.h
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+
+1448912331 /home/samuel/C projects/UNIXFileSystem/LibDisk.h
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+
+1448905536 /home/samuel/C projects/UNIXFileSystem/FileTable.h
+
+1448912880 /home/samuel/C projects/UNIXFileSystem/Map.h
+	"LibDisk.h"
+	<math.h>
+	"Params.h"
+
+1448913114 /home/samuel/C projects/UNIXFileSystem/Params.h
+
+1448912320 source:/home/samuel/C projects/UNIXFileSystem/LibDisk.c
+	"LibDisk.h"
+	<string.h>
+
