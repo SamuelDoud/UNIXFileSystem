@@ -33,7 +33,6 @@ Map DataMap()
     dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
     return dataMapInit;
 }
-
 int FindFirstOpen(Map *mapArg)
 {
     //go through each entry in the bytemap
@@ -44,9 +43,10 @@ int FindFirstOpen(Map *mapArg)
         {
             //this is it!
             //convert bytemap[index] to a string
-            return index * mapArg->length + IndexOfFirstZero(mapArg->bytemap[index], mapArg->length);
+            //should the position I just found be set to closed?
+            int firstZero = IndexOfFirstZero(mapArg->bytemap[index], mapArg->length);
+            return index * mapArg->length + firstZero;
         }
-
     }
     osErrno = E_NO_SPACE; //if we get here all the files are loaded in memory.
     return -1;
