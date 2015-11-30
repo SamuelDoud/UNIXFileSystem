@@ -80,7 +80,9 @@ File_Open(char *file)
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
     FileTableElement thisFile;
-    thisFile.inodePointer; //this needs to be set!
+    thisFile.inodePointer = FindFirstOpen(inodeMap); //need to switch this point off!
+    thisFile.index = 0;
+    //TODO (Sam#2#): thisFile.sizeOfFile = setSize();
     fileTable[fileDes] = thisFile; //the file Des index on the file table is now equal to the file table element created
     printf("FS_Open\n");
     return fileDes;
@@ -95,13 +97,19 @@ File_Read(int fd, void *buffer, int size)
     //return the number of bytes actually in buffer
     printf("FS_Read\n");
     int count;
+    //TODO check if the fd is actually real
+    if (IsGarbage(fileTable[fd]))
+    {
+        osErrno = E_BAD_FD;
+        return -1;
+    }
     for (count = 0; count < size; count++)
     {
-        buffer[count] = (void  *)charAt(fd, fileTable[fd].index);
+        buffer[count] = charAt(fd, fileTable[fd].index);
         //actually read the data, byte by byte
         fileTable[fd].index++;//move up one spot on the index
     }
-    return count;
+    return count;//count is how many chars where written to the file
 }
 
 int
@@ -110,7 +118,7 @@ File_Write(int fd, void *buffer, int size)
     printf("FS_Write\n");
 
     //if the buffer is smaller than the size then an error should be thrown
-    if (fileTable[fd] == (FileTableElement)NULL)
+    if (IsGarbage(fileTable[fd]))
     {
         osErrno = E_BAD_FD;
         return -1;
@@ -162,6 +170,13 @@ int
 File_Close(int fd)
 {
     printf("FS_Close\n");
+    if (IsGarbage(fileTable[fd]))
+    {
+        osErrno = E_BAD_FD;
+        return -1;
+    }
+    //Files can be closed by setting the inodePointer to garbage
+    SetToGarbage(fileTable[fd]);
     //delete the file from the openFileTable
     return 0;
 }
@@ -219,36 +234,10 @@ bool Insert_Inode(FileTableElement *element)
 
     //find an open inode
     //this could be a method of its own
-    int inodeNum = FreeInode();//assuming that this is valid
     //TODO (Evan#8#): inject an inode at inodeNum
-    element.inodeNum = inodeNum;
+    element.inodeNum = FreeInode;
     UpdateInode(inodeNum);
     return SUCCESS;
-}
-//get a free inode location
-int FreeInode()
-{
-    // TODO (Sam#3#): give a free inode to the calling function
-    int locationOfFreeInode;
-    //search the bitmap
-    int index;
-    for (index = 0; index < inodeBitmapLength; index++)
-    {
-        if (inodeMap.bitmap[index])
-        {
-            //probably should run some method to update the bitmap
-            return index + FIRST_INODE_BLOCK_INDEX;//add the offset to account for the actual first inode
-        }
-    }
-    osErrno = E_NO_SPACE;
-    return -1;
-}
-//check to see if an inode is still availible
-void UpdateInode(int sectorNum)
-{
-    int inodeMapLocation = sectorNum - FIRST_INODE_BLOCK_INDEX;//this is the location of the inode on the map
-    inodeMap.bitmap[inodeMapLocation] = IsOccupied(disk[sectorNum]);
-    UpdateInodeByteMapSector();//sync the bytemap with the bitmap
 }
 bool IsThisSectorOccupied(int sectorNum)
 {
@@ -257,7 +246,7 @@ bool IsThisSectorOccupied(int sectorNum)
 //split the paths into parts
 //for example, the path /usr/sam/etc/
 //turns into {, usr, sam, etc, \0}
-char *GetPaths(char *file)
+char *BreakDownPathName(char *file)
 {
     char delimiter = '\0'; //the delimiter used throughout the project
     int depth = GetDepthOfPath(file);
@@ -321,15 +310,15 @@ bool DoesThisPathExist(char *path)
     //if it is reachable, return true
     //if not, return false
     // TODO (Sam#6#): Create a method that allows us to check if a file exists ...
-//Reliant on directories being created and navigation of
-//directories being possible
+    //Reliant on directories being created and navigation of
+    //directories being possible
 }
 int FirstOpenSpotOnTheFileTable()
 {
     int index;
     for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
     {
-        if (fileTable[index] == NULL)//does this mean its null?
+        if (IsGarbage(fileTable[index]))//does this mean its null?
         {
             return index;//assuming null means availible, return this
         }
