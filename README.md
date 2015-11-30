@@ -16,6 +16,7 @@ In your README file you should have the following five sections:
 Logic:
 
 Sector Allocation Rationale
+
 	-We're given the max. no. of directories and files is 1k. 
 		-recall directories are just special kinds of files
 		-since there is a bijection between inodes and files, we need 1k inodes.
@@ -47,6 +48,7 @@ Inode Bitmap:
 Data bimap:
 
 Function Behavior Sketches in FILE API:
+
 	create
 		- Look if exist/parent exist/etc. if exist fail. if parent doesnt, fail.
 		-need to create inode to preserve bijection, done via 
@@ -79,8 +81,9 @@ Function Behavior Sketches in FILE API:
 		-remove bit from bitmap. 
 
 Function Behavior Sketches in Genric File System API:
+
 	int FS_Boot(char *path):
-		should be called exactly once before any other LibFS functions are called. It takes a single argument, the path, which either points to a real file where your ”disk image” is stored or to a file that does not yet exist and which must be created to hold a new disk image. Upon success, return 0. Upon failure, return -1 and set osErrno to E GENERAL.
+		-should be called exactly once before any other LibFS functions are called. It takes a single argument, the path, which either points to a real file where your ”disk image” is stored or to a file that does not yet exist and which must be created to hold a new disk image. Upon success, return 0. Upon failure, return -1 and set osErrno to E GENERAL.
 		
 		-needs to call Disk_Init() OR Disk_load() depending if file exist.
 		-If initializing then create bitmaps, magic no, inode for /. inode bitmap init to 0111111. 
