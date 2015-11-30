@@ -33,14 +33,14 @@ Sector Allocation Rationale
 		-Needs to track file size, and file type (normal vs directory), each represented by an int.
 		-need to track which file blocks are allocated to the file. 
 			-We're give that the maximum file size is 30 sectors or blocks (since bijction between sectors and data blocks), thus we need to keep 30 disk pointers in each inode, each of which is an int. 
-				-therefore each inode is a max of 32Bytes, while each sector is 512B, meaning we can fit 512B/32B = 16 inode blocks/sector. 
+				-therefore each inode is a max of 32Ints, where each int is 4B, therefore each inode has a size of 32B*4B=128B, while each sector is 512B, meaning we can fit 512B/128B = 4 inode blocks/sector. 
 					-now since there is a bijection between inodes and files, and we're told we can have max of 1000 files, 
-					we can need up to 1000 inodes. We now solve the linear equation 16inodes/sector * x sectors = 1000inodes = 62.5, therefore we need 63 sectors to store a maximum of 1000 inodes for our 1000 files.
+					we can need up to 1000 inodes. We now solve the linear equation 4 inodes/sector * x sectors = 1000inodes = 250, therefore we need 250 sectors to store a maximum of 1000 inodes for our 1000 files.
 
 	Recap: 1 sector for superblock, 1 sector for inode block bitmap, 3 sectors for data block bitmap, 63 for inodes. 
-	therefore, we have 10000 -1 -1 -3 -63 = 9932 sectors remaining. Since there is a bijection between data blocks and sectors, we have 9932 data blocks remaining. 
+	therefore, we have 10000 -1 -1 -3 -250 = 9745 sectors remaining. Since there is a bijection between data blocks and sectors, we have 9745 data blocks remaining. 
 
 Directory
-	-a special kind of file denoted by a 1 byte (typo in notes says bit) flag. 
+	-a special kind of file denoted by a 1 byte (typo in notes says b) flag. 
 	-A many to 1 map between sets of names, and inodes. 
 	-format: a fixed 16-byte field for the name, and a 4-byte entry as the inode number.
