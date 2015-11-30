@@ -13,4 +13,11 @@ bool SetToNull(FileTableElement *entry)
 {
     entry = NULL;
 }
+//checks if the file table element passed is empty
+bool IsEmpty(FileTableElement *passed)
+{
+    FileTableElement emptyElement;
+    SetToNull((FileTableElement *)emptyElement);
+    return emptyElement == *passed;
+}
 #endif // __Disk_H__
