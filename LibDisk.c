@@ -1,5 +1,7 @@
 #include "LibDisk.h"
 #include "Builder.c"
+#include "FileTable.h"
+#include "Map.h"
 #include <string.h>
 
 #define MAX_FILES_OPEN 256
@@ -12,13 +14,6 @@
 // the disk in memory (static makes it private to the file)
 static Sector* disk;
 
-typedef struct FileTableElement{
-int inodeNum = 0; //the !sector number! inode that this file has
-int fileAccessCount = 0; //how many times this file has been accessed
-int index = 0; //where reading should start from
-int numOfWrites = 0; //this int tracks how many writes have been made to the file
-int size = 0; //TODO (Sam#4#): need a method to actually get the size of a file
-} FileTableElement;
 
 static map inodeMap;
 static map dataMap;

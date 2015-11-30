@@ -1,6 +1,8 @@
 #include "LibFS.h"
 #include "LibDisk.h"
 #include "Builder.c"
+#include "FileTable.h"
+#include "Map.h"
 
 #define SUCCESS 0
 // global errno value here
