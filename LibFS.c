@@ -173,6 +173,7 @@ bool Insert_Inode(FileTableElement *element)
     UpdateInode(inodeNum);
     return SUCCESS;
 }
+//get a free inode location
 int FreeInode()
 {
     // TODO (Sam#3#): give a free inode to the calling function
@@ -190,12 +191,16 @@ int FreeInode()
     osErrno = E_NO_SPACE;
     return -1;
 }
+//check to see if an inode is still availible
 void UpdateInode(int sectorNum)
 {
-    //TODO (Sam#5#): check to see if the inode block at inodeNum is still available
     int inodeMapLocation = sectorNum - FIRST_INODE_BLOCK_INDEX;//this is the location of the inode on the map
-    inodeMap.bitmap[inodeMapLocation] =IsOccupied(disk[sectorNum]);
+    inodeMap.bitmap[inodeMapLocation] = IsOccupied(disk[sectorNum]);
     UpdateInodeByteMapSector();//sync the bytemap with the bitmap
+}
+bool IsOccupied(int sectorNum)
+{
+    // TODO(Evan#5#): if given a sector that is an inode, determine if there is room in the inode block for one more inode entry
 }
 //split the paths into parts
 //for example, the path /usr/sam/etc/
