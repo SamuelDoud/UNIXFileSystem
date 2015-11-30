@@ -10,6 +10,8 @@
 int osErrno;
 int FirstOpenSpotOnTheFileTable();
 static FileTableElement *fileTable;
+static Map inodeMap;
+static Map dataMap;
 char charAt(int fd, int index);
 int
 FS_Boot(char *path)
@@ -24,6 +26,8 @@ FS_Boot(char *path)
 
     // do all of the other stuff needed...
     fileTable = calloc(MAX_NUM_OPEN_FILES, sizeof(FileTableElement)); // make a new file table
+    dataMap = DataMap();
+    inodeMap = InodeMap();
     return 0;
 }
 
@@ -246,7 +250,7 @@ void UpdateInode(int sectorNum)
     inodeMap.bitmap[inodeMapLocation] = IsOccupied(disk[sectorNum]);
     UpdateInodeByteMapSector();//sync the bytemap with the bitmap
 }
-bool IsOccupied(int sectorNum)
+bool IsThisSectorOccupied(int sectorNum)
 {
     // TODO(Evan#5#): if given a sector that is an inode, determine if there is room in the inode block for one more inode entry
 }
@@ -258,7 +262,7 @@ char *GetPaths(char *file)
     char delimiter = '\0'; //the delimiter used throughout the project
     int depth = GetDepthOfPath(file);
     char *paths = malloc(sizeof(char) * (depth + 1));//how many elements are in the array
-    char partOfPath = calloc(sizeof(char) , strlen(file));//allocate enoungh space for nearly the entire array.
+    char *partOfPath = calloc(sizeof(char) , strlen(file));//allocate enoungh space for nearly the entire array.
     paths[depth] = '\0';//set the last path equal to null so we know it is useless and over
     int index;//the location we are in the passed file argument
     int indexInDepth = 0;//these two indecies serve roles as their name suggests
@@ -276,7 +280,7 @@ char *GetPaths(char *file)
             paths[indexInDepth] = partOfPath; //add part of path to the paths array
             memset(partOfPath, '\0', strlen(file));//clear the string totally.
             indexInCurrentPath = 0;//reset the count
-            indexInDepth++//we added one to the the paths, so now we are at an index one greater
+            indexInDepth++;//we added one to the the paths, so now we are at an index one greater
          }
 
     }
@@ -297,7 +301,7 @@ int IsAChildOf(int sectorNum, char *childName)
 //for example, the path /usr/sam/etc/ has a depth of 4
 int GetDepthOfPath(char *file)
 {
-    char delimiter = '\';
+    char delimiter = '\\';
     int index;
     int count = 0;
     for (index = 0; file[index] != '\0'; index++)
@@ -310,7 +314,7 @@ int GetDepthOfPath(char *file)
     return count;
 }
 //imcomplete method!
-bool DoesPathExist(char *path)
+bool DoesThisPathExist(char *path)
 {
     return false;
     //this method takes a path and navigates to it
@@ -323,9 +327,9 @@ bool DoesPathExist(char *path)
 int FirstOpenSpotOnTheFileTable()
 {
     int index;
-    for (index = 0; index < MAX_FILES_OPEN; index++)
+    for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
     {
-        if (fileTable[index] == null)//does this mean its null?
+        if (fileTable[index] == NULL)//does this mean its null?
         {
             return index;//assuming null means availible, return this
         }
