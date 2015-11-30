@@ -1,8 +1,8 @@
-# UNIXFileSystem
+u# UNIXFileSystem
 Group final project for CSC-585
 
 Nick Bohay, ________
-Samuel Doud, _________
+Samuel Doud, 3728396
 Evan Russenberger-Rosica, 3401093
 
 In your README file you should have the following five sections:
