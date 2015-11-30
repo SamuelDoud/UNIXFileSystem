@@ -161,21 +161,41 @@ Dir_Unlink(char *path)
 
 //OUR METHODS
 
-bool Insert_Inode(FileTableElement element)
+bool Insert_Inode(FileTableElement *element)
 {
     // TODO (Sam#8#): take a file table element and place its inode in the disk... some where
 
     //find an open inode
     //this could be a method of its own
-
-
+    int inodeNum = FreeInode();//assuming that this is valid
+    //TODO (Evan#8#): inject an inode at inodeNum
+    element.inodeNum = inodeNum;
+    UpdateInode(inodeNum);
     return SUCCESS;
 }
 int FreeInode()
 {
     // TODO (Sam#3#): give a free inode to the calling function
     int locationOfFreeInode;
-    return locationOfFreeInode;
+    //search the bitmap
+    int index;
+    for (index = 0; index < inodeBitmapLength; index++)
+    {
+        if (inodeMap.bitmap[index])
+        {
+            //probably should run some method to update the bitmap
+            return index + FIRST_INODE_BLOCK_INDEX;//add the offset to account for the actual first inode
+        }
+    }
+    osErrno = E_NO_SPACE;
+    return -1;
+}
+void UpdateInode(int sectorNum)
+{
+    //TODO (Sam#5#): check to see if the inode block at inodeNum is still available
+    int inodeMapLocation = sectorNum - FIRST_INODE_BLOCK_INDEX;//this is the location of the inode on the map
+    inodeMap.bitmap[inodeMapLocation] =IsOccupied(disk[sectorNum]);
+    UpdateInodeByteMapSector();//sync the bytemap with the bitmap
 }
 //split the paths into parts
 //for example, the path /usr/sam/etc/
