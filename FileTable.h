@@ -7,7 +7,7 @@
 //will hold the inode of the file, its size, and its index!
 typedef struct FileTableElement {
   int inodePointer; //the pointer to the sector of this file's inode
-  int indexOfInodeInSector;
+  int indexOfInodeInSector;//only useful in inodes
   int index; //where this file is in terms of index
   int fileOpenCount; //how many times this file has been accessed. No use now
   int sizeOfFile; //how large this file is
@@ -19,7 +19,7 @@ void SetToNull(struct FileTableElement *entry);
 //checks if the file table element passed is empty
 bool IsEmpty(struct FileTableElement *passed)
 {
-    return (passed == NULL);
+    return (passed.fileOpenCount == GARBAGE);
 }
 
 void SetToNull(struct FileTableElement *entry)
@@ -28,10 +28,10 @@ void SetToNull(struct FileTableElement *entry)
 }
 FileTableElement initFileTableElement()
 {
-    ft.fileOpenCount = 0;
-    ft.index = 0;
-    ft.inodePointer = 0;//this may need to be negative
-    ft.sizeOfFile = 0;
+    ft.fileOpenCount = GARBAGE;
+    ft.index = GARBAGE;
+    ft.inodePointer = GARBAGE;//this may need to be negative
+    ft.sizeOfFile = GARBAGE;
     return ft;
 }
 bool FileTableOpen(FileTableElement *element, int inode)
@@ -40,6 +40,7 @@ bool FileTableOpen(FileTableElement *element, int inode)
     {//the file is not open and has no restrictions
         element->inodePointer = inode;
         element->fileOpenCount++;
+        SetSize(element);//get the size of the file
         return true;
     }
     if (FileTableElement->inodePointer != inode)
