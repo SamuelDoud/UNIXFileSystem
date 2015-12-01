@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "Params.c"
+#include "Params.h"
 
 bool BuildSuperBlock(char *data)
 {

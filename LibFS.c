@@ -1,6 +1,6 @@
 #include "LibFS.h"
 #include "LibDisk.h"
-#include "Builder.c"
+#include "Builder.h"
 #include "FileTable.c"
 #include "Map.c"
 #include "Directory.c"

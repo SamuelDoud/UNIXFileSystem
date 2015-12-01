@@ -16,7 +16,7 @@ extern int MAX_NUM_FILES;//how many files this filesystem can hold
 extern int NUM_INODE_BITMAP_BLOCKS;
 extern int NUM_DATA_BITMAP_BLOCKS;
 extern int NUM_DATA_BLOCKS;
-//extern char NULL_TERM;
+extern char NULL_TERM;
 extern int FILE_ID;
 extern int DIRECTORY_ID;
 extern int NUM_INODES_PER_BLOCK;

@@ -8,11 +8,11 @@
 	<stdlib.h>
 	<unistd.h>
 
-1448991908 source:/home/samuel/C projects/UNIXFileSystem/Builder.c
+1448992320 source:/home/samuel/C projects/UNIXFileSystem/Builder.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
-	"Params.c"
+	"Params.h"
 
 1447987310 /home/samuel/C projects/UNIXFileSystem/LibFS.h
 	<stdio.h>
@@ -31,7 +31,7 @@
 	<math.h>
 	"Params.h"
 
-1448991933 /home/samuel/C projects/UNIXFileSystem/Params.h
+1448992258 /home/samuel/C projects/UNIXFileSystem/Params.h
 
 1448991415 source:/home/samuel/C projects/UNIXFileSystem/LibDisk.c
 	"LibDisk.h"
@@ -46,11 +46,11 @@
 	"Directory.c"
 	"Params.h"
 
-1448991953 /home/samuel/C projects/UNIXFileSystem/Builder.c
+1448992320 /home/samuel/C projects/UNIXFileSystem/Builder.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
-	"Params.c"
+	"Params.h"
 
 1447987310 source:/home/samuel/C projects/UNIXFileSystem/main.c
 	<stdio.h>
@@ -96,7 +96,9 @@
 	<math.h>
 	"Params.h"
 
-1448991697 source:/home/samuel/C projects/UNIXFileSystem/Params.c
+1448992307 source:/home/samuel/C projects/UNIXFileSystem/Params.c
+	"Params.h"
 
-1448991697 /home/samuel/C projects/UNIXFileSystem/Params.c
+1448992307 /home/samuel/C projects/UNIXFileSystem/Params.c
+	"Params.h"
 
