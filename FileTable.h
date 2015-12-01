@@ -14,12 +14,14 @@ typedef struct FileTableElement {
 } FileTableElement;
 static FileTableElement ft;
 FileTableElement initFileTableElement();
+bool GetAndSetSize(FileTableElement *);
 //should be all zeros initily
 void SetToNull(struct FileTableElement *entry);
 //checks if the file table element passed is empty
 bool IsEmpty(struct FileTableElement *passed)
 {
-    return (passed.fileOpenCount == GARBAGE);
+    return (passed->fileOpenCount == GARBAGE);
+    //is the fileOpen count equal to garbage and threrefore free?
 }
 
 void SetToNull(struct FileTableElement *entry)
@@ -43,17 +45,17 @@ bool FileTableOpen(FileTableElement *element, int inode)
         SetSize(element);//get the size of the file
         return true;
     }
-    if (FileTableElement->inodePointer != inode)
+    if (element->inodePointer != inode)
     {
         return false;//this entry is alreaddy in use and the inodes are not the same!
     }
     //the file is open but its inode is the same, therefore just incremnt the open count
-    FileTableElement->fileOpenCount++;
+    element->fileOpenCount++;
         //the file has been opened!
 
-    SetSize(element);
+    GetAndSetSize(element);
 }
-bool SetSize(FileTableElement *element)
+bool GetAndSetSize(FileTableElement *element)
 {
     //TODO (Sam#2#): get the size of a file
     element->sizeOfFile = 0;
@@ -66,7 +68,7 @@ bool IsGarbage(FileTableElement element)
 bool SetToGarbage(FileTableElement *element)
 {
     element->fileOpenCount = GARBAGE;
-    return ft->fileOpenCount == GARBAGE;
+    return ft.fileOpenCount == GARBAGE;
 }
 int GetLengthOfFile(FileTableElement *element)
 {
@@ -74,9 +76,9 @@ int GetLengthOfFile(FileTableElement *element)
 }
 bool FileTableClose(FileTableElement *element)
 {
-    if (!IsGarbage(elment))
+    if (!IsGarbage(*element))
     {
-        element.fileOpenCount--;//this file is closed by taking the open count down by one
+        element->fileOpenCount--;//this file is closed by taking the open count down by one
         return true; //the file wasn't garbage
     }
     return false; //the file was garbage
