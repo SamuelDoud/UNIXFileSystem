@@ -25,13 +25,15 @@ FileTableElement initFileTableElement()
     ft.sizeOfFile = GARBAGE;
     return ft;
 }
-bool FileTableOpen(FileTableElement *element, int inode)
+bool FileTableOpen(FileTableElement *element, int inode, char *filename)
 {
     if (element->fileOpenCount == 0)
     {//the file is not open and has no restrictions
         element->inodePointer = inode;
         element->fileOpenCount++;
         GetAndSetSize(element);//get the size of the file
+        SetFilename(element, filename); //setting the filename of the file into the file table
+        //Setting the filename is need to easily search for the file in the filetable
         return true;
     }
     if (element->inodePointer != inode)
