@@ -15,7 +15,7 @@
 
 // a few disk parameters
 #define SECTOR_SIZE  512
-#define NUM_SECTORS  10000 
+#define NUM_SECTORS  10000
 
 // disk errors
 typedef enum {
@@ -27,7 +27,7 @@ typedef enum {
 } Disk_Error_t;
 
 typedef struct sector {
-  char data[SECTOR_SIZE];
+  char data[512];
 } Sector;
 
 extern Disk_Error_t diskErrno; // used to see what happened w/ disk ops

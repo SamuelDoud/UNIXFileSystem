@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <math.h>
 
-//#include "LibDisk.h"
 #include "Params.h"
 
 

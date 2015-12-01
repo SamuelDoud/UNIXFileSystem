@@ -33,14 +33,20 @@ char *BuildDirectoryEntry(char *name, int pointer)
             directoryData[index] = ZERO;
         }
     }
-
+    return directoryData;
 }
-bool InsertDirectory(Sector *block, char *entry)
+char *InsertDirectory(char *data, char *entry)
 {
-    return true;
+    //insert the directory in the first free spot
+    //add to the size
+    char *sizeChar = malloc(sizeof(int));//we need the first 4 bytes for this operaton
+    int size = (int)strncat(sizeChar, data, sizeof(int));//I'm almost certain this wont work
+    size = size + DIRECTORY_LENGTH;
+
+    return data;
     //find the spot on the directtory to insert the entry
 }
-int GetSize(Sector *directorySector)
+int GetSize(char *directory)
 {
     //drectories have a size
     return 0;

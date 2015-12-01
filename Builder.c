@@ -2,17 +2,15 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "LibFS.h"
-#include "LibDisk.h"
-#include "Params.h"
+#include "Params.c"
 
-bool BuildSuperBlock(Sector *super)
+bool BuildSuperBlock(char *data)
 {
     //set all the chars to be null
-    memset(super->data,NULL_TERM , SECTOR_SIZE);
+    memset(data,NULL_TERM , SECTOR_SIZE_1);
     //create an empty and null superblock
 
-    super->data[0] = (char) MAGIC_NUMBER;
+    data[0] = (char) MAGIC_NUMBER;
     //put the magic number in the superblock and return it
 
     return true;
@@ -20,8 +18,8 @@ bool BuildSuperBlock(Sector *super)
 
 char *BuildDataBlock()
 {
-    char* dataBlock = malloc(SECTOR_SIZE * sizeof(char)); //allocate SECTOR_SIZE bytes to dataBlock
-    memset(dataBlock, NULL_TERM ,SECTOR_SIZE);//set all the chars to null
+    char* dataBlock = malloc(SECTOR_SIZE_1 * sizeof(char)); //allocate SECTOR_SIZE bytes to dataBlock
+    memset(dataBlock, NULL_TERM ,SECTOR_SIZE_1);//set all the chars to null
     return dataBlock;//return dataBlock
 }
 char *BuildInode(int fileType)

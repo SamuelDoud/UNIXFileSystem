@@ -33,7 +33,7 @@ FS_Boot(char *path)
 	osErrno = E_GENERAL;
 	return -1;
     }
-
+     BuildSuperBlock(disk[0].data);
     // do all of the other stuff needed...
     fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
     //set all the fileTable elements to the initial
@@ -347,6 +347,7 @@ char charAt(int fd, int index)
     //go to the index supplied
     //return that character
 // TODO (Sam#6#): Reliant on inodes being implemented
+return NULL;
 }
 int GetInode(char *file)
 {

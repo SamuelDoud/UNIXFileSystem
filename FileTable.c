@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+#include "Params.h"
 
 #define GARBAGE 0
 
@@ -13,9 +14,12 @@ typedef struct FileTableElement {
   int fileOpenCount; //how many times this file has been accessed. No use now
   int sizeOfFile; //how large this file is
 } FileTableElement;
+
+
 static FileTableElement ft;
 FileTableElement initFileTableElement();
 bool GetAndSetSize(FileTableElement *);
+
 //should be all zeros initily
 void SetToNull(struct FileTableElement *entry);
 //checks if the file table element passed is empty
