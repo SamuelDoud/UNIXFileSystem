@@ -4,12 +4,6 @@
 //nicks comment
 #define MAGIC_NUMBER 8723 //Literally a magic number that will be stored in the super block to verify data
 
-#define SUPER_BLOCK_ID 0
-#define INODE_BITMAP_ID 2
-#define DIRECTORY_BITMAP_ID 1 //these previous three are also the intial indecies in the disk
-#define INODE_DATA_BLOCK_ID 3 //now these are just IDs
-#define DATA_BLOCK_ID 4
-#define DIRECTORY_ID 5
 #define NUM_DATA_BITMAP_BLOCKS 3
 #define FIRST_INODE_BLOCK_INDEX 1 + 1 + NUM_DATA_BITMAP_BLOCKS
 #define FIRST_DATA_BLOCK_INDEX NUM_INODE_BLOCKS + FIRST_INODE_BLOCK_INDEX//Data blocks begin after inodes
@@ -34,5 +28,8 @@
 #define NUM_DATA_BLOCKS (NUM_SECTORS - NUM_INODE_BLOCKS - SUPER_BLOCKS - NUM_DATA_BITMAP_BLOCKS - NUM_INODE_BITMAP_BLOCKS)
 
 #define NULL_TERM '\0'
+
+#define FILE_ID 0
+#define DIRECTORY_ID (FILE_ID+1)
 
 #endif // PARAMS_H_INCLUDED
