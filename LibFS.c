@@ -32,6 +32,7 @@ FS_Boot(char *path)
     {
         fileTable[index] = initFileTableElement();
     }
+    //get the initial maps
     dataMap = DataMap();
     inodeMap = InodeMap();
     return 0;
@@ -57,10 +58,13 @@ File_Create(char *file)
         osErrno = E_CREATE;
         return -1;
     }
-
-
-    //Build the inode for this file
-    char *myInode = BuildInode();
+    //if we get here the file does not exist!
+    char *paths = BreakDownPathName(); // this gets the parts of the path
+    //get an inode for this new file
+    int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(InodeMap);//need the offset because inode blocks are not the zeroth seector
+    //get the last directory inode
+    //go to that data block
+    BuildDirectoryEntry()
 
 
     //if file is the data, split that into chunks
