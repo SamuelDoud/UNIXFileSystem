@@ -35,7 +35,7 @@ FileTableElement initFileTableElement()
 }
 bool IsGarbage(FileTableElement ft)
 {
-    return ft.inodePointer == 0;//an inode pointer of zero is garbage since this is the superblock!
+    return ft.fileOpenCount == 0;//files are considered garbage or empty if the fileOpenCount is equall to 0
 }
 bool SetToGarbage(FileTableElement *ft)
 {
@@ -45,5 +45,14 @@ bool SetToGarbage(FileTableElement *ft)
 int GetLengthOfFile(FileTableElement *element)
 {
     return -1;
+}
+bool FileTableClose(FileTableElement *element)
+{
+    if (!IsGarbage(ft))
+    {
+        ft.fileOpenCount--;//this file is closed by taking the open count down by one
+        return true; //the file wasn't garbage
+    }
+    return false; //the file was garbage
 }
 #endif // __Disk_H__
