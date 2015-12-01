@@ -7,6 +7,7 @@ typedef struct FileTableElement {
   int index; //where this file is in terms of index
   int fileOpenCount; //how many times this file has been accessed. No use now
   int sizeOfFile; //how large this file is
+  char *fileName; //this is the name of the file
 } FileTableElement;
 bool IsEmpty(FileTableElement *passed);
 static FileTableElement ft;
@@ -22,4 +23,5 @@ bool IsGarbage(FileTableElement element);
 bool SetToGarbage(FileTableElement *element);
 int GetLengthOfFile(FileTableElement *element);
 bool FileTableClose(FileTableElement *element);
+bool SetFileName(FileTableElement *element, char *name);
 #endif // FILETABLE_H_INCLUDED
