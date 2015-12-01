@@ -1,12 +1,13 @@
 #ifndef __File_Table_H__
 #define __File_Table_H__
 
-#define GARBAGE -1
+#define GARBAGE 0
 
 //an element in the file table
 //will hold the inode of the file, its size, and its index!
 typedef struct FileTableElement {
   int inodePointer; //the pointer to the sector of this file's inode
+  int indexOfInodeInSector;
   int index; //where this file is in terms of index
   int fileOpenCount; //how many times this file has been accessed. No use now
   int sizeOfFile; //how large this file is
@@ -51,7 +52,7 @@ bool FileTableOpen(FileTableElement *element, int inode)
 
     SetSize(element);
 }
-bool  SetSize(FileTableElement *element)
+bool SetSize(FileTableElement *element)
 {
     //TODO (Sam#2#): get the size of a file
     element->sizeOfFile = 0;
@@ -61,10 +62,10 @@ bool IsGarbage(FileTableElement element)
 {
     return element.fileOpenCount == 0;//files are considered garbage or empty if the fileOpenCount is equall to 0
 }
-bool SetToGarbage(FileTableElement *ft)
+bool SetToGarbage(FileTableElement *element)
 {
-    ft->index = GARBAGE;
-    return ft->index == GARBAGE;
+    element->fileOpenCount = GARBAGE;
+    return ft->fileOpenCount == GARBAGE;
 }
 int GetLengthOfFile(FileTableElement *element)
 {
