@@ -25,7 +25,13 @@ FS_Boot(char *path)
     }
 
     // do all of the other stuff needed...
-    fileTable = calloc(MAX_NUM_OPEN_FILES, sizeof(FileTableElement)); // make a new file table
+    fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
+    //set all the fileTable elements to the initial
+    int index;
+    for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
+    {
+        fileTable[index] = initFileTableElement();
+    }
     dataMap = DataMap();
     inodeMap = InodeMap();
     return 0;
@@ -74,16 +80,13 @@ File_Open(char *file)
         osErrno = E_NO_SUCH_FILE;//the file does not exist
         return -1;
     }
-    int fileDes;
-    if (fileDes = FirstOpenSpotOnTheFileTable() == -1)
+    //if we get here, we know the file exists
+    int fileDes; //variable to be the file descriptor
+    if (fileDes = FirstOpenSpotOnTheFileTable() < 0)
     {
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    FileTableElement thisFile;
-    thisFile.inodePointer = FindFirstOpen(inodeMap); //need to switch this point off!
-    thisFile.index = 0;
-    //TODO (Sam#2#): thisFile.sizeOfFile = setSize();
-    fileTable[fileDes] = thisFile; //the file Des index on the file table is now equal to the file table element created
+    FileTableOpen(fileTable[fileDes]);//opens the file table element as defined in FileTable.h
     printf("FS_Open\n");
     return fileDes;
 }
@@ -176,9 +179,7 @@ File_Close(int fd)
         return -1;
     }
     //Files can be closed by setting the inodePointer to garbage
-    SetToGarbage(fileTable[fd]);
-    //delete the file from the openFileTable
-    return 0;
+    return FileTableClose(fileTable[fd]);
 }
 
 int
