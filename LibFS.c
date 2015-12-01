@@ -1,5 +1,6 @@
 #include "LibFS.h"
 #include "LibDisk.h"
+//#include "LibDisk.c"
 
 #include "Builder.h"
 #include "FileTable.h"
@@ -8,6 +9,7 @@
 #include "Params.h"
 
 #define SUCCESS 0
+#define FAILURE -1
 // global errno value here
 int osErrno;
 
@@ -21,7 +23,7 @@ static FileTableElement *fileTable;
 static Map inodeMap;
 static Map dataMap;
 
-extern Sector *disk;
+//extern Sector *disk;
 
 char charAt(int fd, int index);
 int
@@ -34,7 +36,7 @@ FS_Boot(char *path)
 	osErrno = E_GENERAL;
 	return -1;
     }
-     //BuildSuperBlock(disk[0].data);
+    BuildSuperBlock(disk[0].data); //builds the super block by passing the data by reference to the builder.c source file
     // do all of the other stuff needed...
     fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
     //set all the fileTable elements to the initial
@@ -213,9 +215,27 @@ int
 File_Unlink(char *file)
 {
     //basically a deletion
-
+    //take the file
+    //find the inode
+    //use the fact that FileTableElements contain the name of the file
+    //search
+    int index;
+    for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
+    {
+        if (strcmp(file, fileTable[index].fileName) == 0) //the two strings are the same, therefore this is the file
+        {
+            //code here
+            //find the directory it resides in, delete that
+            int *dataPointers = malloc(fileTable[index].sizeOfFile * sizeof(int));//create an array of the size sizeOfFile ints
+            //dataPointers = AFunctionToGetThePointersOfAnInode(fileTable[index].inodePointer);
+            FreeTableOf(dataMap, dataPointers, fileTable[index].sizeOfFile);//clear the datamap of these blocks
+            FreeTableOfOne(inodeMap, fileTable[index].inodePointer); //clear the inode
+            //directory still needs to be cleared out
+        }
+    }
     printf("FS_Unlink\n");
-    return 0;
+    osErrno = E_NO_SUCH_FILE;
+    return FAILURE;
 }
 
 
