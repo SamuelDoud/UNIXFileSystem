@@ -49,6 +49,7 @@ FS_Sync()
 int
 File_Create(char *file)
 {
+    char* fileName;//TODO get the last part f
     //TODO (Evan#2#): I don't even know what this method is doing...
     //what is char *file? the data? The name?
     printf("FS_Create\n");
@@ -60,6 +61,12 @@ File_Create(char *file)
     }
     //if we get here the file does not exist!
     char *paths = BreakDownPathName(); // this gets the parts of the path
+    fileName = paths;//the fileName is going to be the last part of the path
+    if (strlen(fileName) > MAX_PATH_LENGTH)
+    {
+        osErrno = E_FILE_TOO_BIG;//probably the wrong error code
+        return -1;
+    }
     //get an inode for this new file
     //TODO this is going to be a bear to debug
     int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
@@ -67,7 +74,7 @@ File_Create(char *file)
     disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode();//build a blank inode for this sector from the offset calculated
     //get the last directory inode
     //go to that data block
-    BuildDirectoryEntry()
+    char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);
 
 
     //if file is the data, split that into chunks
@@ -154,19 +161,19 @@ int
 File_Seek(int fd, int offset)
 {
     printf("FS_Seek\n");
-    if (fileTable[fd] != NULL)
+    if (!IsGarbage(fileTable[fd]))//the fileTableElement is occupied
     {
         //check if the offset is less than the file size
-        if (offset <= fileTable[fd].sizeOfFile)
+        if (offset <= fileTable[fd].sizeOfFile)//the offset is within the size of the file
         {
             fileTable[fd].index = offset;
+            return 0;
         }
         else
         {
             osErrno = E_SEEK_OUT_OF_BOUNDS;//the index of the file is going to be too high for the file
             return -1;
         }
-
     }
     else
     {
@@ -186,7 +193,7 @@ File_Close(int fd)
         return -1;
     }
     //Files can be closed by setting the inodePointer to garbage
-    return FileTableClose(fileTable[fd]);
+    return FileTableClose(fileTable[fd]);//close the fileTable entry and return the success of that
 }
 
 int
