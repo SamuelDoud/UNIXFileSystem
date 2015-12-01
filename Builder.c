@@ -6,20 +6,13 @@
 #include "LibDisk.h"
 #include "Params.h"
 
-
-
-
-bool BuildSuperBlock(Sector *);
-
-
-
 bool BuildSuperBlock(Sector *super)
 {
     //set all the chars to be null
     memset(super->data,NULL_TERM , SECTOR_SIZE);
     //create an empty and null superblock
 
-    sprintf(super->data, sizeof(super->data), "%d", MAGIC_NUMBER);
+    super->data[0] = (char) MAGIC_NUMBER;
     //put the magic number in the superblock and return it
 
     return true;
@@ -48,32 +41,3 @@ char *BuildInode(int fileType)
     return inode;
 }
 //Function takes a path and a pointer and gives it back in the form of a directory entry
-char *BuildDirectoryEntry(char *name, int pointer)
-{
-    char ZERO = '0';
-    int lengthOfDir = 20;
-    char *directoryData = malloc( lengthOfDir * sizeof(char));//this is definitional. 16 chars for name (one for null term) and pointer data (this could be 2 chars using base 256!!)
-    char *integerPart = malloc(sizeof(char) * (lengthOfDir - MAX_PATH_LENGTH));//there is this many characters availible for the pointer!
-    sprintf(integerPart, "%d", pointer);//place pointer into a string integerPart
-    //test me!! I need to verify that this inputs pointer in a way that it goes 00## instead of ##00 if there is only two digits!
-
-    int index = 0;
-    for (index = 0; index < MAX_PATH_LENGTH; index++)
-    {
-        directoryData[index] = name[index];
-    }
-    int numOfDigits = (int)(ceil(log10(pointer))+1);
-    for (index = lengthOfDir - 1; index >= MAX_PATH_LENGTH; index--)
-    {
-        if (numOfDigits > 0)
-        {
-            directoryData[index] = integerPart[numOfDigits - 1];
-            numOfDigits--;
-        }
-        else
-        {
-            directoryData[index] = ZERO;
-        }
-    }
-
-}

@@ -1,5 +1,6 @@
-#ifndef __File_Table_H__
-#define __File_Table_H__
+#include <stdio.h>
+#include <stdbool.h>
+#include <math.h>
 
 #define GARBAGE 0
 
@@ -54,6 +55,8 @@ bool FileTableOpen(FileTableElement *element, int inode)
         //the file has been opened!
 
     GetAndSetSize(element);
+
+    return element->fileOpenCount > 0;
 }
 bool GetAndSetSize(FileTableElement *element)
 {
@@ -83,4 +86,3 @@ bool FileTableClose(FileTableElement *element)
     }
     return false; //the file was garbage
 }
-#endif // __Disk_H__

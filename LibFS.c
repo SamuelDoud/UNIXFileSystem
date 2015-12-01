@@ -1,8 +1,9 @@
 #include "LibFS.h"
 #include "LibDisk.h"
 #include "Builder.c"
-#include "FileTable.h"
-#include "Map.h"
+#include "FileTable.c"
+#include "Map.c"
+#include "Directory.c"
 #include "Params.h"
 
 #define SUCCESS 0
@@ -80,7 +81,7 @@ File_Create(char *file)
     //TODO this is going to be a bear to debug
     int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
     int indexOfInodeInSector = (inodePointer - FIRST_INODE_BLOCK_INDEX) % inodeMap.bitsPerChar;//need to know where in the sector it is going to go
-    disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode();//build a blank inode for this sector from the offset calculated
+    disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
     //get the last directory inode
     //go to that data block
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);
@@ -210,6 +211,8 @@ File_Close(int fd)
 int
 File_Unlink(char *file)
 {
+    //basically a deletion
+
     printf("FS_Unlink\n");
     return 0;
 }

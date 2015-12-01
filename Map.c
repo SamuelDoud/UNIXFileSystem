@@ -1,7 +1,9 @@
-#ifndef MAP_H_INCLUDED
-#define MAP_H_INCLUDED
+#include <stdio.h>
+#include <stdbool.h>
+#include <math.h>
 
 #include "LibDisk.h"
+
 #include <math.h>
 #include "Params.h"
 
@@ -20,6 +22,8 @@ typedef struct Map{
     int full;
     char *bytemap;
 } Map;
+
+bool FreeTableOfOne(Map *, int);
 
 Map InodeMap()
 {
@@ -61,7 +65,8 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
             return index * mapArg->length + firstZero;
         }
     }
-    osErrno = E_NO_SPACE; //if we get here all the files are loaded in memory.
+    //osErrno = E_NO_SPACE; //if we get here all the files are loaded in memory.
+    //can't use osErrno...
     return -1;
 }
 //14 (1110) should return 3
@@ -76,28 +81,25 @@ int IndexOfFirstZero(int n, int b)
     return b;
 }
 
-bool FreeTableOf(Map *mapArg, int[] pointers, int lengthOfArray)
+bool FreeTableOf(Map *mapArg, int *pointers, int lengthOfArray)
 {
     //we have an array of pointers that are to be freeded from the table
     //really only pertains to the data bytemap
     //go through each and work it out
-
     int index;
     for(index = 0; index < lengthOfArray; index++)
     {
-        if (!FreeTableOf(&mapArg, pointers[index]))
+        if (!FreeTableOfOne(mapArg, pointers[index]))
         {
             return false;//a critical error has occured in the free table of function
         }//take the indexth integer in the array and set it to free
     }
     return true;
 }
-bool FreeTableOf(Map *mapArg, int pointer)
+bool FreeTableOfOne(Map *mapArg, int pointer)
 {
-    int pointerwithOffsetAccounted = pointer + mapArg.firstSectorIndex;
-    int indexInChar = pointerwithOffsetAccounted % mapArg.bitsPerChar; //if 33 is passed to the inode map, then it is the 8th char in the 2nd bit of the 4 bit char
-    mapArg->bytemap[pointerwithOffsetAccounted] = mapArg.bytemap[pointerwithOffsetAccounted] - pow(2, mapArg.bitsPerChar - 1 - indexInChar); //TODO (Evan#1#): Verify this works
-    return mapArgbytemap[pointerwithOffsetAccounted] < mapArg.full; //if this is greater than full, then we have a critical error
+    int pointerwithOffsetAccounted = pointer + mapArg->firstSectorIndex;
+    int indexInChar = pointerwithOffsetAccounted % mapArg->bitsPerChar; //if 33 is passed to the inode map, then it is the 8th char in the 2nd bit of the 4 bit char
+    mapArg->bytemap[pointerwithOffsetAccounted] = mapArg->bytemap[pointerwithOffsetAccounted] - pow(2, mapArg->bitsPerChar - 1 - indexInChar); //TODO (Evan#1#): Verify this works
+    return mapArg->bytemap[pointerwithOffsetAccounted] < mapArg->full; //if this is greater than full, then we have a critical error
 }
-
-#endif // MAP_H_INCLUDED

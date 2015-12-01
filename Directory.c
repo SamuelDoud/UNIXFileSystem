@@ -1,5 +1,9 @@
-#ifndef DIRECTORY_H_INCLUDED
-#define DIRECTORY_H_INCLUDED
+#include <stdio.h>
+#include <stdbool.h>
+#include <math.h>
+#include "Params.h"
+#include "LibDisk.h"
+#include "LibDisk.c"
 
 //what does a directory look like?
 
@@ -43,6 +47,3 @@ int GetSize(Sector *directorySector)
     //drectories have a size
     return 0;
 }
-
-
-#endif // DIRECTORY_H_INCLUDED
