@@ -35,7 +35,7 @@ Map DataMap()
     dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
     return dataMapInit;
 }
-int FindFirstOpen(Map *mapArg)
+int FindFirstOpenAndSetToClosed(Map *mapArg)
 {
     //go through each entry in the bytemap
     int index = 0;
@@ -45,8 +45,13 @@ int FindFirstOpen(Map *mapArg)
         {
             //this is it!
             //convert bytemap[index] to a string
-            //should the position I just found be set to closed?
             int firstZero = IndexOfFirstZero(mapArg->bytemap[index], mapArg->length);
+            //set this spot to closed
+
+            int charRepAsInt = (int) mapArg->bytemap[index];
+            charRepAsInt = charRepAsInt + pow(2,mapArg->length - 1 - firstZero);
+            mapArg->bytemap[index] = charRepAsInt;
+
             return index * mapArg->length + firstZero;
         }
     }
