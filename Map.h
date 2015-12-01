@@ -14,6 +14,8 @@
 #define DATA_BLOCK_BYTEMAP_LENGTH (NUM_DATA_BLOCKS / NUM_DATA_BLOCKS_PER_CHAR)
 
 typedef struct Map{
+    int firstSectorIndex;
+    int bitsPerChar;
     int length;
     int full;
     char *bytemap;
@@ -25,6 +27,7 @@ Map InodeMap()
     inodeMapInit.length = INODE_BYTEMAP_LENGTH;
     inodeMapInit.full = pow(2, NUM_INODES_PER_BLOCK) - 1;
     inodeMapInit.bytemap = calloc(inodeMapInit.length, sizeof(char));//should set all of these to zero
+    inodeMapInit.bitsPerChar = NUM_INODES_PER_BLOCK;
     return inodeMapInit;
 }
 Map DataMap()
@@ -33,6 +36,7 @@ Map DataMap()
     dataMapInit.length = DATA_BLOCK_BYTEMAP_LENGTH;
     dataMapInit.full = pow(2, NUM_DATA_BLOCKS_PER_CHAR) - 1;
     dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
+    dataMapInit.bytemap = NUM_DATA_BLOCKS_PER_CHAR;
     return dataMapInit;
 }
 int FindFirstOpenAndSetToClosed(Map *mapArg)
@@ -49,7 +53,7 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
             //set this spot to closed
 
             int charRepAsInt = (int) mapArg->bytemap[index];
-            charRepAsInt = charRepAsInt + pow(2,mapArg->length - 1 - firstZero);
+            charRepAsInt = charRepAsInt + pow(2,mapArg->bitsPerChar - 1 - firstZero);
             mapArg->bytemap[index] = charRepAsInt;
 
             return index * mapArg->length + firstZero;
