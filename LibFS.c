@@ -61,7 +61,10 @@ File_Create(char *file)
     //if we get here the file does not exist!
     char *paths = BreakDownPathName(); // this gets the parts of the path
     //get an inode for this new file
-    int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(InodeMap);//need the offset because inode blocks are not the zeroth seector
+    //TODO this is going to be a bear to debug
+    int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
+    int indexOfInodeInSector = (inodePointer - FIRST_INODE_BLOCK_INDEX) % inodeMap.bitsPerChar;//need to know where in the sector it is going to go
+    disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode();//build a blank inode for this sector from the offset calculated
     //get the last directory inode
     //go to that data block
     BuildDirectoryEntry()
@@ -233,21 +236,6 @@ Dir_Unlink(char *path)
 
 //OUR METHODS
 
-bool Insert_Inode(FileTableElement *element)
-{
-    // TODO (Sam#8#): take a file table element and place its inode in the disk... some where
-
-    //find an open inode
-    //this could be a method of its own
-    //TODO (Evan#8#): inject an inode at inodeNum
-    element.inodeNum = FreeInode;
-    UpdateInode(inodeNum);
-    return SUCCESS;
-}
-bool IsThisSectorOccupied(int sectorNum)
-{
-    // TODO(Evan#5#): if given a sector that is an inode, determine if there is room in the inode block for one more inode entry
-}
 //split the paths into parts
 //for example, the path /usr/sam/etc/
 //turns into {, usr, sam, etc, \0}
