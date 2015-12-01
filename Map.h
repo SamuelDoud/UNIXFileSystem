@@ -24,6 +24,7 @@ typedef struct Map{
 Map InodeMap()
 {
     Map inodeMapInit;
+    inodeMapInit.firstSectorIndex = FIRST_INODE_BLOCK_INDEX;
     inodeMapInit.length = INODE_BYTEMAP_LENGTH;
     inodeMapInit.full = pow(2, NUM_INODES_PER_BLOCK) - 1;
     inodeMapInit.bytemap = calloc(inodeMapInit.length, sizeof(char));//should set all of these to zero
@@ -33,6 +34,7 @@ Map InodeMap()
 Map DataMap()
 {
     Map dataMapInit;
+    dataMapInit.firstSectorIndex = FIRST_DATA_BLOCK_INDEX;
     dataMapInit.length = DATA_BLOCK_BYTEMAP_LENGTH;
     dataMapInit.full = pow(2, NUM_DATA_BLOCKS_PER_CHAR) - 1;
     dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
@@ -72,6 +74,30 @@ int IndexOfFirstZero(int n, int b)
         b = b / 2;
     }
     return b;
+}
+
+bool FreeTableOf(Map *mapArg, int[] pointers, int lengthOfArray)
+{
+    //we have an array of pointers that are to be freeded from the table
+    //really only pertains to the data bytemap
+    //go through each and work it out
+
+    int index;
+    for(index = 0; index < lengthOfArray; index++)
+    {
+        if (!FreeTableOf(&mapArg, pointers[index]))
+        {
+            return false;//a critical error has occured in the free table of function
+        }//take the indexth integer in the array and set it to free
+    }
+    return true;
+}
+bool FreeTableOf(Map *mapArg, int pointer)
+{
+    int pointerwithOffsetAccounted = pointer + mapArg.firstSectorIndex;
+    int indexInChar = pointerwithOffsetAccounted % mapArg.bitsPerChar; //if 33 is passed to the inode map, then it is the 8th char in the 2nd bit of the 4 bit char
+    mapArg->bytemap[pointerwithOffsetAccounted] = mapArg.bytemap[pointerwithOffsetAccounted] - pow(2, mapArg.bitsPerChar - 1 - indexInChar); //TODO (Evan#1#): Verify this works
+    return mapArgbytemap[pointerwithOffsetAccounted] < mapArg.full; //if this is greater than full, then we have a critical error
 }
 
 #endif // MAP_H_INCLUDED
