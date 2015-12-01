@@ -2,8 +2,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include "Params.h"
-#include "LibDisk.h"
-#include "LibDisk.c"
 
 //what does a directory look like?
 

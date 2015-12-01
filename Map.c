@@ -2,18 +2,9 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "LibDisk.h"
-
-#include <math.h>
+//#include "LibDisk.h"
 #include "Params.h"
 
-#define NUM_INODE_BLOCKS 1000
-#define NUM_INODES_PER_BLOCK 4
-#define INODE_BYTEMAP_LENGTH (NUM_INODE_BLOCKS / NUM_INODES_PER_BLOCK) //should be 250
-
-#define NUM_DATA_BLOCKS_PER_CHAR 8
-
-#define DATA_BLOCK_BYTEMAP_LENGTH (NUM_DATA_BLOCKS / NUM_DATA_BLOCKS_PER_CHAR)
 
 typedef struct Map{
     int firstSectorIndex;
