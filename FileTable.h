@@ -33,9 +33,33 @@ FileTableElement initFileTableElement()
     ft.sizeOfFile = 0;
     return ft;
 }
-bool IsGarbage(FileTableElement ft)
+bool FileTableOpen(FileTableElement *element, int inode)
 {
-    return ft.fileOpenCount == 0;//files are considered garbage or empty if the fileOpenCount is equall to 0
+    if (element->fileOpenCount == 0)
+    {//the file is not open and has no restrictions
+        element->inodePointer = inode;
+        element->fileOpenCount++;
+        return true;
+    }
+    if (FileTableElement->inodePointer != inode)
+    {
+        return false;//this entry is alreaddy in use and the inodes are not the same!
+    }
+    //the file is open but its inode is the same, therefore just incremnt the open count
+    FileTableElement->fileOpenCount++;
+        //the file has been opened!
+
+    SetSize(element);
+}
+bool  SetSize(FileTableElement *element)
+{
+    //TODO (Sam#2#): get the size of a file
+    element->sizeOfFile = 0;
+    return true;
+}
+bool IsGarbage(FileTableElement element)
+{
+    return element.fileOpenCount == 0;//files are considered garbage or empty if the fileOpenCount is equall to 0
 }
 bool SetToGarbage(FileTableElement *ft)
 {
@@ -48,9 +72,9 @@ int GetLengthOfFile(FileTableElement *element)
 }
 bool FileTableClose(FileTableElement *element)
 {
-    if (!IsGarbage(ft))
+    if (!IsGarbage(elment))
     {
-        ft.fileOpenCount--;//this file is closed by taking the open count down by one
+        element.fileOpenCount--;//this file is closed by taking the open count down by one
         return true; //the file wasn't garbage
     }
     return false; //the file was garbage
