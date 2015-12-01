@@ -2,34 +2,18 @@
 #include <stdbool.h>
 #include <math.h>
 #include "Params.h"
+#include "FileTable.h"
 
 #define GARBAGE 0
 
 //an element in the file table
 //will hold the inode of the file, its size, and its index!
-typedef struct FileTableElement {
-  int inodePointer; //the pointer to the sector of this file's inode
-  int indexOfInodeInSector;//only useful in inodes
-  int index; //where this file is in terms of index
-  int fileOpenCount; //how many times this file has been accessed. No use now
-  int sizeOfFile; //how large this file is
-} FileTableElement;
-
-
-static FileTableElement ft;
-FileTableElement initFileTableElement();
-bool GetAndSetSize(FileTableElement *);
-
-//should be all zeros initily
-void SetToNull(struct FileTableElement *entry);
-//checks if the file table element passed is empty
-bool IsEmpty(struct FileTableElement *passed)
+bool IsEmpty(FileTableElement *passed)
 {
     return (passed->fileOpenCount == GARBAGE);
     //is the fileOpen count equal to garbage and threrefore free?
 }
-
-void SetToNull(struct FileTableElement *entry)
+void SetToNull(FileTableElement *entry)
 {
     *entry = initFileTableElement();
 }
@@ -47,7 +31,7 @@ bool FileTableOpen(FileTableElement *element, int inode)
     {//the file is not open and has no restrictions
         element->inodePointer = inode;
         element->fileOpenCount++;
-        SetSize(element);//get the size of the file
+        GetAndSetSize(element);//get the size of the file
         return true;
     }
     if (element->inodePointer != inode)

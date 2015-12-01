@@ -1,9 +1,10 @@
 #include "LibFS.h"
 #include "LibDisk.h"
+
 #include "Builder.h"
-#include "FileTable.c"
-#include "Map.c"
-#include "Directory.c"
+#include "FileTable.h"
+#include "Map.h"
+#include "Directory.h"
 #include "Params.h"
 
 #define SUCCESS 0
@@ -20,7 +21,7 @@ static FileTableElement *fileTable;
 static Map inodeMap;
 static Map dataMap;
 
-extern Sector* disk;
+extern Sector *disk;
 
 char charAt(int fd, int index);
 int
@@ -33,7 +34,7 @@ FS_Boot(char *path)
 	osErrno = E_GENERAL;
 	return -1;
     }
-     BuildSuperBlock(disk[0].data);
+     //BuildSuperBlock(disk[0].data);
     // do all of the other stuff needed...
     fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
     //set all the fileTable elements to the initial
@@ -81,7 +82,7 @@ File_Create(char *file)
     //TODO this is going to be a bear to debug
     int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
     int indexOfInodeInSector = (inodePointer - FIRST_INODE_BLOCK_INDEX) % inodeMap.bitsPerChar;//need to know where in the sector it is going to go
-    disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
+//    disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
     //get the last directory inode
     //go to that data block
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);
@@ -224,7 +225,7 @@ int
 Dir_Create(char *path)
 {
     //this is really similar the other file create
-    char *myPaths = GetPaths(path);//myPaths now contains the paths of the directory with the last being the one to be created
+    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be created
     // we need to make sure that the files before this are real.. use the first values in myPath to find this out
     printf("Dir_Create %s\n", path);
     return 0;

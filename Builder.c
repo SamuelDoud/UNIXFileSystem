@@ -28,7 +28,7 @@ char *BuildInode(int fileType)
     int *pointers = calloc(sizeof(int), 2 + MAX_NUM_SECTORS_PER_FILE);//ERROR
     //An inode does not take up a full sector, it can be shared with other inodes
     //it needs the file size, the file type, and its pointers.
-    char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
+    char *inode = (char *) malloc(sizeof(fileType) + sizeof(size) + sizeof(pointers));
     inode[0] = (char)size;
     inode[1] = (char)fileType;
     int index;

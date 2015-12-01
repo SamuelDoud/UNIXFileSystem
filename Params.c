@@ -1,0 +1,25 @@
+#include "Params.h"
+MAGIC_NUMBER = 10; //Literally just a magic number that will be stored in the super block to verify data
+NUM_SECTORS_1 = 10000;
+SECTOR_SIZE_1 = 512;
+AVAILIBLE = 0;
+OCCUPIED = 1; //Availible and occupied are merely human readable terms for the boolean true or false in the bitmaps
+MAX_PATH_LENGTH = 16;//the maximum length of a path. Actually 15 but the last character is null terminator
+DIRECTORY_LENGTH = 20;//the length of a path plus the size of an integer in bytes
+MAX_NUM_OPEN_FILES = 256;//how many files can be open at once. Used as the length of the fileTable
+SUPER_BLOCKS = 1;//how many superblocks there are
+MAX_NUM_SECTORS_PER_FILE = 30;//how many sectors can be in an inode
+NUM_INODES_PER_BLOCK = 4;
+MAX_NUM_FILES = 1000;//how many files this filesystem can hold
+NUM_INODE_BITMAP_BLOCKS = 1;
+NUM_DATA_BITMAP_BLOCKS = 3;
+NUM_INODE_BLOCKS = 250;
+NUM_DATA_BLOCKS =9745;
+NULL_TERM = 0;
+FILE_ID = 0;
+DIRECTORY_ID = 1;
+INODE_BYTEMAP_LENGTH = 250; //should be 250
+FIRST_INODE_BLOCK_INDEX = 5;
+FIRST_DATA_BLOCK_INDEX = 255;//Data blocks begin after inodes
+NUM_DATA_BLOCKS_PER_CHAR = 8;
+DATA_BLOCK_BYTEMAP_LENGTH = 1219;//hopefully this evenly divides.... its actually 1218.125....

@@ -1,19 +1,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
-
 #include "Params.h"
+#include "Map.h"
 
 
-typedef struct Map{
-    int firstSectorIndex;
-    int bitsPerChar;
-    int length;
-    int full;
-    char *bytemap;
-} Map;
 
-bool FreeTableOfOne(Map *, int);
 
 Map InodeMap()
 {
