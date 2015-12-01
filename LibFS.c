@@ -8,10 +8,19 @@
 #define SUCCESS 0
 // global errno value here
 int osErrno;
+
+//Function definitions
 int FirstOpenSpotOnTheFileTable();
+int GetInode(char *);
+char *BreakDownPathName(char *);
+bool DoesThisPathExist(char *);
+
 static FileTableElement *fileTable;
 static Map inodeMap;
 static Map dataMap;
+
+extern Sector* disk;
+
 char charAt(int fd, int index);
 int
 FS_Boot(char *path)
@@ -54,13 +63,13 @@ File_Create(char *file)
     //what is char *file? the data? The name?
     printf("FS_Create\n");
     //NEED some way to check if it already exists
-    if (DoesPathExist(file))
+    if (DoesThisPathExist(file))
     {
         osErrno = E_CREATE;
         return -1;
     }
     //if we get here the file does not exist!
-    char *paths = BreakDownPathName(); // this gets the parts of the path
+    char *paths = BreakDownPathName(file); // this gets the parts of the path
     fileName = paths;//the fileName is going to be the last part of the path
     if (strlen(fileName) > MAX_PATH_LENGTH)
     {
@@ -69,7 +78,7 @@ File_Create(char *file)
     }
     //get an inode for this new file
     //TODO this is going to be a bear to debug
-    int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
+    int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
     int indexOfInodeInSector = (inodePointer - FIRST_INODE_BLOCK_INDEX) % inodeMap.bitsPerChar;//need to know where in the sector it is going to go
     disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode();//build a blank inode for this sector from the offset calculated
     //get the last directory inode
@@ -89,7 +98,7 @@ File_Open(char *file)
     //if it does not exist, return a not found error
     //if it exists, move it the open file table and return the File Descrriptor
 
-    if (DoesPathExist(file) == false)
+    if (DoesThisPathExist(file) == false)
     {
         osErrno = E_NO_SUCH_FILE;//the file does not exist
         return -1;
@@ -100,7 +109,7 @@ File_Open(char *file)
     {
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    FileTableOpen(fileTable[fileDes]);//opens the file table element as defined in FileTable.h
+    FileTableOpen(&fileTable[fileDes],GetInode(file));//opens the file table element as defined in FileTable.h
     printf("FS_Open\n");
     return fileDes;
 }
@@ -113,6 +122,7 @@ File_Read(int fd, void *buffer, int size)
     //read a set number of bytes of size to buffer
     //return the number of bytes actually in buffer
     printf("FS_Read\n");
+    char *charArr = malloc(size * sizeof(char));
     int count;
     //TODO check if the fd is actually real
     if (IsGarbage(fileTable[fd]))
@@ -122,10 +132,11 @@ File_Read(int fd, void *buffer, int size)
     }
     for (count = 0; count < size; count++)
     {
-        buffer[count] = charAt(fd, fileTable[fd].index);
+        charArr[count] = charAt(fd, fileTable[fd].index);
         //actually read the data, byte by byte
         fileTable[fd].index++;//move up one spot on the index
     }
+    buffer = (char *)charArr;
     return count;//count is how many chars where written to the file
 }
 
@@ -193,9 +204,9 @@ File_Close(int fd)
         return -1;
     }
     //Files can be closed by setting the inodePointer to garbage
-    return FileTableClose(fileTable[fd]);//close the fileTable entry and return the success of that
+    FileTableClose(&fileTable[fd]);//close the fileTable entry and return the success of that
+    return true;
 }
-
 int
 File_Unlink(char *file)
 {
@@ -333,4 +344,10 @@ char charAt(int fd, int index)
     //go to the index supplied
     //return that character
 // TODO (Sam#6#): Reliant on inodes being implemented
+}
+int GetInode(char *file)
+{
+    //get the inode sector for this file
+    char *paths = BreakDownPathName(file);//get the paths of this file
+    return -1;
 }

@@ -4,8 +4,6 @@
 
 #include "LibFS.h"
 #include "LibDisk.h"
-#include "FileTable.h"
-#include "Map.h"
 #include "Params.h"
 
 
@@ -13,12 +11,12 @@
 
 bool BuildSuperBlock(Sector *);
 
-char nullChar = '\0'; // the null character in C
+
 
 bool BuildSuperBlock(Sector *super)
 {
     //set all the chars to be null
-    memset(super->data, nullChar, SECTOR_SIZE);
+    memset(super->data,NULL_TERM , SECTOR_SIZE);
     //create an empty and null superblock
 
     sprintf(super->data, sizeof(super->data), "%d", MAGIC_NUMBER);
@@ -30,7 +28,7 @@ bool BuildSuperBlock(Sector *super)
 char *BuildDataBlock()
 {
     char* dataBlock = malloc(SECTOR_SIZE * sizeof(char)); //allocate SECTOR_SIZE bytes to dataBlock
-    memset(dataBlock, nullChar ,SECTOR_SIZE);//set all the chars to null
+    memset(dataBlock, NULL_TERM ,SECTOR_SIZE);//set all the chars to null
     return dataBlock;//return dataBlock
 }
 char *BuildInode()
@@ -72,65 +70,4 @@ char *BuildDirectoryEntry(char *name, int pointer)
         }
     }
 
-}
-
-char *BuildInodeBytemap()
-{//What is the purpose of this method?
-    bool *bitmap = malloc(MAX_NUM_FILES * sizeof(bool));//make a bitmap of the size of the max number of files
-    memset(bitmap,OCCUPIED, sizeof(bitmap));//set them all to false, analogus to unoccupied
-    //could use calloc..
-    return ConertBitmapToBytemap(bitmap);
-}
-
-char *BuildDataBytemap()
-{
-    bool *bitmap = malloc(NUM_DATA_BLOCKS * sizeof(bool));//make a bitmap of the size of the max number of files
-    memset(bitmap,OCCUPIED, sizeof(bitmap));//set them all to false, analogus to unoccupied
-    //could use calloc..
-    return ConertBitmapToBytemap(bitmap);
-}
-//Method alters the state of an element the bitmap to the passed bool
-//Effective in deletion and creation of a file
-//MUST BE VERY CAREFUL!!
-//SectorNum should be the sector number that the maps understand
-
-char *ConvertIntToString(int i)
-{
-    //take an integer and convert it to base 256, which is essientally a char
-    int byte = 256;
-    int lengthOfString = (int)(log(i) / log(byte) + 1);//how long the string will end up being
-    char *s = malloc(sizeof(char) * lengthOfString);//this is how many chars will be in the array
-    int counter;
-    for (counter = 0; counter < lengthOfString; counter++)
-    {
-        s[lengthOfString - counter] = i % byte;
-        i = i / byte;
-        //see http://mathbits.com/MathBits/CompSci/Introduction/frombase10.htm for the method used
-    }
-    return s;
-}
-int ConvertStringToInt(char *s)
-{
-    int i = 0;
-    //take an integer and convert it ot an ASCII string
-    return i;
-}
-//this method checks to see if the superblock passed is really a valid superblock by comparing it to a new one
-bool Verify(Sector Superblock)
-{
-    Sector s;
-    //BuildSuperBlock(*s);
-    return s.data == Superblock.data; //this probably isn't a valid comparsion!
-    //change me!!
-}
-//This method takes a data sector and makes it useable in the data map!
-int ConvertDataSectorToMapSectorNum(int sector)
-{
-    if (sector < FIRST_DATA_BLOCK_INDEX)
-        return sector - FIRST_DATA_BLOCK_INDEX;
-    return -1;
-}
-int ConvertDataMapSectorToAbsolute(int dataMapSector)
-{
-    return dataMapSector + FIRST_DATA_BLOCK_INDEX;
 }
