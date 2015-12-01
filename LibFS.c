@@ -101,7 +101,7 @@ File_Open(char *file)
     //run around the directory pathing until the file is determined!
     //if it does not exist, return a not found error
     //if it exists, move it the open file table and return the File Descrriptor
-
+    //doesthisPathExist is not functional at this point
     if (DoesThisPathExist(file) == false)
     {
         osErrno = E_NO_SUCH_FILE;//the file does not exist
@@ -113,9 +113,9 @@ File_Open(char *file)
     {
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    FileTableOpen(&fileTable[fileDes],GetInode(file));//opens the file table element as defined in FileTable.h
+    FileTableOpen(&fileTable[fileDes],GetInode(file), file);//opens the file table element as defined in FileTable.h
     printf("FS_Open\n");
-    return fileDes;
+    return fileDes; //return the file descriptor to the user
 }
 //other than the charAt function, this method is complete
 int
