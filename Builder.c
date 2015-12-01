@@ -31,14 +31,20 @@ char *BuildDataBlock()
     memset(dataBlock, NULL_TERM ,SECTOR_SIZE);//set all the chars to null
     return dataBlock;//return dataBlock
 }
-char *BuildInode()
+char *BuildInode(int fileType)
 {
     int size = 0;
-    int fileType = INODE_DATA_BLOCK_ID;
     int *pointers = calloc(sizeof(int), 2 + MAX_NUM_SECTORS_PER_FILE);//ERROR
     //An inode does not take up a full sector, it can be shared with other inodes
     //it needs the file size, the file type, and its pointers.
     char *inode = (char *) malloc(sizeOf(fileType) + sizeOf(size) + sizeof(pointers));
+    inode[0] = (char)size;
+    inode[1] = (char)fileType;
+    int index;
+    for (index = 0; index < MAX_NUM_SECTORS_PER_FILE; index++)
+    {
+        inode[index + 2] = (char) pointers[index];
+    }
     return inode;
 }
 //Function takes a path and a pointer and gives it back in the form of a directory entry
