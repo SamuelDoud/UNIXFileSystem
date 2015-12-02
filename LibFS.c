@@ -88,8 +88,16 @@ File_Create(char *file)
     fileName = paths[index];
     //get an inode for this new file
     //TODO this is going to be a bear to debug
-    int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
+    int inodePointer = FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//find an inode to allocate. Dividing because this is...
     int indexOfInodeInSector = (inodePointer - FIRST_INODE_BLOCK_INDEX) % inodeMap.bitsPerChar;//need to know where in the sector it is going to go
+    char *inodeSector;//make a character array. Does it need to be initailized?
+    char *inodeEntry; //inode Entry is the individual inode
+    Disk_Read(inodePointer, inodeSector); //Read the sector to InodeSector
+    //inject the inode into the inode char array
+    inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
+    //inject inodeEntry into inodeSector at indexOfInodeInSector
+    Disk_Write(inodePointer, inode); //write to the sector
+
     //disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
     //get the last directory inode
     //go to that data block
