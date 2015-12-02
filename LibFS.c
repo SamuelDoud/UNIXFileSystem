@@ -88,8 +88,6 @@ File_Create(char *file)
     //get the last directory inode
     //go to that data block
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);
-
-
     //if file is the data, split that into chunks
     return 0;
 }
@@ -148,7 +146,6 @@ int
 File_Write(int fd, void *buffer, int size)
 {
     printf("FS_Write\n");
-
     //if the buffer is smaller than the size then an error should be thrown
     if (IsGarbage(fileTable[fd]))
     {
@@ -164,10 +161,21 @@ File_Write(int fd, void *buffer, int size)
     //also beware that new sectors maybe needed so we need a method to
     //know when we need a new sector
 
-    //each write NEEDS to use this
-    //fileTable[fd].size++;
+    int currentSector;
+    int indexInSector;
+    int count;
+    //size of file is not currently functional... not defineed to be how many bytes instead of sectors
+    int offset = fileTable[fd].sizeOfFile; //offset because this the starting point of the write
+    char *inode = disk.data[fileTable[fd].inodePointer];
+    for (count = 0 ; count < size; count++)
+    {
+        currentSector = (count + offset) / SECTOR_SIZE; //this is the inode we are writing to... ie the 513th write occurs on the 2nd data block (index 1)
+        indexInSector = (count + offset) % SECTOR_SIZE;
+        disk[currentSector].data[indexInSector] = buffer[count];
+    }
+    fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
 
-    return size;//if all goes well then size is returned
+    return count;//if all goes well then size is returned but this is how mny times there was a write made
 
 }
 //I think this is done other than the helper functions!

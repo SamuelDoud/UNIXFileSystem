@@ -42,7 +42,7 @@ bool FileTableOpen(FileTableElement *element, int inode, char *filename)
     }
     //the file is open but its inode is the same, therefore just incremnt the open count
     element->fileOpenCount++;
-        //the file has been opened!
+    //the file has been opened!
 
     GetAndSetSize(element);
 
