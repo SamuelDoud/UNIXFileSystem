@@ -19,6 +19,7 @@ void SetToNull(FileTableElement *entry)
 }
 FileTableElement initFileTableElement()
 {
+    FileTableElement ft;
     ft.fileOpenCount = GARBAGE;
     ft.index = GARBAGE;
     ft.inodePointer = GARBAGE;//this may need to be negative
@@ -61,7 +62,7 @@ bool IsGarbage(FileTableElement element)
 bool SetToGarbage(FileTableElement *element)
 {
     element->fileOpenCount = GARBAGE;
-    return ft.fileOpenCount == GARBAGE;
+    return element->fileOpenCount == GARBAGE;
 }
 int GetLengthOfFile(FileTableElement *element)
 {

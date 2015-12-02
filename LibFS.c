@@ -102,7 +102,7 @@ File_Open(char *file)
     }
     //if we get here, we know the file exists
     int fileDes; //variable to be the file descriptor
-    if (fileDes = FirstOpenSpotOnTheFileTable() < 0)
+    if ((fileDes = FirstOpenSpotOnTheFileTable()) < 0)
     {
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
@@ -167,9 +167,9 @@ File_Write(int fd, void *buffer, int size)
     for (count = 0 ; count < size; count+=countBy)
     {
         //TODO (Sam#5#): This is possibly functional
-        if (currentSector = DataBlockOf(inode, count + offset / SECTOR_SIZE) == 0) //this sector is empty, therefore we need a new one
+        if ((currentSector = DataBlockOf(inode, count + offset / SECTOR_SIZE)) == 0) //this sector is empty, therefore we need a new one
         {
-            if (currentSector = FindFirstOpenAndSetToClosed(&dataMap) < 0) //this gets a free sector from the datamap
+            if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
             {//if we get here the Find function could not find a data block to allocate
                 osErrno = E_NO_SPACE;//error to show there is no space available
                 return FAILURE;//return the error code

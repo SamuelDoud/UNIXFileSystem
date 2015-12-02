@@ -10,7 +10,6 @@ typedef struct FileTableElement {
   char *fileName; //this is the name of the file
 } FileTableElement;
 bool IsEmpty(FileTableElement *passed);
-static FileTableElement ft;
 FileTableElement initFileTableElement();
 bool GetAndSetSize(FileTableElement *);
 //should be all zeros initily
