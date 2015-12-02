@@ -1,6 +1,7 @@
 #ifndef PARAMS_H_INCLUDED
 #define PARAMS_H_INCLUDED
 extern int MAGIC_NUMBER; //Literally just a magic number that will be stored in the super block to verify data
+extern int SUPER_BLOCK_INDEX;
 extern int NUM_SECTORS_1;
 extern int SECTOR_SIZE_1;
 extern int FIRST_INODE_BLOCK_INDEX;

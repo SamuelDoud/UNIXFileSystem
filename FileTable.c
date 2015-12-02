@@ -76,7 +76,7 @@ bool FileTableClose(FileTableElement *element)
     }
     return false; //the file was garbage
 }
-bool SetFilename(FileTableElement *element,char *filename)
+bool SetFilename(FileTableElement *element, char *filename)
 {
     if (strlen(filename) < MAX_PATH_LENGTH)//check if the file name is of the correct length
     {

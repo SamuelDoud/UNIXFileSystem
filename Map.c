@@ -4,9 +4,6 @@
 #include "Params.h"
 #include "Map.h"
 
-
-
-
 Map InodeMap()
 {
     Map inodeMapInit;

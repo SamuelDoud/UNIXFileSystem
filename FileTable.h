@@ -18,10 +18,10 @@ void SetToNull(FileTableElement *entry);
 //checks if the file table element passed is empty
 
 FileTableElement initFileTableElement();
-bool FileTableOpen(FileTableElement *element, int inode);
+bool FileTableOpen(FileTableElement *element, int inode, char *filename);
 bool IsGarbage(FileTableElement element);
 bool SetToGarbage(FileTableElement *element);
 int GetLengthOfFile(FileTableElement *element);
 bool FileTableClose(FileTableElement *element);
-bool SetFileName(FileTableElement *element, char *name);
+bool SetFilename(FileTableElement *element, char *name);
 #endif // FILETABLE_H_INCLUDED

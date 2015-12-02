@@ -2,8 +2,8 @@
 #define BUILDER_H_INCLUDED
 #include <stdbool.h>
 
-bool BuildSuperBlock(char *data);
+char *BuildSuperBlock();
 char *BuildDataBlock();
-char *BuildInode(int fileType);
+char *BuildInode();
 
 #endif // BUILDER_H_INCLUDED

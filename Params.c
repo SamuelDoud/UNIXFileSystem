@@ -1,5 +1,6 @@
 #include "Params.h"
 MAGIC_NUMBER = 10; //Literally just a magic number that will be stored in the super block to verify data
+SUPER_BLOCK_INDEX = 0;
 NUM_SECTORS_1 = 10000;
 SECTOR_SIZE_1 = 512;
 AVAILIBLE = 0;

@@ -36,13 +36,13 @@ FS_Boot(char *path)
 	osErrno = E_GENERAL;
 	return -1;
     }
-    BuildSuperBlock(disk[0].data); //builds the super block by passing the data by reference to the builder.c source file
+    Disk_Write(SUPER_BLOCK_INDEX, BuildSuperBlock()); //builds the super block by passing super block array to the Disk_Write
     // do all of the other stuff needed...
     fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
     //set all the fileTable elements to the initial
     int index;
     for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
-    {
+    {//this loop sets all the file table elements to open as defined by the initFileTableElement() function
         fileTable[index] = initFileTableElement();
     }
     //get the initial maps
@@ -126,8 +126,9 @@ File_Read(int fd, void *buffer, int size)
     printf("FS_Read\n");
     char *charArr = malloc(size * sizeof(char));
     int count;
-    //TODO check if the fd is actually real
-    if (IsGarbage(fileTable[fd]))
+    //checking if the fd is actually real
+    //check if the fd is a legal index of the file table, short ciruit if is not
+    if (fd > MAX_NUM_OPEN_FILES || fd < 0 || IsGarbage(fileTable[fd]))
     {
         osErrno = E_BAD_FD;
         return -1;
@@ -166,12 +167,11 @@ File_Write(int fd, void *buffer, int size)
     int count;
     //size of file is not currently functional... not defineed to be how many bytes instead of sectors
     int offset = fileTable[fd].sizeOfFile; //offset because this the starting point of the write
-    char *inode = disk.data[fileTable[fd].inodePointer];
+    char *inode;
+    Disk_Read(fileTable[fd].inodePointer, inode);
     for (count = 0 ; count < size; count++)
     {
-        currentSector = (count + offset) / SECTOR_SIZE; //this is the inode we are writing to... ie the 513th write occurs on the 2nd data block (index 1)
-        indexInSector = (count + offset) % SECTOR_SIZE;
-        disk[currentSector].data[indexInSector] = buffer[count];
+        //TODO (Sam#8#): NOT DONE!!
     }
     fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
 
