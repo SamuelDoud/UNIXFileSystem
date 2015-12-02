@@ -1,6 +1,5 @@
 #include "LibFS.h"
 #include "LibDisk.h"
-//#include "LibDisk.c"
 
 #include "Builder.h"
 #include "FileTable.h"
@@ -10,6 +9,7 @@
 
 #define SUCCESS 0
 #define FAILURE -1
+
 // global errno value here
 int osErrno;
 
@@ -18,12 +18,13 @@ int FirstOpenSpotOnTheFileTable();
 int GetInode(char *);
 char *BreakDownPathName(char *);
 bool DoesThisPathExist(char *);
+char charAt(int fd, int index);
 
 static FileTableElement *fileTable;
 static Map inodeMap;
 static Map dataMap;
 
-char charAt(int fd, int index);
+
 int
 FS_Boot(char *path)
 {
@@ -295,6 +296,20 @@ Dir_Read(char *path, void *buffer, int size)
 int
 Dir_Unlink(char *path)
 {
+    char *rootPath = "\\"; //this is what the root is
+    if (strcmp(path, rootPath) == 0)
+    {
+        osErrno = E_ROOT_DIR;
+        return FAILURE;
+    }
+    if (Dir_Size(path) != 0)
+    {
+        osErrno = E_DIR_NOT_EMPTY;
+        return FAILURE;
+    }
+    //remove the directory from its parent
+    //free the inode
+    //free the data blocks
     printf("Dir_Unlink\n");
     return 0;
 }
