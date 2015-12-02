@@ -43,7 +43,12 @@ Sector Allocation Rationale
 	Recap: 1 sector for superblock, 1 sector for inode block bitmap, 3 sectors for data block bitmap, 63 for inodes. 
 	therefore, we have 10000 -1 -1 -3 -250 = 9745 sectors remaining. Since there is a bijection between data blocks and sectors, we have 9745 data blocks remaining. 
 
+
+Map Struct: 
+	-defines the data sturcutr for both inode and data bitmaps. 
+
 Inode Bitmap:
+	-4 bits
 
 Data bimap:
 
@@ -57,18 +62,26 @@ Function Behavior Sketches in FILE API:
 	Open
 		-modify open file table (will include lookup for inode num)
 		-return file handle (entry num in table)
-	Read
+	Read(file discriptor, buffer, sizer)
 		-Look in opentable, if entry is valid
-		-get file pointer from table.
+		-get file pointer (reports current location in file) from file table.
 		-from file pointer calculate data block, read inode, and get number from inode
 		-Read sector
 		-find location in sector
 		-copy from that location upto either EOF or size (into given buffer)
 		-If exceeds sector, read next sector from disk and continue
-	Write
-		-Like read. 
-		- copy to sector.
-		-write sector
+	int File_Write(int fd, void *buffer, int size)
+		-Like read:
+			-check if filesize + size < 512*30. 
+
+			- Look in opentable, if entry is valid
+			- get file pointer (reports current location in file) from file table
+			- from file pointer calculate which of the files 0<x<30 data blocks we're in, then find the sector #.
+			-read this sector in (copied to a buffer), seek to the next open bit, and begin writing. (repeat until write completed)
+			-if we need to allocate new sector<30, call "FindFirstOpenAndSetToClosed", if this returns -1 filesystem full. w
+			Write returns -1 and set osErrno to E NO SPACE. 
+			-copy to sector.
+			-disk_write sector
 	seek
 		-file needs to be open
 		-change value of the pointer in the open file table
@@ -133,3 +146,7 @@ Directory
 	-a special kind of file denoted by a 1 byte (typo in notes says b) flag. 
 	-A many to 1 map between sets of names, and inodes. 
 	-format: a fixed 16-byte field for the name, and a 4-byte entry as the inode number.
+
+
+Questions: 
+	Do we need 2 makefiles?
