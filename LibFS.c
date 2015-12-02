@@ -163,19 +163,40 @@ File_Write(int fd, void *buffer, int size)
     //know when we need a new sector
 
     int currentSector;
-    int indexInSector;
+    int writen;
     int count;
+    int countBy = 1;
     //size of file is not currently functional... not defineed to be how many bytes instead of sectors
     int offset = fileTable[fd].sizeOfFile; //offset because this the starting point of the write
     char *inode;
+    char *substring;
     Disk_Read(fileTable[fd].inodePointer, inode);
-    for (count = 0 ; count < size; count++)
+    for (count = 0 ; count < size; count+=countBy)
     {
-        //TODO (Sam#8#): NOT DONE!!
+        //TODO (Sam#5#): This is possibly functional
+        if (currentSector = DataBlockOf(inode, count + offset / SECTOR_SIZE) == 0) //this sector is empty, therefore we need a new one
+        {
+
+            currentSector = FindFirstOpenAndSetToClosed(&dataMap); //this gets a free sector from the datamap
+        }
+        substring = malloc(sizeof(char) * SECTOR_SIZE_1);
+        writen = strncpy(substring, buffer + (count + offset), SECTOR_SIZE_1 - (SECTOR_SIZE_1 -(count + offset) % SECTOR_SIZE_1));//take a substring of the buffer of size SECTOR_SIZE
+        //this may go out of bounds on the last edge case
+        //for example, we are given 513 bytes to write from pointer 0
+        //the first write is great
+        //write two will write 512 bytes to the current sector but (buffer + 512) only has one char...
+        //This might cause a crash
+        Disk_Write(currentSector, substring);//write substring to the currentSector on the disk
+        free(substring); //deallocate the memory for substring
+        if (countBy == 1)
+        {//only called on the first run through
+            count += writen; //set the count to a multiple of SECTOR_SIZE so that it starts at the next Sector
+            countBy = SECTOR_SIZE_1; //now we can increment by SECTOR_SIZE
+        }
     }
     fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
 
-    return count;//if all goes well then size is returned but this is how mny times there was a write made
+    return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made
 
 }
 //I think this is done other than the helper functions!
@@ -236,8 +257,8 @@ File_Unlink(char *file)
             //find the directory it resides in, delete that
             int *dataPointers = malloc(fileTable[index].sizeOfFile * sizeof(int));//create an array of the size sizeOfFile ints
             //dataPointers = AFunctionToGetThePointersOfAnInode(fileTable[index].inodePointer);
-            FreeTableOf(dataMap, dataPointers, fileTable[index].sizeOfFile);//clear the datamap of these blocks
-            FreeTableOfOne(inodeMap, fileTable[index].inodePointer); //clear the inode
+            FreeTableOf(&dataMap, dataPointers, fileTable[index].sizeOfFile);//clear the datamap of these blocks
+            FreeTableOfOne(&inodeMap, fileTable[index].inodePointer); //clear the inode
             //directory still needs to be cleared out
         }
     }
