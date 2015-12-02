@@ -68,14 +68,24 @@ File_Create(char *file)
         osErrno = E_CREATE;
         return -1;
     }
-    //if we get here the file does not exist!
-    char *paths = BreakDownPathName(file); // this gets the parts of the path
-    fileName = paths;//the fileName is going to be the last part of the path
     if (strlen(fileName) > MAX_PATH_LENGTH)
     {
         osErrno = E_FILE_TOO_BIG;//probably the wrong error code
         return -1;
     }
+    //if we get here the file does not exist!
+    char *paths = BreakDownPathName(file); // this gets the parts of the path
+    fileName = paths;//the fileName is going to be the last part of the path... TODO
+    //the last part of paths should be a \0, so the file name should be the immediately preceding string
+    //this needs to be a pointer of pointers....
+    int index;
+    for (index = 0; paths[index] != '\0'; index++)
+    {
+        //nothing here
+    }
+    index--; //take one off
+    //now paths[index] is the file name
+    fileName = paths[index];
     //get an inode for this new file
     //TODO this is going to be a bear to debug
     int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
@@ -83,8 +93,14 @@ File_Create(char *file)
     //disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
     //get the last directory inode
     //go to that data block
-    char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);
-    //if file is the data, split that into chunks
+    char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);//build an entry for the directory
+
+
+    //find the directory that this file is going into
+    //all of the paths from paths[0] - paths[index - 1]
+    //jump around those paths
+    //if following the pth leads to invalid directories throw an error
+
     return 0;
 }
 int
