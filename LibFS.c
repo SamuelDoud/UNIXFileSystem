@@ -17,14 +17,13 @@ int osErrno;
 int FirstOpenSpotOnTheFileTable();
 int GetInode(char *);
 char **BreakDownPathName(char *);//this needs to be a string array!
-bool DoesThisPathExist(char *);
-char charAt(int fd, int index);
-char *GetFilename(char *);
+bool DoesThisPathExist(char *);//probabbly not needed
+char charAt(int fd, int index); //probably not needed
+char *GetFilename(char **); //gets the file name from the BreakDownPathName function
 
 static FileTableElement *fileTable;
 static Map inodeMap;
 static Map dataMap;
-
 
 int
 FS_Boot(char *path)
@@ -456,7 +455,7 @@ int DataBlockOf(char *inode, int sectorIndex)
     return -1;
 
 }
-char *GetFilename(char *paths)
+char *GetFilename(char **paths)
 {
     int index;
     for (index = 0; paths[index] != '\0'; index++);
