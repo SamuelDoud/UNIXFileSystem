@@ -23,8 +23,6 @@ static FileTableElement *fileTable;
 static Map inodeMap;
 static Map dataMap;
 
-//extern Sector *disk;
-
 char charAt(int fd, int index);
 int
 FS_Boot(char *path)
@@ -50,15 +48,12 @@ FS_Boot(char *path)
     inodeMap = InodeMap();
     return 0;
 }
-
 int
 FS_Sync()
 {
     printf("FS_Sync\n");
     return 0;
 }
-
-
 int
 File_Create(char *file)
 {
@@ -84,14 +79,13 @@ File_Create(char *file)
     //TODO this is going to be a bear to debug
     int inodePointer = FIRST_INODE_BLOCK_INDEX + FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//need the offset because inode blocks are not the zeroth seector
     int indexOfInodeInSector = (inodePointer - FIRST_INODE_BLOCK_INDEX) % inodeMap.bitsPerChar;//need to know where in the sector it is going to go
-//    disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
+    //disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
     //get the last directory inode
     //go to that data block
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);
     //if file is the data, split that into chunks
     return 0;
 }
-
 int
 File_Open(char *file)
 {
@@ -158,10 +152,8 @@ File_Write(int fd, void *buffer, int size)
         osErrno = E_FILE_TOO_BIG;
         return -1;
     }
-    //TODO (Evan#6#): need some method to write to the next availible char
     //also beware that new sectors maybe needed so we need a method to
     //know when we need a new sector
-
     int currentSector;
     int writen;
     int count;
@@ -176,8 +168,11 @@ File_Write(int fd, void *buffer, int size)
         //TODO (Sam#5#): This is possibly functional
         if (currentSector = DataBlockOf(inode, count + offset / SECTOR_SIZE) == 0) //this sector is empty, therefore we need a new one
         {
-
-            currentSector = FindFirstOpenAndSetToClosed(&dataMap); //this gets a free sector from the datamap
+            if (currentSector = FindFirstOpenAndSetToClosed(&dataMap) < 0) //this gets a free sector from the datamap
+            {//if we get here the Find function could not find a data block to allocate
+                osErrno = E_NO_SPACE;//error to show there is no space available
+                return FAILURE;//return the error code
+            }
         }
         substring = malloc(sizeof(char) * SECTOR_SIZE_1);
         writen = strncpy(substring, buffer + (count + offset), SECTOR_SIZE_1 - (SECTOR_SIZE_1 -(count + offset) % SECTOR_SIZE_1));//take a substring of the buffer of size SECTOR_SIZE
