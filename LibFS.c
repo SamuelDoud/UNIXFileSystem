@@ -270,8 +270,16 @@ int
 Dir_Create(char *path)
 {
     //this is really similar the other file create
-    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be created
+    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be create
     // we need to make sure that the files before this are real.. use the first values in myPath to find this out
+    char *inode = BuildInode(DIRECTORY_ID);
+    int sector;
+    if (sector = FindFirstOpenAndSetToClosed(&inodeMap) < 0)
+    {//could not find a valid sector to write to
+        osErrno = E_CREATE;
+        return FAILURE;
+    }
+    Disk_Write(sector, inode);
     printf("Dir_Create %s\n", path);
     return 0;
 }
@@ -414,4 +422,10 @@ int GetInode(char *file)
     //get the inode sector for this file
     char *paths = BreakDownPathName(file);//get the paths of this file
     return -1;
+}
+int DataBlockOf(char *inode, int sectorIndex)
+{
+    //TODO some math
+    return -1;
+
 }
