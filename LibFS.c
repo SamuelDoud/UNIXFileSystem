@@ -16,9 +16,10 @@ int osErrno;
 //Function definitions
 int FirstOpenSpotOnTheFileTable();
 int GetInode(char *);
-char *BreakDownPathName(char *);
+char **BreakDownPathName(char *);//this needs to be a string array!
 bool DoesThisPathExist(char *);
 char charAt(int fd, int index);
+char *GetFilename(char *);
 
 static FileTableElement *fileTable;
 static Map inodeMap;
@@ -96,7 +97,7 @@ File_Create(char *file)
     //inject the inode into the inode char array
     inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
     //inject inodeEntry into inodeSector at indexOfInodeInSector
-    Disk_Write(inodePointer, inode); //write to the sector
+    Disk_Write(inodePointer, inodeSector); //write to the sector
 
     //disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
     //get the last directory inode
@@ -107,7 +108,7 @@ File_Create(char *file)
     //find the directory that this file is going into
     //all of the paths from paths[0] - paths[index - 1]
     //jump around those paths
-    //if following the pth leads to invalid directories throw an error
+    //if following the path leads to invalid directories throw an error
 
     return 0;
 }
@@ -130,7 +131,10 @@ File_Open(char *file)
     {
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    FileTableOpen(&fileTable[fileDes],GetInode(file), file);//opens the file table element as defined in FileTable.h
+    char *paths;
+    paths = BreakDownPathName(file);
+    char *filename = GetFilename(paths);
+    FileTableOpen(&fileTable[fileDes],GetInode(file), filename);//opens the file table element as defined in FileTable.h
     printf("FS_Open\n");
     return fileDes; //return the file descriptor to the user
 }
@@ -352,11 +356,11 @@ Dir_Unlink(char *path)
 //split the paths into parts
 //for example, the path /usr/sam/etc/
 //turns into {, usr, sam, etc, \0}
-char *BreakDownPathName(char *file)
+char **BreakDownPathName(char *file)
 {
     char delimiter = '\0'; //the delimiter used throughout the project
     int depth = GetDepthOfPath(file);
-    char *paths = malloc(sizeof(char) * (depth + 1));//how many elements are in the array
+    char **paths = malloc(sizeof(char) * MAX_PATH_LENGTH * (depth + 1));//how many elements are in the array
     char *partOfPath = calloc(sizeof(char) , strlen(file));//allocate enoungh space for nearly the entire array.
     paths[depth] = '\0';//set the last path equal to null so we know it is useless and over
     int index;//the location we are in the passed file argument
@@ -377,7 +381,6 @@ char *BreakDownPathName(char *file)
             indexInCurrentPath = 0;//reset the count
             indexInDepth++;//we added one to the the paths, so now we are at an index one greater
          }
-
     }
     return paths;
 }
@@ -452,4 +455,10 @@ int DataBlockOf(char *inode, int sectorIndex)
     //TODO some math
     return -1;
 
+}
+char *GetFilename(char *paths)
+{
+    int index;
+    for (index = 0; paths[index] != '\0'; index++);
+    return paths[index - 1];
 }
