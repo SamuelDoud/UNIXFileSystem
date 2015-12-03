@@ -443,17 +443,29 @@ char charAt(int fd, int index)
 // TODO (Sam#6#): Reliant on inodes being implemented
 return NULL;
 }
+//get the inode of a file... should
 int GetInode(char *file)
 {
     //get the inode sector for this file
-    char *paths = BreakDownPathName(file);//get the paths of this file
+
+    //search the file table for "file"?
+    int index;
+    for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
+    {
+        if (!IsGarbage(fileTable[index]) && strcmp(fileTable[index], file) == 0) //the file is not garbage and is equal to the name
+        {
+            return fileTable[index].inodePointer;
+        }
+    }
+    osErrno = E_NO_SUCH_FILE; //set the error to..
     return -1;
 }
-int DataBlockOf(char *inode, int sectorIndex)
+//read the data block by using the inode and an index
+char *DataBlockAt(char *inode, int index)
 {
-    //TODO some math
-    return -1;
-
+    char *buffer = mallloc(SECTOR_SIZE_1 * sizeof(char)); //make a string of size SECTOR_SIZE
+    Disk_Read(buffer, GetSectorAt(inode, index));//read the Sector found by the GetSectorAt function from the disk to the buffer
+    return buffer; //return the buffer
 }
 char *GetFilename(char **paths)
 {
