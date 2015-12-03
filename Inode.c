@@ -46,9 +46,15 @@ bool AddPointer(char *thisInodeData, int pointerToAdd)//adds the pointerToAdd to
         {
             //free space found, place that pointer here
             snprintf(thisInodeData + index, sizeof(int), "%d", num);//wrote the number to the slot
+            //add one to the size
+            index = SizeOfInode() + 1;
+            //index is now the new size of the file/directory
+            //set size to index
+            snprintf(thisInodeData, sizeof(int), "%d", index);
+            return true;//function complleted successfully
         }
     }
-    return -1; //no free space
+    return false; //no free space
 }
 int SizeOfInode(char *thisInodeData) //return the size of the inode
 {
