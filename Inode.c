@@ -2,6 +2,7 @@
 
 #include "Params.h"
 
+
 bool InjectInode(char *inodeBlock, char *thisInodeData, int index)
 { //writes an inode to a block given by index
     int writeLength = (SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
@@ -62,4 +63,11 @@ int SizeOfInode(char *thisInodeData) //return the size of the inode
      strncat(sizeStr, thisInodeData, sizeof(int));
     int size = atoi(sizeStr);
     return size;
+}
+//return the sector that is the indexth element in the inode
+int GetSectorAt(char *thisInodeData, int index)
+{
+    int *pointers;//an array that will hold the pointers
+    ReadInodeSectors(inode, pointers); //read all the pointers to the array
+    return pointers[index]; //return the pointer at that index.... maybe need to check if its valid.. ie the index is not out of size
 }
