@@ -94,12 +94,19 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
         }
 
     }
-    return -1; //no free spots exist...
+    return -1; //no free spots exist... give -1 to indicate failure
 
 
 }
-bool removeDirectory(char *name)
+bool RemoveDirectory(char *name, Map *inodes, Map *data)
 {
+    //take a directory file path, lookup where it is
+    //make sure that if it is a directory, its size is zero
+    //get its data pointers (absolute as always with data)
+    //get its inode sector (absolute ie 987 is on sector 246 and index 3)
+    //use the remove function on the Maps
+    //freeTable*****....
+
 
 }
 int GetSize(char *directory)
