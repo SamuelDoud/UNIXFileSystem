@@ -1,5 +1,6 @@
 #include <stdio.h>
-
+#include <string.h>
+#include "Directory.h"
 #include "LibFS.h"
 
 void
@@ -12,23 +13,20 @@ usage(char *prog)
 int
 main(int argc, char *argv[])
 {
+    /*
     if (argc != 2) {
-	usage(argv[0]);
+    usage(argv[0]);
     }
     char *path = argv[1];
-
-    char *aPath = "/usr/atest/somefile.name";
-
-    strtok(aPath, "\\");
-    //check how this breaks down
-
-    int index;
-    for (index = 0; index < 1; index++)
-    {
-
-    }
-
-    FS_Boot(path);
+    */
+    char *file = "\\usr\\test\\someFile.txt";
+    const char s[2] = "\\";
+    char *results[strlen(file)];
+    int length;
+    length =   BreakDownPathName(file, &results);
+    printf("%s\n", results[length - 1]);
+    return(0);
+//    FS_Boot(path);
     FS_Sync();//not sure what this does this do?
     return 0;
 }

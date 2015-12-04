@@ -16,7 +16,6 @@ int osErrno;
 //Function definitions
 int FirstOpenSpotOnTheFileTable();
 int GetInode(char *);
-char **BreakDownPathName(char *);//this needs to be a string array! Seems like strtok()
 bool DoesThisPathExist(char *);//probabbly not needed
 char charAt(int fd, int index); //probably not needed
 char *GetFilename(char *); //gets the file name from the BreakDownPathName function
@@ -78,18 +77,20 @@ File_Create(char *file)
         return -1;
     }
     //if we get here the file does not exist!
-    char *paths = BreakDownPathName(file); // this gets the parts of the path
-    fileName = paths;//the fileName is going to be the last part of the path... TODO
+    //char *paths[];
+
+    //int lengthOfPath = BreakDownPathName(file, paths); // this gets the parts of the path
+    //fileName = paths;//the fileName is going to be the last part of the path... TODO
     //the last part of paths should be a \0, so the file name should be the immediately preceding string
     //this needs to be a pointer of pointers....
     int index;
-    for (index = 0; paths[index] != '\0'; index++)
+//    for (index = 0; paths[index] != '\0'; index++)
     {
         //nothing here
     }
     index--; //take one off
     //now paths[index] is the file name
-    fileName = paths[index];
+   // fileName = paths[index];
     //get an inode for this new file
     //TODO this is going to be a bear to debug
     int inodePointer = FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//find an inode to allocate. Dividing because this is...
@@ -302,7 +303,7 @@ int
 Dir_Create(char *path)
 {
     //this is really similar the other file create
-    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be create
+//    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be create
     // we need to make sure that the files before this are real.. use the first values in myPath to find this out
     char *inode = BuildInode(DIRECTORY_ID);
     int sector;
@@ -319,9 +320,10 @@ Dir_Create(char *path)
 int
 Dir_Size(char *path)
 {
-    //I think dir size is stored in the dir
-    //should be a multiple of 20
-    //TODO (Nick#3#): get this method going
+    //Look up the path
+    //size resides in the inode of the directory
+    //return that
+    //return SizeOfInode(inodeData);
     printf("Dir_Size\n");
     return 0;
 }
@@ -360,34 +362,7 @@ Dir_Unlink(char *path)
 //split the paths into parts
 //for example, the path /usr/sam/etc/
 //turns into {, usr, sam, etc, \0}
-char **BreakDownPathName(char *file)
-{
-    char delimiter = '\0'; //the delimiter used throughout the project
-    int depth = GetDepthOfPath(file);
-    char **paths = malloc(sizeof(char) * MAX_PATH_LENGTH * (depth + 1));//how many elements are in the array
-    char *partOfPath = calloc(sizeof(char) , strlen(file));//allocate enoungh space for nearly the entire array.
-    paths[depth] = '\0';//set the last path equal to null so we know it is useless and over
-    int index;//the location we are in the passed file argument
-    int indexInDepth = 0;//these two indecies serve roles as their name suggests
-    int indexInCurrentPath = 0;
-    for (index = 0; file[index] != '\0'; index++)//go though each in the array
-    {
-         if (file[index] != delimiter)//make sure we aren't going to use a backslash
-         {
-            partOfPath[indexInCurrentPath] = file[index];//add a character to the part of the path
-            indexInCurrentPath++;//count up by one
-         }
-         else//encountered a delimiter, store and reset!
-         {
-            partOfPath[indexInCurrentPath] = '\0';//the last spot in the string is the null terminator char
-            paths[indexInDepth] = partOfPath; //add part of path to the paths array
-            memset(partOfPath, '\0', strlen(file));//clear the string totally.
-            indexInCurrentPath = 0;//reset the count
-            indexInDepth++;//we added one to the the paths, so now we are at an index one greater
-         }
-    }
-    return paths;
-}
+
 int IsAChildOf(int sectorNum, char *childName)
 {
        //TODO (Nick#6#): I give you a sector that is asssumed to be a directory

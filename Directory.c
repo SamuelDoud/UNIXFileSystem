@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
 #include "Params.h"
 #include "Map.h"
 
@@ -115,4 +116,20 @@ int GetSize(char *directory)
 {
     //drectories have a size
     return 0;
+}
+int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
+{
+    int index;
+    char str[strlen(file)];
+    strcpy(str, file);
+    const char delimiter[2] = "\\";
+    char *token;
+    token = strtok(str, delimiter);
+    for(index = 0; token != NULL; index++)
+    {
+        EmptyArrayOfNames[index] = token;
+        printf("%s\n",EmptyArrayOfNames[index]);
+        token = strtok(NULL, delimiter);
+    }
+    return index;
 }
