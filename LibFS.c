@@ -16,10 +16,10 @@ int osErrno;
 //Function definitions
 int FirstOpenSpotOnTheFileTable();
 int GetInode(char *);
-char **BreakDownPathName(char *);//this needs to be a string array!
 bool DoesThisPathExist(char *);//probabbly not needed
 char charAt(int fd, int index); //probably not needed
-char *GetFilename(char **); //gets the file name from the BreakDownPathName function
+char *GetFilename(char *); //gets the file name from the BreakDownPathName function
+char *DataBlockAt(char *inode, int index);
 
 static FileTableElement *fileTable;
 static Map inodeMap;
@@ -36,6 +36,8 @@ FS_Boot(char *path)
 	return -1;
     }
     Disk_Write(SUPER_BLOCK_INDEX, BuildSuperBlock()); //builds the super block by passing super block array to the Disk_Write
+
+
     // do all of the other stuff needed...
     fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
     //set all the fileTable elements to the initial
@@ -47,6 +49,7 @@ FS_Boot(char *path)
     //get the initial maps
     dataMap = DataMap();
     inodeMap = InodeMap();
+    Disk_Write(FindFirstOpenAndSetToClosed(&inodeMap), BuildDirectoryEntry("/", 0));//this symbolizes the root directory
     return 0;
 }
 int
@@ -74,18 +77,20 @@ File_Create(char *file)
         return -1;
     }
     //if we get here the file does not exist!
-    char *paths = BreakDownPathName(file); // this gets the parts of the path
-    fileName = paths;//the fileName is going to be the last part of the path... TODO
+    //char *paths[];
+
+    //int lengthOfPath = BreakDownPathName(file, paths); // this gets the parts of the path
+    //fileName = paths;//the fileName is going to be the last part of the path... TODO
     //the last part of paths should be a \0, so the file name should be the immediately preceding string
     //this needs to be a pointer of pointers....
     int index;
-    for (index = 0; paths[index] != '\0'; index++)
+//    for (index = 0; paths[index] != '\0'; index++)
     {
         //nothing here
     }
     index--; //take one off
     //now paths[index] is the file name
-    fileName = paths[index];
+   // fileName = paths[index];
     //get an inode for this new file
     //TODO this is going to be a bear to debug
     int inodePointer = FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//find an inode to allocate. Dividing because this is...
@@ -130,10 +135,11 @@ File_Open(char *file)
     {
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    char *paths;
-    paths = BreakDownPathName(file);
-    char *filename = GetFilename(paths);
-    FileTableOpen(&fileTable[fileDes],GetInode(file), filename);//opens the file table element as defined in FileTable.h
+    char * filename;
+    char *paths[strlen(file)];
+    int length = BreakDownPathName(file, &paths);
+    filename = paths[length - 1];
+    FileTableOpen(&fileTable[fileDes], GetInode(file), filename);//opens the file table element as defined in FileTable.h
     printf("FS_Open\n");
     return fileDes; //return the file descriptor to the user
 }
@@ -187,22 +193,23 @@ File_Write(int fd, void *buffer, int size)
     int count;
     int countBy = 1;
     //size of file is not currently functional... not defineed to be how many bytes instead of sectors
-    int offset = fileTable[fd].sizeOfFile; //offset because this the starting point of the write
+    int offset = fileTable[fd].index; //offset because this the starting point of the write
     char *inode;
     char *substring;
-    Disk_Read(fileTable[fd].inodePointer, inode);
+    Disk_Read(fileTable[fd].inodePointer, inode);//inode is now holds all the info about this inode SECTOR, still need to get the particular inode
     for (count = 0 ; count < size; count+=countBy)
     {
         //TODO (Sam#5#): This is possibly functional
-        if ((currentSector = DataBlockOf(inode, count + offset / SECTOR_SIZE)) == 0) //this sector is empty, therefore we need a new one
-        {
+
+        if (currentSector = GetSectorAt(inode, (count + offset) / SECTOR_SIZE_1) == 0) //this sector is empty, therefore we need a new one
+        {//Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
             if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
             {//if we get here the Find function could not find a data block to allocate
                 osErrno = E_NO_SPACE;//error to show there is no space available
                 return FAILURE;//return the error code
             }
         }
-        substring = malloc(sizeof(char) * SECTOR_SIZE_1);
+        substring = calloc(sizeof(char), SECTOR_SIZE_1);//make a string of Sector_size characters full of Zeros (not garbage as we cannot be sure how much is actually being written)
         writen = strncpy(substring, buffer + (count + offset), SECTOR_SIZE_1 - (SECTOR_SIZE_1 -(count + offset) % SECTOR_SIZE_1));//take a substring of the buffer of size SECTOR_SIZE
         //this may go out of bounds on the last edge case
         //for example, we are given 513 bytes to write from pointer 0
@@ -212,14 +219,13 @@ File_Write(int fd, void *buffer, int size)
         Disk_Write(currentSector, substring);//write substring to the currentSector on the disk
         free(substring); //deallocate the memory for substring
         if (countBy == 1)
-        {//only called on the first run through
+        {//only called on the first run through, when we expect to be writing something that is not of SECTOR_SIZE
             count += writen; //set the count to a multiple of SECTOR_SIZE so that it starts at the next Sector
-            countBy = SECTOR_SIZE_1; //now we can increment by SECTOR_SIZE
+            countBy = SECTOR_SIZE_1; //now we can increment by SECTOR_SIZE so that we always are writing from the begining of a sector
         }
     }
     fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
-
-    return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made
+    return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made... I hopes
 
 }
 //I think this is done other than the helper functions!
@@ -297,7 +303,7 @@ int
 Dir_Create(char *path)
 {
     //this is really similar the other file create
-    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be create
+//    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be create
     // we need to make sure that the files before this are real.. use the first values in myPath to find this out
     char *inode = BuildInode(DIRECTORY_ID);
     int sector;
@@ -314,9 +320,10 @@ Dir_Create(char *path)
 int
 Dir_Size(char *path)
 {
-    //I think dir size is stored in the dir
-    //should be a multiple of 20
-    //TODO (Nick#3#): get this method going
+    //Look up the path
+    //size resides in the inode of the directory
+    //return that
+    //return SizeOfInode(inodeData);
     printf("Dir_Size\n");
     return 0;
 }
@@ -355,34 +362,7 @@ Dir_Unlink(char *path)
 //split the paths into parts
 //for example, the path /usr/sam/etc/
 //turns into {, usr, sam, etc, \0}
-char **BreakDownPathName(char *file)
-{
-    char delimiter = '\0'; //the delimiter used throughout the project
-    int depth = GetDepthOfPath(file);
-    char **paths = malloc(sizeof(char) * MAX_PATH_LENGTH * (depth + 1));//how many elements are in the array
-    char *partOfPath = calloc(sizeof(char) , strlen(file));//allocate enoungh space for nearly the entire array.
-    paths[depth] = '\0';//set the last path equal to null so we know it is useless and over
-    int index;//the location we are in the passed file argument
-    int indexInDepth = 0;//these two indecies serve roles as their name suggests
-    int indexInCurrentPath = 0;
-    for (index = 0; file[index] != '\0'; index++)//go though each in the array
-    {
-         if (file[index] != delimiter)//make sure we aren't going to use a backslash
-         {
-            partOfPath[indexInCurrentPath] = file[index];//add a character to the part of the path
-            indexInCurrentPath++;//count up by one
-         }
-         else//encountered a delimiter, store and reset!
-         {
-            partOfPath[indexInCurrentPath] = '\0';//the last spot in the string is the null terminator char
-            paths[indexInDepth] = partOfPath; //add part of path to the paths array
-            memset(partOfPath, '\0', strlen(file));//clear the string totally.
-            indexInCurrentPath = 0;//reset the count
-            indexInDepth++;//we added one to the the paths, so now we are at an index one greater
-         }
-    }
-    return paths;
-}
+
 int IsAChildOf(int sectorNum, char *childName)
 {
        //TODO (Nick#6#): I give you a sector that is asssumed to be a directory
@@ -463,13 +443,7 @@ int GetInode(char *file)
 //read the data block by using the inode and an index
 char *DataBlockAt(char *inode, int index)
 {
-    char *buffer = mallloc(SECTOR_SIZE_1 * sizeof(char)); //make a string of size SECTOR_SIZE
+    char *buffer = calloc(SECTOR_SIZE_1 , sizeof(char)); //make a string of size SECTOR_SIZE
     Disk_Read(buffer, GetSectorAt(inode, index));//read the Sector found by the GetSectorAt function from the disk to the buffer
     return buffer; //return the buffer
-}
-char *GetFilename(char **paths)
-{
-    int index;
-    for (index = 0; paths[index] != '\0'; index++);
-    return paths[index - 1];
 }

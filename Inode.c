@@ -46,7 +46,7 @@ bool AddPointer(char *thisInodeData, int pointerToAdd)//adds the pointerToAdd to
         if (strcmp(pointerChar, comparator) == 0)
         {
             //free space found, place that pointer here
-            snprintf(thisInodeData + index, sizeof(int), "%d", num);//wrote the number to the slot
+            snprintf(thisInodeData + index, sizeof(int), "%d", pointerToAdd);//wrote the number to the slot
             //add one to the size
             index = SizeOfInode() + 1;
             //index is now the new size of the file/directory
@@ -68,6 +68,18 @@ int SizeOfInode(char *thisInodeData) //return the size of the inode
 int GetSectorAt(char *thisInodeData, int index)
 {
     int *pointers;//an array that will hold the pointers
-    ReadInodeSectors(inode, pointers); //read all the pointers to the array
+    ReadInodeSectors(thisInodeData, pointers); //read all the pointers to the array
     return pointers[index]; //return the pointer at that index.... maybe need to check if its valid.. ie the index is not out of size
+}
+int GetParentInodes(int *pointers, int originInode)
+{
+    //
+}
+char *GetInode(int sector, int index)
+{
+    char* inodeBuffer = malloc (sizeof(char) * SECTOR_SIZE_1);
+    char thisInode;
+    Disk_Read(sector, inodeBuffer);
+    strncat(thisInode, inodeBuffer + (index * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
+    return thisInode;
 }

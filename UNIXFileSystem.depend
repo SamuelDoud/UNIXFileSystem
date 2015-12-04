@@ -1,9 +1,11 @@
 # depslib dependency file v1.0
-1448029949 source:/home/samuel/Desktop/UNIXFileSystem/main.c
+1449235370 source:/home/samuel/Desktop/UNIXFileSystem/main.c
 	<stdio.h>
+	<string.h>
+	"Directory.h"
 	"LibFS.h"
 
-1448029949 /home/samuel/Desktop/UNIXFileSystem/LibFS.h
+1449198401 /home/samuel/Desktop/UNIXFileSystem/LibFS.h
 	<stdio.h>
 	<stdlib.h>
 	<unistd.h>
@@ -34,7 +36,7 @@
 	"LibDisk.h"
 	<string.h>
 
-1449072145 source:/home/samuel/C projects/UNIXFileSystem/LibFS.c
+1449187537 source:/home/samuel/C projects/UNIXFileSystem/LibFS.c
 	"LibFS.h"
 	"LibDisk.h"
 	"Builder.h"
@@ -49,7 +51,7 @@
 	<math.h>
 	"Params.h"
 
-1447987310 source:/home/samuel/C projects/UNIXFileSystem/main.c
+1449187548 source:/home/samuel/C projects/UNIXFileSystem/main.c
 	<stdio.h>
 	"LibFS.h"
 
@@ -108,7 +110,7 @@
 
 1448992945 /home/samuel/C projects/UNIXFileSystem/Directory.h
 
-1449030427 source:/home/samuel/Desktop/UNIXFileSystem/Builder.c
+1449198283 source:/home/samuel/Desktop/UNIXFileSystem/Builder.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
@@ -125,7 +127,7 @@
 	<stdlib.h>
 	<unistd.h>
 
-1449030559 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
+1449234224 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
 	"LibFS.h"
 	"LibDisk.h"
 	"Builder.h"
@@ -141,13 +143,17 @@
 
 1449025786 /home/samuel/Desktop/UNIXFileSystem/Map.h
 
-1449025786 /home/samuel/Desktop/UNIXFileSystem/Directory.h
+1449236058 /home/samuel/Desktop/UNIXFileSystem/Directory.h
+	<stdbool.h>
+	"Map.h"
 
-1449027375 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
+1449235249 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
+	<string.h>
 	"Params.h"
+	"Map.h"
 
 1449030610 source:/home/samuel/Desktop/UNIXFileSystem/FileTable.c
 	<stdio.h>
@@ -164,5 +170,13 @@
 	"Map.h"
 
 1449025786 source:/home/samuel/Desktop/UNIXFileSystem/Params.c
+	"Params.h"
+
+1449187519 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
+	<stdbool.h>
+	"Params.h"
+
+1449199078 source:/home/samuel/Desktop/UNIXFileSystem/Inode.c
+	<stdbool.h>
 	"Params.h"
 
