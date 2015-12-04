@@ -8,5 +8,5 @@ int ReadInodeSectors(char *thisInodeData, int *pointersBuffer);//take an inode a
 bool AddPointer(char *thisInodeData, int pointerToAdd);//adds the pointerToAdd to the inode data. Returns false on Full. Updates size as well
 int SizeOfInode(char *thisInodeData); //return the size of the inode
 int GetSectorAt(char *thisInodeData, int index);
-
+int GetParentInodes(int *pointers, int originInode); //pass a int buffer and an origin inode, return the length
 #endif // INODE_H_INCLUDED

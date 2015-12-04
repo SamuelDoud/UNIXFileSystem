@@ -71,3 +71,7 @@ int GetSectorAt(char *thisInodeData, int index)
     ReadInodeSectors(thisInodeData, pointers); //read all the pointers to the array
     return pointers[index]; //return the pointer at that index.... maybe need to check if its valid.. ie the index is not out of size
 }
+int GetParentInodes(int *pointers, int originInode)
+{
+    //
+}

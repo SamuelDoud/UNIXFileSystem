@@ -20,6 +20,7 @@ char **BreakDownPathName(char *);//this needs to be a string array! Seems like s
 bool DoesThisPathExist(char *);//probabbly not needed
 char charAt(int fd, int index); //probably not needed
 char *GetFilename(char *); //gets the file name from the BreakDownPathName function
+char *DataBlockAt(char *inode, int index);
 
 static FileTableElement *fileTable;
 static Map inodeMap;
@@ -36,6 +37,8 @@ FS_Boot(char *path)
 	return -1;
     }
     Disk_Write(SUPER_BLOCK_INDEX, BuildSuperBlock()); //builds the super block by passing super block array to the Disk_Write
+
+
     // do all of the other stuff needed...
     fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
     //set all the fileTable elements to the initial
@@ -47,6 +50,7 @@ FS_Boot(char *path)
     //get the initial maps
     dataMap = DataMap();
     inodeMap = InodeMap();
+    Disk_Write(FindFirstOpenAndSetToClosed(&inodeMap), BuildDirectoryEntry("/", 0));//this symbolizes the root directory
     return 0;
 }
 int
@@ -195,7 +199,7 @@ File_Write(int fd, void *buffer, int size)
     for (count = 0 ; count < size; count+=countBy)
     {
         //TODO (Sam#5#): This is possibly functional
-        if ((currentSector = DataBlockAt((inode, count + offset) / SECTOR_SIZE)) == 0) //this sector is empty, therefore we need a new one
+        if ((currentSector = GetSectorAt(inode, (count + offset) / SECTOR_SIZE_1) == 0) //this sector is empty, therefore we need a new one
         {//Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
             if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
             {//if we get here the Find function could not find a data block to allocate
@@ -219,7 +223,7 @@ File_Write(int fd, void *buffer, int size)
         }
     }
     fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
-    return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made
+    return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made... I hopes
 
 }
 //I think this is done other than the helper functions!
@@ -463,7 +467,7 @@ int GetInode(char *file)
 //read the data block by using the inode and an index
 char *DataBlockAt(char *inode, int index)
 {
-    char *buffer = mallloc(SECTOR_SIZE_1 * sizeof(char)); //make a string of size SECTOR_SIZE
+    char *buffer = calloc(SECTOR_SIZE_1 , sizeof(char)); //make a string of size SECTOR_SIZE
     Disk_Read(buffer, GetSectorAt(inode, index));//read the Sector found by the GetSectorAt function from the disk to the buffer
     return buffer; //return the buffer
 }
