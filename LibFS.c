@@ -16,10 +16,10 @@ int osErrno;
 //Function definitions
 int FirstOpenSpotOnTheFileTable();
 int GetInode(char *);
-char **BreakDownPathName(char *);//this needs to be a string array!
+char **BreakDownPathName(char *);//this needs to be a string array! Seems like strtok()
 bool DoesThisPathExist(char *);//probabbly not needed
 char charAt(int fd, int index); //probably not needed
-char *GetFilename(char **); //gets the file name from the BreakDownPathName function
+char *GetFilename(char *); //gets the file name from the BreakDownPathName function
 
 static FileTableElement *fileTable;
 static Map inodeMap;
@@ -131,8 +131,9 @@ File_Open(char *file)
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
     char *paths;
-    paths = BreakDownPathName(file);
-    char *filename = GetFilename(paths);
+    //paths = BreakDownPathName(file);
+    paths = strtok(file, "\\"); //this may be a better way to take the split
+    char *filename = GetFilename(paths); //the file name is the last path
     FileTableOpen(&fileTable[fileDes],GetInode(file), filename);//opens the file table element as defined in FileTable.h
     printf("FS_Open\n");
     return fileDes; //return the file descriptor to the user
@@ -187,22 +188,22 @@ File_Write(int fd, void *buffer, int size)
     int count;
     int countBy = 1;
     //size of file is not currently functional... not defineed to be how many bytes instead of sectors
-    int offset = fileTable[fd].sizeOfFile; //offset because this the starting point of the write
+    int offset = fileTable[fd].index; //offset because this the starting point of the write
     char *inode;
     char *substring;
-    Disk_Read(fileTable[fd].inodePointer, inode);
+    Disk_Read(fileTable[fd].inodePointer, inode);//inode is now holds all the info about this inode SECTOR, still need to get the particular inode
     for (count = 0 ; count < size; count+=countBy)
     {
         //TODO (Sam#5#): This is possibly functional
-        if ((currentSector = DataBlockOf(inode, count + offset / SECTOR_SIZE)) == 0) //this sector is empty, therefore we need a new one
-        {
+        if ((currentSector = DataBlockAt((inode, count + offset) / SECTOR_SIZE)) == 0) //this sector is empty, therefore we need a new one
+        {//Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
             if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
             {//if we get here the Find function could not find a data block to allocate
                 osErrno = E_NO_SPACE;//error to show there is no space available
                 return FAILURE;//return the error code
             }
         }
-        substring = malloc(sizeof(char) * SECTOR_SIZE_1);
+        substring = calloc(sizeof(char), SECTOR_SIZE_1);//make a string of Sector_size characters full of Zeros (not garbage as we cannot be sure how much is actually being written)
         writen = strncpy(substring, buffer + (count + offset), SECTOR_SIZE_1 - (SECTOR_SIZE_1 -(count + offset) % SECTOR_SIZE_1));//take a substring of the buffer of size SECTOR_SIZE
         //this may go out of bounds on the last edge case
         //for example, we are given 513 bytes to write from pointer 0
@@ -212,13 +213,12 @@ File_Write(int fd, void *buffer, int size)
         Disk_Write(currentSector, substring);//write substring to the currentSector on the disk
         free(substring); //deallocate the memory for substring
         if (countBy == 1)
-        {//only called on the first run through
+        {//only called on the first run through, when we expect to be writing something that is not of SECTOR_SIZE
             count += writen; //set the count to a multiple of SECTOR_SIZE so that it starts at the next Sector
-            countBy = SECTOR_SIZE_1; //now we can increment by SECTOR_SIZE
+            countBy = SECTOR_SIZE_1; //now we can increment by SECTOR_SIZE so that we always are writing from the begining of a sector
         }
     }
     fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
-
     return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made
 
 }
@@ -467,7 +467,10 @@ char *DataBlockAt(char *inode, int index)
     Disk_Read(buffer, GetSectorAt(inode, index));//read the Sector found by the GetSectorAt function from the disk to the buffer
     return buffer; //return the buffer
 }
-char *GetFilename(char **paths)
+
+//get the last part to this array
+//need to verify that this works...
+char *GetFilename(char *paths)
 {
     int index;
     for (index = 0; paths[index] != '\0'; index++);
