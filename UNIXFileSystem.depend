@@ -1,9 +1,9 @@
 # depslib dependency file v1.0
-1448029949 source:/home/samuel/Desktop/UNIXFileSystem/main.c
+1449193934 source:/home/samuel/Desktop/UNIXFileSystem/main.c
 	<stdio.h>
 	"LibFS.h"
 
-1448029949 /home/samuel/Desktop/UNIXFileSystem/LibFS.h
+1449198401 /home/samuel/Desktop/UNIXFileSystem/LibFS.h
 	<stdio.h>
 	<stdlib.h>
 	<unistd.h>
@@ -108,7 +108,7 @@
 
 1448992945 /home/samuel/C projects/UNIXFileSystem/Directory.h
 
-1449030427 source:/home/samuel/Desktop/UNIXFileSystem/Builder.c
+1449198283 source:/home/samuel/Desktop/UNIXFileSystem/Builder.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
@@ -143,11 +143,12 @@
 
 1449025786 /home/samuel/Desktop/UNIXFileSystem/Directory.h
 
-1449027375 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
+1449198376 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
 	"Params.h"
+	"Map.h"
 
 1449030610 source:/home/samuel/Desktop/UNIXFileSystem/FileTable.c
 	<stdio.h>
@@ -167,6 +168,10 @@
 	"Params.h"
 
 1449187519 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
+	<stdbool.h>
+	"Params.h"
+
+1449193934 source:/home/samuel/Desktop/UNIXFileSystem/Inode.c
 	<stdbool.h>
 	"Params.h"
 
