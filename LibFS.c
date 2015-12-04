@@ -174,7 +174,8 @@ File_Read(int fd, void *buffer, int size)
     for (count = 0; count < size;)
     {
         BlockWeAreWritingAt = (count + offset) / SECTOR_SIZE_1; //the index in dataBlocks we are interestedd in
-        howManyBytesToRead = SECTOR_SIZE_1 - (count + offset) % SECTOR_SIZE_1; //how many bytes we need to read from this sector
+        howManyBytesToRead = SECTOR_SIZE_1 - (count + offset) % SECTOR_SIZE_1;
+        //how many bytes we need to read from this sector, count + offset + howManyBytesToWrite should put us at the end of the sector
         if (count + howManyBytesToRead > size)
         {
             howManyBytesToRead = size - count; //prevent overflow
@@ -401,8 +402,9 @@ Dir_Read(char *path, void *buffer, int size)
 int
 Dir_Unlink(char *path)
 {
+
     char *rootPath = "\\"; //this is what the root is
-    if (strcmp(path, rootPath) == 0)
+    if (strcmp(path, rootPath) == 0)//cannot delete the root
     {
         osErrno = E_ROOT_DIR;
         return FAILURE;
@@ -412,9 +414,28 @@ Dir_Unlink(char *path)
         osErrno = E_DIR_NOT_EMPTY;
         return FAILURE;
     }
+    int parentInode;
+    int thisInode;//aabsolute inode pointer... ie 768 is the 768th inode which is mapped by inodeMap.bytemap[192] and is the 0th inode on that block.
+    //the sector is something like 196 (192 + FirstSectorIndex)
+    if (thisInode = DoesThisPathExist(path) == FAILURE)
+    {
+        osErrno = E_NO_SUCH_FILE;
+        return -1;
+    }
+    FreeTableOfOne(&inodeMap, thisInode);
+    //remove the entry from the parent
+    char *parentPath;
+    strncat(parentPath, path, strlen(path) - DIRECTORY_LENGTH);//should trim the last part of the string
+    parentInode = DoesThisPathExist(parentPath);//the inode of the parent
+    RemoveDirectory(parentInode, filenameToRemove, &dataMap);
+    //now delete this inode by opening it up
+
+
+
     //remove the directory from its parent
     //free the inode
     //free the data blocks
+
     printf("Dir_Unlink\n");
     return 0;
 }
