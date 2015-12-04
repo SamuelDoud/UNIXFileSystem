@@ -75,3 +75,11 @@ int GetParentInodes(int *pointers, int originInode)
 {
     //
 }
+char *GetInode(int sector, int index)
+{
+    char* inodeBuffer = malloc (sizeof(char) * SECTOR_SIZE_1);
+    char thisInode;
+    Disk_Read(sector, inodeBuffer);
+    strncat(thisInode, inodeBuffer + (index * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
+    return thisInode;
+}

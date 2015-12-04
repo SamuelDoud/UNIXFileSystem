@@ -135,11 +135,11 @@ File_Open(char *file)
     {
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    char *paths;
-    //paths = BreakDownPathName(file);
-    paths = strtok(file, "\\"); //this may be a better way to take the split
-    char *filename = GetFilename(paths); //the file name is the last path
-    FileTableOpen(&fileTable[fileDes],GetInode(file), filename);//opens the file table element as defined in FileTable.h
+    char * filename;
+    char *paths[strlen(file)];
+    int length = BreakDownPathName(file, &paths);
+    filename = paths[length - 1];
+    FileTableOpen(&fileTable[fileDes], GetInode(file), filename);//opens the file table element as defined in FileTable.h
     printf("FS_Open\n");
     return fileDes; //return the file descriptor to the user
 }
@@ -446,13 +446,4 @@ char *DataBlockAt(char *inode, int index)
     char *buffer = calloc(SECTOR_SIZE_1 , sizeof(char)); //make a string of size SECTOR_SIZE
     Disk_Read(buffer, GetSectorAt(inode, index));//read the Sector found by the GetSectorAt function from the disk to the buffer
     return buffer; //return the buffer
-}
-
-//get the last part to this array
-//need to verify that this works...
-char *GetFilename(char *paths)
-{
-    int index;
-    for (index = 0; paths[index] != '\0'; index++);
-    return paths[index - 1];
 }

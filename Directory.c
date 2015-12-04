@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include "Params.h"
+#include "LibDisk.h"
 #include "Map.h"
 
 //what does a directory look like?
@@ -79,19 +80,19 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
                 //else return -1
                 //find an availible inode for the child
                 //return the index of that inode (after building the inode)
-
                 int total = FindFirstOpenAndSetToClosed(&inodes); //the nth inode
                 int childInodeSector = total / INODE_BYTEMAP_LENGTH; //the absolute sector ... TODO an offset may be req'd here or in the index in sector
                 int indexInSector = total % INODE_BYTEMAP_LENGTH; //the index of the inode
-                char *buffer = malloc(sizeof(char) * SECTOR_SIZE_1);
-                Disk_Read(childInodeSector, buffer, indexInSector); //write the sector to the buffer
+                char *inodeBlock = malloc(sizeof(char) * SECTOR_SIZE_1);
+                Disk_Read(childInodeSector, inodeBlock);//write the inode to childInode
                 //inject the inode
-
-                InjectInode(buffer,BuildInode(DIRECTORY_ID), indexInSector); //build a new full inode with the child in it
-                Disk_Write(childInodeSector, BuildInode(DIRECTORY_ID)); //write the new inode to the disk
+                InjectInode(inodeBlock,BuildInode(DIRECTORY_ID), indexInSector); //build a new full inode with the child in it
+                Disk_Write(childInodeSector, inodeBlock); //write the new inode to the disk
 
                 size += DIRECTORY_LENGTH; //add twenty to the size
                 snprintf(inodeOfParent, sizeof(int), "%d", size);//write the new size to the inodeOfTheParent
+                //rewrite the inode of the parent has to be handled by the calling function?
+
                 return childInodeSector; //returning the inode of the child
             }
         }
@@ -132,4 +133,51 @@ int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
         token = strtok(NULL, delimiter);
     }
     return index;
+}
+int Lookup(char *file)
+{
+    char *paths[strlen(path)];
+    int length;
+    int index;
+    int subIndex;
+    int location;
+    int numPointers;
+    int *pointersArr = malloc(sizeof(int) * MAX_NUM_SECTORS_PER_FILE);
+    char *dataBlockData = malloc(sizeof(char) * SECTOR_SIZE_1);
+    length = BreakDownPathName(file, paths);
+    //first spot is root, check there
+    //root's inode is the very first inode
+    int inode = 0;
+    int indexInInode = 0
+
+    //search the inode for paths[0]
+    for (index = 0; index < length; index++)
+    {
+        char *inode = GetInode(inode, indexInInode);
+        //get the data block pointers
+        numPointers = ReadInodeSectors(inode, pointersArr);
+        for (subIndex = 0; subIndex < numPointers; subIndex++)
+        {
+            if (pointersArr[subIndex] != -1)
+            {
+                //the data sector is not null
+                Disk_Write(pointersArr[subIndex], dataBlockData);
+                location = strstr(dataBlockData, paths[index]);
+                if (location != NULL)
+                {
+                    //it was found
+                    //TODO
+                    //extract the pointer here
+                    char *tmp = malloc(sizeof(char) * DIRECTORY_LENGTH);
+                    strncat(tmp, dataBlockData + (subIndex * DIRECTORY_LENGTH) + (DIRECTORY_LENGTH - sizeof(int)), sizeof(int));//ensure this works
+                    inode = atoi(tmp);
+                    free(tmp);
+                }
+            }
+        }
+    }
+}
+bool DoesThisPathExist(char *paths)
+{
+
 }

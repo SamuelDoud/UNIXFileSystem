@@ -9,4 +9,5 @@ bool AddPointer(char *thisInodeData, int pointerToAdd);//adds the pointerToAdd t
 int SizeOfInode(char *thisInodeData); //return the size of the inode
 int GetSectorAt(char *thisInodeData, int index);
 int GetParentInodes(int *pointers, int originInode); //pass a int buffer and an origin inode, return the length
+char *GetInode(int sector, int index);
 #endif // INODE_H_INCLUDED

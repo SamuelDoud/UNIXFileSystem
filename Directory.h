@@ -10,4 +10,5 @@ int GetSize(char *directory);
 bool RemoveDirectory(char *name, Map *inodes, Map *data);
 int BreakDownPathName(char *filename, char *emptyStrArray);
 
+
 #endif // DIRECTORY_H_INCLUDED
