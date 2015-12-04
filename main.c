@@ -2,7 +2,7 @@
 
 #include "LibFS.h"
 
-void 
+void
 usage(char *prog)
 {
     fprintf(stderr, "usage: %s <disk image file>\n", prog);
@@ -17,8 +17,19 @@ main(int argc, char *argv[])
     }
     char *path = argv[1];
 
+    char *aPath = "/usr/atest/somefile.name";
+
+    strtok(aPath, "\\");
+    //check how this breaks down
+
+    int index;
+    for (index = 0; index < 1; index++)
+    {
+
+    }
+
     FS_Boot(path);
-    FS_Sync();
+    FS_Sync();//not sure what this does this do?
     return 0;
 }
 

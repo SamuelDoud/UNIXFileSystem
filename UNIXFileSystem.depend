@@ -34,7 +34,7 @@
 	"LibDisk.h"
 	<string.h>
 
-1449072145 source:/home/samuel/C projects/UNIXFileSystem/LibFS.c
+1449187537 source:/home/samuel/C projects/UNIXFileSystem/LibFS.c
 	"LibFS.h"
 	"LibDisk.h"
 	"Builder.h"
@@ -49,7 +49,7 @@
 	<math.h>
 	"Params.h"
 
-1447987310 source:/home/samuel/C projects/UNIXFileSystem/main.c
+1449187548 source:/home/samuel/C projects/UNIXFileSystem/main.c
 	<stdio.h>
 	"LibFS.h"
 
@@ -164,5 +164,9 @@
 	"Map.h"
 
 1449025786 source:/home/samuel/Desktop/UNIXFileSystem/Params.c
+	"Params.h"
+
+1449187519 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
+	<stdbool.h>
 	"Params.h"
 
