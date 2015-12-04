@@ -61,60 +61,58 @@ FS_Sync()
 int
 File_Create(char *file)
 {
-    char* fileName;//TODO get the last part f
-    //TODO (Evan#2#): I don't even know what this method is doing...
-    //what is char *file? the data? The name?
     printf("FS_Create\n");
-    //NEED some way to check if it already exists
-    if (DoesThisPathExist(file))
-    {
+    int length; // length is going to represent the number of parent directories and the file name
+    char *paths[strlen(file)]; //the string array which will hold the paths and the file name
+    char *filename; //the name of the file
+    char *absolutePath; //the path of the file...
+    length = BreakDownPathName(file, paths);
+    filename = paths[length - 1];
+    strncat(absolutePath, file, strlen(file) - strlen(filename));//this will concatente the entire file path ecept for the file name into absolute path
+
+    int absoluteInodeOfParent;
+    //TODO DoesThisPathExist
+    //get the inode of the directory that this file will reside in
+    if (absoluteInodeOfParent = DoesThisPathExist(absolutePath) == -1) //absolute inode is the the inode of this files parent
+    { //if absoluteInode is equal to -1, the parent directorry does not exist
         osErrno = E_CREATE;
         return -1;
     }
-    if (strlen(fileName) > MAX_PATH_LENGTH)
+    if (strlen(filename) > MAX_PATH_LENGTH)
     {
         osErrno = E_FILE_TOO_BIG;//probably the wrong error code
         return -1;
     }
     //if we get here the file does not exist!
-    //char *paths[];
-
-    //int lengthOfPath = BreakDownPathName(file, paths); // this gets the parts of the path
-    //fileName = paths;//the fileName is going to be the last part of the path... TODO
-    //the last part of paths should be a \0, so the file name should be the immediately preceding string
-    //this needs to be a pointer of pointers....
-    int index;
-//    for (index = 0; paths[index] != '\0'; index++)
-    {
-        //nothing here
-    }
-    index--; //take one off
-    //now paths[index] is the file name
-   // fileName = paths[index];
-    //get an inode for this new file
-    //TODO this is going to be a bear to debug
-    int inodePointer = FindFirstOpenAndSetToClosed(&InodeMap) / inodeMap.bitsPerChar;//find an inode to allocate. Dividing because this is...
-    int indexOfInodeInSector = (inodePointer - FIRST_INODE_BLOCK_INDEX) % inodeMap.bitsPerChar;//need to know where in the sector it is going to go
-    char *inodeSector;//make a character array. Does it need to be initailized?
+    int thisAbsoluteInodePointer = FindFirstOpenAndSetToClosed(&InodeMap);//find an inode to allocate for the file. Divi
+    int thisInodeSector = thisAbsoluteInodePointer / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //this iss the inode sector
+    int thisInodeSectorIndex = thisAbsoluteInodePointer % NUM_INODES_PER_BLOCK;//need to know where in the sector it is going to go
+    char *inodeSectorData;//make a character array. Does it need to be initailized?
     char *inodeEntry; //inode Entry is the individual inode
-    Disk_Read(inodePointer, inodeSector); //Read the sector to InodeSector
+    Disk_Read(inodePointer, inodeSectorData); //Read the sector to InodeSector
     //inject the inode into the inode char array
     inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
-    //inject inodeEntry into inodeSector at indexOfInodeInSector
-    Disk_Write(inodePointer, inodeSector); //write to the sector
+    InjectInode(inodeSector, inodeEntry, thisInodeSectorIndex); //write the inode entry to the inode block
+    Disk_Write(thisInodeSector, inodeSectorData); //write the inode data to the disk
 
-    //disk[inodePointer].data[indexOfInodeInSector * (SECTOR_SIZE / inodeMap.bitsPerChar)] = BuildInode(FILE_ID);//build a blank inode for this sector from the offset calculated
-    //get the last directory inode
-    //go to that data block
-    char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, inodePointer);//build an entry for the directory
-
+    //write the entry to the directory
+    int parentInodeSector = absoluteInodeOfParent / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //get the sector this inode is on. This maybe should be a function
+    int parentInodeSectorIndex = absoluteInodeOfParent % NUM_INODES_PER_BLOCK; //get the index of the inode in the sector
+    char *inodeOfDirectory = GetInode(parentInodeSector, parentInodeSectorIndex); //get the inode of the parent directoy
+    char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, thisAbsoluteInodePointer);//build an entry for the directory
+    int result = InsertDirectory(&inodeOfDirectory, thisFilesDirectoryEntry, &dataMap, &inodeMap); //this puts the directory into the inode
+    if (result != -1)
+    {
+    Disk_Write(parentInodeSector, inodeOfDirectory);
+    return 0;
+    }
 
     //find the directory that this file is going into
     //all of the paths from paths[0] - paths[index - 1]
     //jump around those paths
     //if following the path leads to invalid directories throw an error
-
-    return 0;
+    osErrno = E_NO_SPACE; //if we get here then the directory couldn't allocate the space req'd to place a new directory
+    return -1;
 }
 int
 File_Open(char *file)
