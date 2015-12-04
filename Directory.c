@@ -2,9 +2,10 @@
 #include <stdbool.h>
 #include <math.h>
 #include "Params.h"
+#include "Map.h"
 
 //what does a directory look like?
-const int MAX_SIZE = SECTOR_SIZE * MAX_NUM_SECTORS;
+
 //Function takes a path and a pointer and gives it back in the form of a directory entry
 char *BuildDirectoryEntry(char *name, int pointer)
 {
@@ -37,6 +38,7 @@ char *BuildDirectoryEntry(char *name, int pointer)
 }
 int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map *inodes)
 {
+    int MAX_SIZE = SECTOR_SIZE_1 * MAX_NUM_SECTORS_PER_FILE;
     //take the inode of the parent
     //find its data pointers
     int size;
@@ -51,9 +53,9 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
     int *dataPointers;
     int length = ReadInodeSectors(inodeOfParent, &dataPointers); //length is how many data blocks there are
     // TODO if the size of this inode makes it so that the next free space is on another block, we need to allocate a new block
-    if (length * SECTOR_SIZE == size)
+    if (length * SECTOR_SIZE_1 == size)
     {
-        AddPointer(inodeOfParent, FindFirstOpenAndSetToClosed(&dataMap));
+        AddPointer(inodeOfParent, FindFirstOpenAndSetToClosed(&data));
         length = ReadInodeSectors(inodeOfParent, &dataPointers); //length is how many data blocks there are
         indexOfPointers = length - 1;//set it to the last pointer!
     }//make sure that call is legal... ie, the sector being added is sensible

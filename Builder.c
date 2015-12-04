@@ -26,10 +26,9 @@ char *BuildInode(int fileType)
     int size = 0;
     //An inode does not take up a full sector, it can be shared with other inodes
     //it needs the file size, the file type, and its pointers.
-    char *inode = (char *) malloc(sizeof(fileType) + sizeof(size) + sizeof(pointers));
+    char *inode = (char *) malloc(sizeof(char) * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //a string of the length of an Inode
     //need to set all to -1.....
     char *negativeOne = "-1";
-
     inode[0] = (char)size;
     inode[1] = (char)fileType;
     int index;
