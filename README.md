@@ -106,13 +106,13 @@ Function Behavior Sketches in Genric File System API:
 		............ 
 
 
-Function Behavior Sketches in Directory API:
+Misc Function Behavior Sketches:
 
 	Main Function Sketch()
 		-Call FS_Boot
 
 	BuildInode(int index, int type):
-		-call allocate_inode to find empty index. pass this to build inode
+		-first, call allocate_inode to find empty index. We pass this to buildInode when called
 		Creating inodes via int *BuildInode(int index, int type):
 			-called by File_Create (need to then create inode to preserve bijection)
 			-this creates empty inodes, since when file is created, no data is written. 
@@ -130,8 +130,8 @@ Function Behavior Sketches in Directory API:
 			-disk_write() 
 				-note we read as we do, because we can only write whole blocks, and each inode is less than a block. 
 
-	"allocate_inode()" 
-		-need fn "allocate_inode()" to find first free slot. 
+	int FindFirstOpenAndSetToClosed(Map *mapArg) 
+		*goes through our bitmaps to find the first free bit. 
 			-when this is found, we allocate 128B of memory at this spot. else error. 
 			-need way to go from bitmap entry to physical location. 
 			-Q: how to write to x/4th of a block?
@@ -141,11 +141,51 @@ Function Behavior Sketches in Directory API:
 
 
 
+Function Behavior Sketches in Directory API:
 
-Directory
-	-a special kind of file denoted by a 1 byte (typo in notes says b) flag. 
+	parent_checker(char *path)
+		*checks if the parent of the directory (path) being created exists
+		-
+
+	int Dir_Create(char *path)
+		*creates a new directory as named by absolute path.
+		-check if parent exists
+			if not return -1 and set osErrno to E_CREATE.
+
+		-call FindFirstOpenAndSetToClosed to find an open space for our inode. 
+		-create an inode in this space with BuildInode. 
+
+
+		-add a new directory entry in the current directory’s parent. 
+		-Upon failure of any sort, return -1 and set osErrno to E_CREATE. Upon success, return 0. Note that for simplicity Dir Create() is not recursive - that is, if only ”/” exists, and you want to create a directory ”/a/b/”, you must first create ”/a”, and then create ”/a/b”.
+
+
+
+
+
+	int Dir_Size(char *path)
+		-returns the number of bytes in the directory referred to by path
+		-used to find the size of the directory before calling Dir_Read() (described below) to find the contents of the directory.
+
+	int Dir Read(char *path, void *bu↵er, int size) 
+		-used to read the contents of a directory.
+		-should return in the buffer a set of directory entries. Each entry is of size 20 bytes, and contains 16-byte names of the directories and files within the directory named by path, followed by the 4-byte integer inode number.
+		-If size is not big enough to contain all of the entries, return -1 and set osErrno to E BUFFER TOO SMALL. Otherwise, read the data into the bu↵er, and return the number of directory entries written.
+
+	int Dir Unlink(char *path) 
+		-int Dir Unlink(char *path) removes a directory referred to by path, freeing up its inode and data blocks, and removing its entry from the parent directory. Upon success, return 0. Note: Dir Unlink() should only be successful if there are no files or directories within the directory. If there are still files within the directory, return -1 and set osErrno to E DIR NOT EMPTY. If someone tries to remove the root directory (”/”), don’t allow it!!! Return -1 and set osErrno to E ROOT DIR.
+
+
+Q: What are directories?
+	-directories are a special kind of file denoted by a 1 byte (typo in notes says b) flag. 
 	-A many to 1 map between sets of names, and inodes. 
 	-format: a fixed 16-byte field for the name, and a 4-byte entry as the inode number.
+	-Each entry in directory has a total size of 20 bytes. This is made up of 16-byte names of the directories and files within the directory named by path, followed by the 4-byte integer inode number.
+	Useful sites:
+		http://teaching.idallen.com/dat2330/04f/notes/links_and_inodes.html
+		http://teaching.idallen.com/cst8207/13w/notes/450_file_system.html#path-traversal
+
+
 
 
 Questions: 
