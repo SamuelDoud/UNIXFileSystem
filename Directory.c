@@ -102,8 +102,9 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
 
 
 }
-bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map *dataMap)
-{//parentInodeSectorAbsolute Is Absolute
+bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map *dataMap) //this does not remove the inode of the file, user handles that
+{
+    //parentInodeSectorAbsolute Is Absolute
     //take a directory file path, lookup where it is
     //make sure that if it is a directory, its size is zero
     //get its data pointers (absolute as always with data)
@@ -147,9 +148,8 @@ bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map 
                 //decrement the size of theinode
                 int size = SizeOfInode(inodeData) - 20;
                 snprintf(inodeData,sizeof(int), "%d", size);
-                InjectInode(parentInodeSector, inodeData, parentInodeSectorIndex);
-                Disk_Write(dataPointers[blockIndex], data); //write data to disk
-
+                InjectInode(parentInodeSector, inodeData, parentInodeSectorIndex);//InjectInode handles the Disk_Write
+                Disk_Write(dataPointers[blockIndex], data); //write data to disks
             }
         }
     }
@@ -177,7 +177,66 @@ int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
 }
 //returns -1 if the path does not exist function will act as a lookup
 //Super important function
-int  DoesThisPathExist(char *paths)
+int  DoesThisPathExist(char *path)
 {
 //return the absolute inode
+    int absoluteInodePointer = 0;
+    char *dirNames[strlen(path)];
+    int depth = BreakDownPathName(path, dirNames);//dirNames is being modified, do I need to pass with the & key
+    int index;
+    for (index = 1; index < depth; index++)
+    {
+        if (absoluteInodePointer = Lookup(absoluteInodePointer, paths[index]) == -1); //look in the current inode for the next part of the file
+        {
+            free(dirNames);//deallocate
+            return -1;//the file does not exist in this inode
+        }
+    }
+    free(dirNames);//deallocate
+    return absoluteInodePointer;//this is the last inode pointer, since it is positive it answers
+    //the question "Does this path exist" while also providing data useful for modification of this path
+}
+int Lookup(int absoluteInodePointer, char *searchTerm)
+{
+    //look into an directory and see if it contains the filename passed, give that filenames inode number
+    int blockIndex;
+    int directoryIndex;
+    int numOfDataBlocks;
+    int inodeSector = absoluteInodePointer / NUM_INODES_PER_BLOCK + FIRST_INODE_BLOCK_INDEX;
+    int inodeSectorIndex = absoluteInodePointer % NUM_INODES_PER_BLOCK;
+    char *dirEntry = malloc(16 * sizeof(char));
+    char *dataBlock = malloc(sizeof(char) * SECTOR_SIZE_1);
+    char *inode = malloc(sizeof(char) *SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
+    int *dataPointers;
+    inode = GetInode(inodeSector, inodeSectorIndex);
+    numOfDataBlocks = ReadInodeSectors(thisInode, dataPointers);
+    for (blockIndex = 0; blockindex < numOfDataBlocks; index++)
+    {
+        Disk_Read(dataPointers[index], dataBlock);
+        for(directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += DIRECTORY_LENGTH)
+        {
+            strncat(dirEntry, dataBlock + directoryIndex, 16);
+
+            if (strcmp(dirEntry, searchTerm)==0)
+            {
+                //match
+                char *number = malloc(sizeof(char) * sizeof(int));
+                strncat(number, dirEntry + 16, sizeof(int));//should write the absolute inode to the string number
+                int absChildInode = atoi(number);
+                free(number);
+                free(inode);
+                free(dataBlock);
+                free(inode);
+                free(dirEntry);
+                free(dataPointers);
+                int atoi(number);//return the integer form of that
+            }
+        }
+    }
+    free(inode);
+    free(dataBlock);
+    free(inode);
+    free(dirEntry);
+    free(dataPointers);
+    return -1; //not found
 }
