@@ -195,7 +195,7 @@ File_Write(int fd, void *buffer, int size)
     for (count = 0 ; count < size; count+=countBy)
     {
         //TODO (Sam#5#): This is possibly functional
-        if ((currentSector = DataBlockAt((inode, count + offset) / SECTOR_SIZE)) == 0) //this sector is empty, therefore we need a new one
+        if (currentSector = DataBlockAt(inode, (count + offset) / SECTOR_SIZE) == 0) //this sector is empty, therefore we need a new one
         {//Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
             if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
             {//if we get here the Find function could not find a data block to allocate
@@ -463,7 +463,7 @@ int GetInode(char *file)
 //read the data block by using the inode and an index
 char *DataBlockAt(char *inode, int index)
 {
-    char *buffer = mallloc(SECTOR_SIZE_1 * sizeof(char)); //make a string of size SECTOR_SIZE
+    char *buffer = malloc(SECTOR_SIZE_1 * sizeof(char)); //make a string of size SECTOR_SIZE
     Disk_Read(buffer, GetSectorAt(inode, index));//read the Sector found by the GetSectorAt function from the disk to the buffer
     return buffer; //return the buffer
 }
