@@ -15,7 +15,6 @@ int osErrno;
 
 //Function definitions
 int FirstOpenSpotOnTheFileTable();
-int GetInode(char *);
 bool DoesThisPathExist(char *);//probabbly not needed
 char charAt(int fd, int index); //probably not needed
 char *GetFilename(char *); //gets the file name from the BreakDownPathName function
@@ -30,10 +29,11 @@ FS_Boot(char *path)
 {
     printf("FS_Boot %s\n", path);
     // oops, check for errors
-    if (Disk_Init() == -1) {
-	printf("Disk_Init() failed\n");
-	osErrno = E_GENERAL;
-	return -1;
+    if (Disk_Init() == -1)
+    {
+        printf("Disk_Init() failed\n");
+        osErrno = E_GENERAL;
+        return -1;
     }
     Disk_Write(SUPER_BLOCK_INDEX, BuildSuperBlock()); //builds the super block by passing super block array to the Disk_Write
 
@@ -43,7 +43,8 @@ FS_Boot(char *path)
     //set all the fileTable elements to the initial
     int index;
     for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
-    {//this loop sets all the file table elements to open as defined by the initFileTableElement() function
+    {
+        //this loop sets all the file table elements to open as defined by the initFileTableElement() function
         fileTable[index] = initFileTableElement();
     }
     //get the initial maps
@@ -74,7 +75,8 @@ File_Create(char *file)
     //TODO DoesThisPathExist
     //get the inode of the directory that this file will reside in
     if (absoluteInodeOfParent = DoesThisPathExist(absolutePath) == -1) //absolute inode is the the inode of this files parent
-    { //if absoluteInode is equal to -1, the parent directorry does not exist
+    {
+        //if absoluteInode is equal to -1, the parent directorry does not exist
         osErrno = E_CREATE;
         return -1;
     }
@@ -89,28 +91,24 @@ File_Create(char *file)
     int thisInodeSectorIndex = thisAbsoluteInodePointer % NUM_INODES_PER_BLOCK;//need to know where in the sector it is going to go
     char *inodeSectorData;//make a character array. Does it need to be initailized?
     char *inodeEntry; //inode Entry is the individual inode
-    Disk_Read(inodePointer, inodeSectorData); //Read the sector to InodeSector
+    Disk_Read(thisInodeSector, inodeSectorData); //Read the sector to InodeSector
     //inject the inode into the inode char array
     inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
-    InjectInode(inodeSector, inodeEntry, thisInodeSectorIndex); //write the inode entry to the inode block
+    InjectInode(thisInodeSector, inodeEntry, thisInodeSectorIndex); //write the inode entry to the inode block
     Disk_Write(thisInodeSector, inodeSectorData); //write the inode data to the disk
 
     //write the entry to the directory
     int parentInodeSector = absoluteInodeOfParent / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //get the sector this inode is on. This maybe should be a function
     int parentInodeSectorIndex = absoluteInodeOfParent % NUM_INODES_PER_BLOCK; //get the index of the inode in the sector
     char *inodeOfDirectory = GetInode(parentInodeSector, parentInodeSectorIndex); //get the inode of the parent directoy
-    char *thisFilesDirectoryEntry = BuildDirectoryEntry(fileName, thisAbsoluteInodePointer);//build an entry for the directory
+
+    char *thisFilesDirectoryEntry = BuildDirectoryEntry(filename, thisAbsoluteInodePointer);//build an entry for the directory
     int result = InsertDirectory(&inodeOfDirectory, thisFilesDirectoryEntry, &dataMap, &inodeMap); //this puts the directory into the inode
     if (result != -1)
     {
-    Disk_Write(parentInodeSector, inodeOfDirectory);
-    return 0;
+        Disk_Write(parentInodeSector, inodeOfDirectory);
+        return 0;
     }
-
-    //find the directory that this file is going into
-    //all of the paths from paths[0] - paths[index - 1]
-    //jump around those paths
-    //if following the path leads to invalid directories throw an error
     osErrno = E_NO_SPACE; //if we get here then the directory couldn't allocate the space req'd to place a new directory
     return -1;
 }
@@ -122,7 +120,8 @@ File_Open(char *file)
     //if it does not exist, return a not found error
     //if it exists, move it the open file table and return the File Descrriptor
     //doesthisPathExist is not functional at this point
-    if (DoesThisPathExist(file) == false)
+    int absoluteInode;
+    if (absoluteInode = DoesThisPathExist(file) == -1)
     {
         osErrno = E_NO_SUCH_FILE;//the file does not exist
         return -1;
@@ -131,13 +130,14 @@ File_Open(char *file)
     int fileDes; //variable to be the file descriptor
     if ((fileDes = FirstOpenSpotOnTheFileTable()) < 0)
     {
+        osErrno = E_TOO_MANY_OPEN_FILES;
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    char * filename;
+    char *filename;
     char *paths[strlen(file)];
     int length = BreakDownPathName(file, &paths);
     filename = paths[length - 1];
-    FileTableOpen(&fileTable[fileDes], GetInode(file), filename);//opens the file table element as defined in FileTable.h
+    FileTableOpen(&fileTable[fileDes], absoluteInode, filename);//opens the file table element as defined in FileTable.h.. shouldd make the size
     printf("FS_Open\n");
     return fileDes; //return the file descriptor to the user
 }
@@ -150,7 +150,6 @@ File_Read(int fd, void *buffer, int size)
     //read a set number of bytes of size to buffer
     //return the number of bytes actually in buffer
     printf("FS_Read\n");
-    char *charArr = malloc(size * sizeof(char));
     int count;
     //checking if the fd is actually real
     //check if the fd is a legal index of the file table, short ciruit if is not
@@ -159,14 +158,35 @@ File_Read(int fd, void *buffer, int size)
         osErrno = E_BAD_FD;
         return -1;
     }
-    for (count = 0; count < size; count++)
+    int *dataBlocks;
+    int inodeSector = fileTable[fd].inodePointer;
+    int inodeSectorIndex = fileTable[fd].indexOfInodeInSector;
+    char *thisInode = GetInode(inodeSector, inodeSectorIndex);//get the particular inode
+    int numbeOfPointers = ReadInodeSectors(thisInode,dataBlocks); //read the pointers of the dataBlocks to ... dataBlocks.
+
+    //read the data starting at the offset!
+
+    int offset = fileTable[fd].index;
+    int count;
+    int BlockWeAreWritingAt;
+    int howManyBytesToRead;
+    char *data = malloc(SECTOR_SIZE_1 * sizeof(char));
+    for (count = 0; count < size;)
     {
-        charArr[count] = charAt(fd, fileTable[fd].index);
-        //actually read the data, byte by byte
-        fileTable[fd].index++;//move up one spot on the index
+        BlockWeAreWritingAt = (count + offset) / SECTOR_SIZE_1; //the index in dataBlocks we are interestedd in
+        howManyBytesToRead = SECTOR_SIZE_1 - (count + offset) % SECTOR_SIZE_1; //how many bytes we need to read from this sector
+        if (count + howManyBytesToRead > size)
+        {
+            howManyBytesToRead = size - count; //prevent overflow
+        }
+        Disk_Read(dataBlocks[BlockWeAreWritingAt], data);
+        //write this to the supplied buffer
+        count += strncat(buffer + (count + offset), data, howManyBytesToRead);//increment count by how many bytes were writtent to the buffer
     }
-    buffer = (char *)charArr;
-    return count;//count is how many chars where written to the file
+    free(data);
+    free(thisInode);
+    free(dataBlocks);//deallocate unneded memory
+    return count;
 }
 
 int
@@ -197,12 +217,12 @@ File_Write(int fd, void *buffer, int size)
     Disk_Read(fileTable[fd].inodePointer, inode);//inode is now holds all the info about this inode SECTOR, still need to get the particular inode
     for (count = 0 ; count < size; count+=countBy)
     {
-        //TODO (Sam#5#): This is possibly functional
-
         if (currentSector = GetSectorAt(inode, (count + offset) / SECTOR_SIZE_1) == 0) //this sector is empty, therefore we need a new one
-        {//Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
+        {
+            //Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
             if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
-            {//if we get here the Find function could not find a data block to allocate
+            {
+                //if we get here the Find function could not find a data block to allocate
                 osErrno = E_NO_SPACE;//error to show there is no space available
                 return FAILURE;//return the error code
             }
@@ -217,14 +237,14 @@ File_Write(int fd, void *buffer, int size)
         Disk_Write(currentSector, substring);//write substring to the currentSector on the disk
         free(substring); //deallocate the memory for substring
         if (countBy == 1)
-        {//only called on the first run through, when we expect to be writing something that is not of SECTOR_SIZE
+        {
+            //only called on the first run through, when we expect to be writing something that is not of SECTOR_SIZE
             count += writen; //set the count to a multiple of SECTOR_SIZE so that it starts at the next Sector
             countBy = SECTOR_SIZE_1; //now we can increment by SECTOR_SIZE so that we always are writing from the begining of a sector
         }
     }
     fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
     return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made... I hopes
-
 }
 //I think this is done other than the helper functions!
 //size of a file is important
@@ -237,8 +257,8 @@ File_Seek(int fd, int offset)
         //check if the offset is less than the file size
         if (offset <= fileTable[fd].sizeOfFile)//the offset is within the size of the file
         {
-            fileTable[fd].index = offset;
-            return 0;
+            fileTable[fd].index = offset;//change the pointer to the offset
+            return 0; //return the successful operation of the function
         }
         else
         {
@@ -264,8 +284,7 @@ File_Close(int fd)
         return -1;
     }
     //Files can be closed by setting the inodePointer to garbage
-    FileTableClose(&fileTable[fd]);//close the fileTable entry and return the success of that
-    return true;
+    return FileTableClose(&fileTable[fd]);//close the fileTable entry and return the success of that
 }
 int
 File_Unlink(char *file)
@@ -306,7 +325,8 @@ Dir_Create(char *path)
     char *inode = BuildInode(DIRECTORY_ID);
     int sector;
     if (sector = FindFirstOpenAndSetToClosed(&inodeMap) < 0)
-    {//could not find a valid sector to write to
+    {
+        //could not find a valid sector to write to
         osErrno = E_CREATE;
         return FAILURE;
     }
@@ -320,9 +340,18 @@ Dir_Size(char *path)
 {
     //Look up the path
     //size resides in the inode of the directory
-    //return that
     //return SizeOfInode(inodeData);
     printf("Dir_Size\n");
+    int absoluteInode;
+    if (absoluteInode = DoesThisPathExist(path) < 0)
+    {
+        osErrno = E_NO_SUCH_FILE;
+        return -1;
+    }
+    int inodeSector = absoluteInode / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex;
+    int inodeSectorIndex = absoluteInode % NUM_INODES_PER_BLOCK;
+    return SizeOfInode(GetInode(inodeSector, inodeSectorIndex));
+
     return 0;
 }
 //what does this method do?
@@ -330,6 +359,42 @@ int
 Dir_Read(char *path, void *buffer, int size)
 {
     printf("Dir_Read\n");
+    int DirSize = Dir_Size(path); //DirSize is the number of characterss in the directory
+    if (DirSize < 0 || DirSize > size)
+    {
+        osErrno = E_BUFFER_TOO_SMALL;
+        return -1;
+    }
+    int absoluteInode = DoesThisPathExist(path);
+    if (absoluteInode == -1)
+    {
+        osErrno = E_NO_SUCH_FILE;
+        return -1;
+    }
+    int inodeSector = absoluteInode /NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex;
+    int inodeSectorIndex = absoluteInode % NUM_INODES_PER_BLOCK;
+    char *thisInode = GetInode(inodeSector, inodeSectorIndex);
+    int *pointers;
+    int length = ReadInodeSectors(thisInode, pointers); //this function needs to be verified that it returns the actual sectors of data blocks
+    //read the data
+    char *dataBlock = malloc(SECTOR_SIZE_1 * sizeof(char));
+    char *directoryEntries = malloc(DIRECTORY_LENGTH * sizeof(char));
+    int index;
+    int subIndex;
+    for (index = 0; index < length; index++)
+    {
+        //index is each data block
+        Disk_Read(pointers[index], dataBlock);
+        for (subIndex = 0; subIndex + DIRECTORY_LENGTH < SECTOR_SIZE_1; subIndex+=DIRECTORY_LENGTH)
+        {
+            strncat(directoryEntries, dataBlock + subIndex, DIRECTORY_LENGTH);
+            strncat(buffer + (SECTOR_SIZE_1 * index + subIndex), directoryEntries, DIRECTORY_LENGTH);//this should write a directory entry to the buffer
+        }
+    }
+    free(dataBlock);
+    free(pointers);
+    free(thisInode);
+    free(directoryEntries);//deallocate the memory assigned
     return 0;
 }
 
@@ -363,14 +428,14 @@ Dir_Unlink(char *path)
 
 int IsAChildOf(int sectorNum, char *childName)
 {
-       //TODO (Nick#6#): I give you a sector that is asssumed to be a directory
-       //give me the inode of the child that is passed
-       //if it does not exist, return -1
+    //TODO (Nick#6#): I give you a sector that is asssumed to be a directory
+    //give me the inode of the child that is passed
+    //if it does not exist, return -1
 
-       //for example, /usr/ has children evan, nick, and sam
-       //if I send the call IsAChildOf(/usr, evan) return  evan's inode num
-       //if I send the call IsAChildOf(/usr, notReal), return -1
-       return -1;
+    //for example, /usr/ has children evan, nick, and sam
+    //if I send the call IsAChildOf(/usr, evan) return  evan's inode num
+    //if I send the call IsAChildOf(/usr, notReal), return -1
+    return -1;
 }
 //how deep does this path go?
 //for example, the path /usr/sam/etc/ has a depth of 4
@@ -388,17 +453,7 @@ int GetDepthOfPath(char *file)
     }
     return count;
 }
-//imcomplete method!
-bool DoesThisPathExist(char *path)
-{
-    return false;
-    //this method takes a path and navigates to it
-    //if it is reachable, return true
-    //if not, return false
-    // TODO (Sam#6#): Create a method that allows us to check if a file exists ...
-    //Reliant on directories being created and navigation of
-    //directories being possible
-}
+//we may need to move this function
 int FirstOpenSpotOnTheFileTable()
 {
     int index;
@@ -411,32 +466,6 @@ int FirstOpenSpotOnTheFileTable()
     }
     osErrno = E_TOO_MANY_OPEN_FILES;
     return -1;//if this is reached, return -1 as there are no availible spots on the file table
-}
-char charAt(int fd, int index)
-{
-    //fd is a file descriptor
-    //use the inode on the fileTableElement to find a block
-    //go to the index supplied
-    //return that character
-// TODO (Sam#6#): Reliant on inodes being implemented
-return NULL;
-}
-//get the inode of a file... should
-int GetInode(char *file)
-{
-    //get the inode sector for this file
-
-    //search the file table for "file"?
-    int index;
-    for (index = 0; index < MAX_NUM_OPEN_FILES; index++)
-    {
-        if (!IsGarbage(fileTable[index]) && strcmp(fileTable[index], file) == 0) //the file is not garbage and is equal to the name
-        {
-            return fileTable[index].inodePointer;
-        }
-    }
-    osErrno = E_NO_SUCH_FILE; //set the error to..
-    return -1;
 }
 //read the data block by using the inode and an index
 char *DataBlockAt(char *inode, int index)
