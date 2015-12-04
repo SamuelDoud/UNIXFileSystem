@@ -102,8 +102,8 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
 
 
 }
-bool RemoveDirectory(char *name, Map *inodes, Map *data)
-{
+bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map *dataMap)
+{//parentInodeSectorAbsolute Is Absolute
     //take a directory file path, lookup where it is
     //make sure that if it is a directory, its size is zero
     //get its data pointers (absolute as always with data)
@@ -112,11 +112,52 @@ bool RemoveDirectory(char *name, Map *inodes, Map *data)
     //freeTable*****....
 
 
-}
-int GetSize(char *directory)
-{
-    //drectories have a size
-    return 0;
+    //get the datablocks of the inode
+    int parentInodeSector = parentInodeSectorAbsolute / NUM_INODES_PER_BLOCK + FIRST_INODE_BLOCK_INDEX;
+    int parentInodeSectorIndex = parentInodeSector % NUM_INODES_PER_BLOCK;
+    char *inodeData = GetInode(parentInodeSector, parentInodeSectorIndex);
+    int *dataPointers;
+    int numOfPointers = ReadInodeSectors(inodeData, dataPointers);
+    int blockIndex;
+    int directoryIndex;
+    char *currentDirectoryEntry = malloc(sieof(char), 16);//16 is the maximum length of a file name
+    char *data = malloc(sizeof(char) * SECTOR_SIZE_1);
+    for (blockIndex = 0; blockIndex < numOfPointers; blockIndex++)
+    {
+        Disk_Read(dataPointers[blockIndex], data);
+        for (directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex+=DIRECTORY_LENGTH)
+        {
+            strncat(currentDirectoryEntry, data + directoryIndex, 16);
+            if (strcmp(currentDirectoryEntry, filenameToRemove))
+            {
+                //found it!! remove it!!
+                //remeber to change the size
+                //check if the entry is the only directory on the block
+                memset(data + directoryIndex, '\0', DIRECTORY_LENGTH);//wiped from data
+                if (strcmp(data, BuildDataBlock()) == 0)//the data block has no meaningful data in it
+                {
+                    //TODO deallocate the data block from teh dataMap and the inode
+                    //find the inode entry with the sector in question, it must be the last sector... we can use the size
+                    //to find that sector
+                    int size = SizeOfInode(inodeData);
+                    int LastSectorIndex = size / SECTOR_SIZE_1;
+                    snprintf(data + (LastSectorIndex + 2) * sizeof(int), sizeof(int), "%d", -1); //that should delete it
+                    FreeTableOfOne(&DataMap(), dataPointers[blockIndex]);//that should free the data map of the pointer in dataPointers[blockIndex]
+                }
+                //decrement the size of theinode
+                int size = SizeOfInode(inodeData) - 20;
+                snprintf(inodeData,sizeof(int), "%d", size);
+                InjectInode(parentInodeSector, inodeData, parentInodeSectorIndex);
+                Disk_Write(dataPointers[blockIndex], data); //write data to disk
+
+            }
+        }
+    }
+
+    //search for a match
+    // if the match occurs on a datablock where it is the only entry, we need to deallocate the block from the map and the parent inode
+    //decrement the size on the parent inode
+
 }
 int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
 {
@@ -134,50 +175,9 @@ int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
     }
     return index;
 }
-int Lookup(char *file)
+//returns -1 if the path does not exist function will act as a lookup
+//Super important function
+int  DoesThisPathExist(char *paths)
 {
-    char *paths[strlen(path)];
-    int length;
-    int index;
-    int subIndex;
-    int location;
-    int numPointers;
-    int *pointersArr = malloc(sizeof(int) * MAX_NUM_SECTORS_PER_FILE);
-    char *dataBlockData = malloc(sizeof(char) * SECTOR_SIZE_1);
-    length = BreakDownPathName(file, paths);
-    //first spot is root, check there
-    //root's inode is the very first inode
-    int inode = 0;
-    int indexInInode = 0
-
-    //search the inode for paths[0]
-    for (index = 0; index < length; index++)
-    {
-        char *inode = GetInode(inode, indexInInode);
-        //get the data block pointers
-        numPointers = ReadInodeSectors(inode, pointersArr);
-        for (subIndex = 0; subIndex < numPointers; subIndex++)
-        {
-            if (pointersArr[subIndex] != -1)
-            {
-                //the data sector is not null
-                Disk_Write(pointersArr[subIndex], dataBlockData);
-                location = strstr(dataBlockData, paths[index]);
-                if (location != NULL)
-                {
-                    //it was found
-                    //TODO
-                    //extract the pointer here
-                    char *tmp = malloc(sizeof(char) * DIRECTORY_LENGTH);
-                    strncat(tmp, dataBlockData + (subIndex * DIRECTORY_LENGTH) + (DIRECTORY_LENGTH - sizeof(int)), sizeof(int));//ensure this works
-                    inode = atoi(tmp);
-                    free(tmp);
-                }
-            }
-        }
-    }
-}
-bool DoesThisPathExist(char *paths)
-{
-
+//return the absolute inode
 }

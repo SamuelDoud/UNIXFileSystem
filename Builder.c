@@ -14,11 +14,11 @@ char *BuildSuperBlock()
     //put the magic number in the superblock and return it
     return true;
 }
-
+ //this builds a blank data block
 char *BuildDataBlock()
 {
     char* dataBlock = malloc(SECTOR_SIZE_1 * sizeof(char)); //allocate SECTOR_SIZE bytes to dataBlock
-    memset(dataBlock, NULL_TERM ,SECTOR_SIZE_1);//set all the chars to null
+    memset(dataBlock, '\0' ,SECTOR_SIZE_1);//set all the chars to null
     return dataBlock;//return dataBlock
 }
 char *BuildInode(int fileType)

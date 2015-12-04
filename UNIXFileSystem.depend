@@ -10,13 +10,13 @@
 	<stdlib.h>
 	<unistd.h>
 
-1449016282 source:/home/samuel/C projects/UNIXFileSystem/Builder.c
+1449249152 source:/home/samuel/C projects/UNIXFileSystem/Builder.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
 	"Params.h"
 
-1447987310 /home/samuel/C projects/UNIXFileSystem/LibFS.h
+1449246339 /home/samuel/C projects/UNIXFileSystem/LibFS.h
 	<stdio.h>
 	<stdlib.h>
 	<unistd.h>
@@ -28,7 +28,7 @@
 
 1449066544 /home/samuel/C projects/UNIXFileSystem/FileTable.h
 
-1448992611 /home/samuel/C projects/UNIXFileSystem/Map.h
+1449189930 /home/samuel/C projects/UNIXFileSystem/Map.h
 
 1449016380 /home/samuel/C projects/UNIXFileSystem/Params.h
 
@@ -51,8 +51,10 @@
 	<math.h>
 	"Params.h"
 
-1449187548 source:/home/samuel/C projects/UNIXFileSystem/main.c
+1449246339 source:/home/samuel/C projects/UNIXFileSystem/main.c
 	<stdio.h>
+	<string.h>
+	"Directory.h"
 	"LibFS.h"
 
 1449066544 source:/home/samuel/C projects/UNIXFileSystem/FileTable.c
@@ -62,11 +64,14 @@
 	"Params.h"
 	"FileTable.h"
 
-1448990274 source:/home/samuel/C projects/UNIXFileSystem/Directory.c
+1449249790 source:/home/samuel/C projects/UNIXFileSystem/Directory.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
+	<string.h>
 	"Params.h"
+	"LibDisk.h"
+	"Map.h"
 
 1448989114 /home/samuel/C projects/UNIXFileSystem/LibDisk.c
 	"LibDisk.h"
@@ -108,7 +113,9 @@
 1449016491 /home/samuel/C projects/UNIXFileSystem/Builder.h
 	<stdbool.h>
 
-1448992945 /home/samuel/C projects/UNIXFileSystem/Directory.h
+1449250099 /home/samuel/C projects/UNIXFileSystem/Directory.h
+	<stdbool.h>
+	"Map.h"
 
 1449198283 source:/home/samuel/Desktop/UNIXFileSystem/Builder.c
 	<stdio.h>
@@ -172,7 +179,7 @@
 1449025786 source:/home/samuel/Desktop/UNIXFileSystem/Params.c
 	"Params.h"
 
-1449187519 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
+1449246339 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
 	<stdbool.h>
 	"Params.h"
 

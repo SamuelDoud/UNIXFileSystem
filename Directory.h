@@ -5,9 +5,9 @@
 #include "Map.h"
 
 char *BuildDirectoryEntry(char *name, int pointer);
-char *InsertDirectory(char *data, char *entry);
+int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map *inode);
 int GetSize(char *directory);
-bool RemoveDirectory(char *name, Map *inodes, Map *data);
+bool RemoveDirectory(int parentInodeSector, char *filenameToRemove, Map *dataMap);
 int BreakDownPathName(char *filename, char *emptyStrArray);
 
 
