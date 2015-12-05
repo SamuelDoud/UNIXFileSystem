@@ -167,7 +167,6 @@ File_Read(int fd, void *buffer, int size)
     //read the data starting at the offset!
 
     int offset = fileTable[fd].index;
-    int count;
     int BlockWeAreWritingAt;
     int howManyBytesToRead;
     char *data = malloc(SECTOR_SIZE_1 * sizeof(char));
@@ -425,9 +424,11 @@ Dir_Unlink(char *path)
     FreeTableOfOne(&inodeMap, thisInode);
     //remove the entry from the parent
     char *parentPath;
+    char *filenameToRemove[strlen(path)];
+    int length = BreakDownPathName(path, filenameToRemove);//the last string is the file name
     strncat(parentPath, path, strlen(path) - DIRECTORY_LENGTH);//should trim the last part of the string
     parentInode = DoesThisPathExist(parentPath);//the inode of the parent
-    RemoveDirectory(parentInode, filenameToRemove, &dataMap);
+    RemoveDirectory(parentInode, filenameToRemove[length - 1], &dataMap);
     //now delete this inode by opening it up
 
 

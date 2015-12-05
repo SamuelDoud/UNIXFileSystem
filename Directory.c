@@ -104,6 +104,7 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
 }
 bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map *dataMap) //this does not remove the inode of the file, user handles that
 {
+    int maxFilenameLength = 16;
     //parentInodeSectorAbsolute Is Absolute
     //take a directory file path, lookup where it is
     //make sure that if it is a directory, its size is zero
@@ -121,14 +122,15 @@ bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map 
     int numOfPointers = ReadInodeSectors(inodeData, dataPointers);
     int blockIndex;
     int directoryIndex;
-    char *currentDirectoryEntry = malloc(sieof(char), 16);//16 is the maximum length of a file name
+    char *currentDirectoryEntry = malloc(sizeof(char) * maxFilenameLength);//maxFilenameLength is the maximum length of a file name
+    //make maxFilenameLength a constant
     char *data = malloc(sizeof(char) * SECTOR_SIZE_1);
     for (blockIndex = 0; blockIndex < numOfPointers; blockIndex++)
     {
         Disk_Read(dataPointers[blockIndex], data);
         for (directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex+=DIRECTORY_LENGTH)
         {
-            strncat(currentDirectoryEntry, data + directoryIndex, 16);
+            strncat(currentDirectoryEntry, data + directoryIndex, maxFilenameLength);
             if (strcmp(currentDirectoryEntry, filenameToRemove))
             {
                 //found it!! remove it!!
@@ -143,10 +145,10 @@ bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map 
                     int size = SizeOfInode(inodeData);
                     int LastSectorIndex = size / SECTOR_SIZE_1;
                     snprintf(data + (LastSectorIndex + 2) * sizeof(int), sizeof(int), "%d", -1); //that should delete it
-                    FreeTableOfOne(&DataMap(), dataPointers[blockIndex]);//that should free the data map of the pointer in dataPointers[blockIndex]
+                    FreeTableOfOne(&dataMap, dataPointers[blockIndex]);//that should free the data map of the pointer in dataPointers[blockIndex]
                 }
                 //decrement the size of theinode
-                int size = SizeOfInode(inodeData) - 20;
+                int size = SizeOfInode(inodeData) - DIRECTORY_LENGTH;
                 snprintf(inodeData,sizeof(int), "%d", size);
                 InjectInode(parentInodeSector, inodeData, parentInodeSectorIndex);//InjectInode handles the Disk_Write
                 Disk_Write(dataPointers[blockIndex], data); //write data to disks
@@ -186,7 +188,7 @@ int  DoesThisPathExist(char *path)
     int index;
     for (index = 1; index < depth; index++)
     {
-        if (absoluteInodePointer = Lookup(absoluteInodePointer, paths[index]) == -1); //look in the current inode for the next part of the file
+        if (absoluteInodePointer = Lookup(absoluteInodePointer, dirNames[index]) == -1); //look in the current inode for the next part of the file
         {
             free(dirNames);//deallocate
             return -1;//the file does not exist in this inode
@@ -204,15 +206,15 @@ int Lookup(int absoluteInodePointer, char *searchTerm)
     int numOfDataBlocks;
     int inodeSector = absoluteInodePointer / NUM_INODES_PER_BLOCK + FIRST_INODE_BLOCK_INDEX;
     int inodeSectorIndex = absoluteInodePointer % NUM_INODES_PER_BLOCK;
-    char *dirEntry = malloc(16 * sizeof(char));
-    char *dataBlock = malloc(sizeof(char) * SECTOR_SIZE_1);
-    char *inode = malloc(sizeof(char) *SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
+    char *dirEntry = malloc(16 * sizeof(char)); // the name of a directory
+    char *dataBlock = malloc(sizeof(char) * SECTOR_SIZE_1);//data blocks data will be stored here
+    char *inode = malloc(sizeof(char) *SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);//this is where the inode will be written
     int *dataPointers;
     inode = GetInode(inodeSector, inodeSectorIndex);
-    numOfDataBlocks = ReadInodeSectors(thisInode, dataPointers);
-    for (blockIndex = 0; blockindex < numOfDataBlocks; index++)
+    numOfDataBlocks = ReadInodeSectors(inode, dataPointers);//writer the inode's data sectors to the dataPointers array with a length of numOfDataBlcoks
+    for (blockIndex = 0; blockIndex < numOfDataBlocks; blockIndex++)
     {
-        Disk_Read(dataPointers[index], dataBlock);
+        Disk_Read(dataPointers[blockIndex], dataBlock);
         for(directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += DIRECTORY_LENGTH)
         {
             strncat(dirEntry, dataBlock + directoryIndex, 16);
