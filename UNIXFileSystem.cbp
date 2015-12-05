@@ -74,8 +74,9 @@
 =======
 			<envvars />
 			<lib_finder disable_auto="1" />
-			&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 2e8003de90d60f9248797b6c2350748178647be5&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;
+			&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 2e8003de90d60f9248797b6c2350748178647be5&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;&#x0A;&#x09;&#x09;&#x09;
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

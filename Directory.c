@@ -91,6 +91,8 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
 
                 size += DIRECTORY_LENGTH; //add twenty to the size
                 snprintf(inodeOfParent, sizeof(int), "%d", size);//write the new size to the inodeOfTheParent
+                //inodeOfParent must now include the entry
+               // snprintf(inodeOfParent + , DIRECTORY_LENGTH, "%s", newDirectoryEntry);//writes the directory to the inode
                 //rewrite the inode of the parent has to be handled by the calling function?
 
                 return childInodeSector; //returning the inode of the child
