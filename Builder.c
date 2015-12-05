@@ -6,13 +6,14 @@
 
 char *BuildSuperBlock()
 {
-    char *data = malloc(sizeof(char) * SECTOR_SIZE_1); //create an array of size sector
+    char *data = calloc(sizeof(char) , SECTOR_SIZE_1); //create an array of size sector
     //set all the chars to be null
-    memset(data,NULL_TERM , SECTOR_SIZE_1);
+
     //create an empty and null superblock
     data[0] = (char) MAGIC_NUMBER;
+    printf("%s\n", data);
     //put the magic number in the superblock and return it
-    return true;
+    return data;
 }
  //this builds a blank data block
 char *BuildDataBlock()
