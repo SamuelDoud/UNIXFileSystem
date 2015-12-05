@@ -134,7 +134,7 @@
 	<stdlib.h>
 	<unistd.h>
 
-1449284793 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
+1449323535 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
 	"LibFS.h"
 	"LibDisk.h"
 	"Builder.h"
@@ -154,7 +154,7 @@
 	<stdbool.h>
 	"Map.h"
 
-1449284461 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
+1449323476 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
@@ -184,7 +184,8 @@
 	<stdbool.h>
 	"Params.h"
 
-1449284736 source:/home/samuel/Desktop/UNIXFileSystem/Inode.c
+1449323263 source:/home/samuel/Desktop/UNIXFileSystem/Inode.c
 	<stdbool.h>
 	"Params.h"
+	"Map.h"
 

@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "Params.h"
+#include "Map.h"
 
 
 bool InjectInode(int thisInodeSector, char *thisInodeData, int index)
@@ -52,9 +53,16 @@ bool AddPointer(char *thisInodeData, int pointerToAdd)//adds the pointerToAdd to
 int SizeOfInode(char *thisInodeData) //return the size of the inode
 {
     char *sizeStr = malloc(sizeof(int));
-     strncat(sizeStr, thisInodeData, sizeof(int));
+    strncat(sizeStr, thisInodeData, sizeof(int));
     int size = atoi(sizeStr);
     return size;
+}
+int SetSizeOfInode(char *thisInodeData, int increment)
+{
+    int writeLen = 4;
+    int currentSize = SizeOfInode(thisInodeData);
+    int newSize = currentSize + increment;
+    snprintf(thisInodeData, writeLen, "%d", newSize);
 }
 //return the sector that is the indexth element in the inode
 int GetSectorAt(char *thisInodeData, int index)
@@ -74,4 +82,12 @@ char *GetInode(int sector, int index)
     Disk_Read(sector, inodeBuffer);
     strncat(thisInode, inodeBuffer + (index * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
     return thisInode;
+}
+int WriteNewInodeToDisk(Map *inodeMap, int ID)
+{
+    int absInode = FindFirstOpenAndSetToClosed(inodeMap);//pass the inode map to allocate a inode to write
+    int childInodeSector = absInode / NUM_INODES_PER_BLOCK + FIRST_INODE_BLOCK_INDEX;
+    int childInodeSectorIndex = absInode % NUM_INODES_PER_BLOCK;
+    InjectInode(childInodeSector, BuildInode(ID), childInodeSectorIndex); //the inode has been written
+    return absInode;
 }

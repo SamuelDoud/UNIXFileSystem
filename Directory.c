@@ -38,71 +38,61 @@ char *BuildDirectoryEntry(char *name, int pointer)
     }
     return directoryData;
 }
-int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map *inodes)
+int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
 {
-    int MAX_SIZE = SECTOR_SIZE_1 * MAX_NUM_SECTORS_PER_FILE;
-    //take the inode of the parent
-    //find its data pointers
+    int pathLength = 16;
+    //first we need to find the data pointers!
+    int *dataBlocksArr = malloc(MAX_NUM_SECTORS_PER_FILE * sizeof(int));
     int size;
-    char *dirEntry = malloc(sizeof(char) * sizeof(int));
-    char *dataBlock = malloc(sizeof(char) * SECTOR_SIZE_1);
-    int indexOfPointers = 0;
-    int indexInDataBlocks;
-    char *sizeStr = malloc(sizeof(int) * sizeof(char));
-    strncat(sizeStr, inodeOfParent, sizeof(int) * sizeof(char));
-    if (size = atoi(sizeStr) == MAX_SIZE) return -1;//the file is too large!
-
-    int *dataPointers;
-    int length = ReadInodeSectors(inodeOfParent, &dataPointers); //length is how many data blocks there are
-    // TODO if the size of this inode makes it so that the next free space is on another block, we need to allocate a new block
-    if (length * SECTOR_SIZE_1 == size)
-    {
-        AddPointer(inodeOfParent, FindFirstOpenAndSetToClosed(&data));
-        length = ReadInodeSectors(inodeOfParent, &dataPointers); //length is how many data blocks there are
-        indexOfPointers = length - 1;//set it to the last pointer!
-    }//make sure that call is legal... ie, the sector being added is sensible
-    //go through each data blocks
-    //find the first open spot
-
-    char *emptyDir = BuildDirectoryEntry("",NULL);
-    for (indexOfPointers; indexOfPointers < length; indexOfPointers++)
-    {
-        //we are looking for a directory with the pointer of -1
-        for (indexInDataBlocks = 0; indexInDataBlocks < SECTOR_SIZE_1 / DIRECTORY_LENGTH; indexInDataBlocks++)
-        {
-            strncat(dirEntry, dataBlock + (indexInDataBlocks * DIRECTORY_LENGTH) + (DIRECTORY_LENGTH - sizeof(int)), sizeof(int)); //check for an off by one error
-            if (strcmp(dirEntry, emptyDir) == 0)//is the dirEntry equal to negative one, an illegal pointer?
+    int numOfDataBlocks;
+    char *dataBlockStr = malloc(SECTOR_SIZE_1 * sizeof(char));
+    char *directoryEntryStr = malloc(pathLength * sizeof(char));
+    char *emptyDirectory = malloc(pathLength * sizeof(char)); //the ideal empty directory str
+    emptyDirectory = "\377";
+    numOfDataBlocks = ReadInodeSectors(inodeOfParent, dataBlocksArr); //datablocks array now has the sector nummbers
+    size = SizeOfInode(inodeOfParent);
+    //go through each data block and find an open spot
+    int blockIndex = 0;
+    int directoryIndex;
+    if (size / DIRECTORY_LENGTH == numOfDataBlocks * (SECTOR_SIZE_1 / DIRECTORY_LENGTH)) // don't try to simplify this.. algebra does not apply to int math
+    { //we know that the data blocks this inode has are full... no point of trying to write to them!
+        if (numOfDataBlocks < MAX_NUM_SECTORS_PER_FILE)
+        {//we can allocate a new data block as the inode is not full
+            int dataBlock = FindFirstOpenAndSetToClosed(&data) + FIRST_DATA_BLOCK_INDEX;
+            if (!AddPointer(inodeOfParent, dataBlock))
             {
-                //free spot!
-
-                //if no open spots are found, check the size of the parent
-                //if less than the max size, allocate a new block (with a new first open spot)
-                //else return -1
-                //find an availible inode for the child
-                //return the index of that inode (after building the inode)
-                int total = FindFirstOpenAndSetToClosed(&inodes); //the nth inode
-                int childInodeSector = total / INODE_BYTEMAP_LENGTH; //the absolute sector ... TODO an offset may be req'd here or in the index in sector
-                int indexInSector = total % INODE_BYTEMAP_LENGTH; //the index of the inode
-                char *inodeBlock = malloc(sizeof(char) * SECTOR_SIZE_1);
-                Disk_Read(childInodeSector, inodeBlock);//write the inode to childInode
-                //inject the inode
-                InjectInode(inodeBlock,BuildInode(DIRECTORY_ID), indexInSector); //build a new full inode with the child in it
-                Disk_Write(childInodeSector, inodeBlock); //write the new inode to the disk
-
-                size += DIRECTORY_LENGTH; //add twenty to the size
-                snprintf(inodeOfParent, sizeof(int), "%d", size);//write the new size to the inodeOfTheParent
-                //inodeOfParent must now include the entry
-               // snprintf(inodeOfParent + , DIRECTORY_LENGTH, "%s", newDirectoryEntry);//writes the directory to the inode
-                //rewrite the inode of the parent has to be handled by the calling function?
-
-                return childInodeSector; //returning the inode of the child
+                return -1;
+            }
+            blockIndex = numOfDataBlocks;//set the index to the last spot on the array
+            dataBlocksArr[numOfDataBlocks] = dataBlock;
+            numOfDataBlocks++;//the array is one larger now, show that
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    for (blockIndex; blockIndex < numOfDataBlocks; blockIndex++)
+    {
+        //write hte data block to a string
+        Disk_Write(dataBlocksArr[blockIndex], dataBlockStr);
+        for (directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += directoryIndex)
+        {//write an entry to the directoryEntryStr
+            memset(directoryEntryStr, NULL, sizeof(directoryEntryStr));
+            strncat(directoryEntryStr, dataBlocksArr + directoryIndex, pathLength);
+            if (strcmp(directoryEntryStr, emptyDirectory) == 0)//a empty spot
+            {
+                int absInode = WriteNewInodeToDisk(&inodes, DIRECTORY_ID);
+                if (absInode < 0) return -1; //the inode could not be created
+                char *newDir = malloc(DIRECTORY_LENGTH * sizeof(char));
+                newDir = BuildDirectoryEntry(filename, absInode); //make a directory entry
+                strncat(inodeOfParent + directoryIndex, newDir, DIRECTORY_LENGTH); //this writes the directory to the parent inode
+                SetSizeOfInode(inodeOfParent, DIRECTORY_LENGTH); //increase the size flag on the inode of the parent
+                return 0;
             }
         }
-
     }
-    return -1; //no free spots exist... give -1 to indicate failure
-
-
+    return-1;
 }
 bool RemoveDirectory(int parentInodeSectorAbsolute, char *filenameToRemove, Map *dataMap) //this does not remove the inode of the file, user handles that
 {

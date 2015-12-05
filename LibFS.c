@@ -103,7 +103,7 @@ File_Create(char *file)
     int parentInodeSectorIndex = absoluteInodeOfParent % NUM_INODES_PER_BLOCK; //get the index of the inode in the sector
     char *inodeOfDirectory = GetInode(parentInodeSector, parentInodeSectorIndex); //get the inode of the parent directoy
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(filename, thisAbsoluteInodePointer);//build an entry for the directory
-    int result = InsertDirectory(&inodeOfDirectory, thisFilesDirectoryEntry, &dataMap, &inodeMap); //this puts the directory into the inode
+    int result = InsertDirectory(inodeOfDirectory, thisFilesDirectoryEntry, &dataMap, &inodeMap); //this puts the directory into the inode
     if (result != -1)
     {
         InjectInode(parentInodeSector, inodeOfDirectory, parentInodeSectorIndex);
