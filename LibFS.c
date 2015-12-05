@@ -65,11 +65,11 @@ File_Create(char *file)
     printf("FS_Create\n");
     int length; // length is going to represent the number of parent directories and the file name
     char *paths[strlen(file)]; //the string array which will hold the paths and the file name
-    char *filename; //the name of the file
-    char *absolutePath; //the path of the file...
+    char *filename = malloc(16); //the name of the file
     length = BreakDownPathName(file, paths);
+    char *absolutePath = malloc(sizeof(file) - sizeof(filename) + 2); //the path of the file...
     filename = paths[length - 1];
-    strncat(absolutePath, file, strlen(file) - strlen(filename));//this will concatente the entire file path ecept for the file name into absolute path
+    strncat(absolutePath, file, strlen(file) - strlen(filename) - 1);//this will concatente the entire file path ecept for the file name into absolute path
 
     int absoluteInodeOfParent;
     //TODO DoesThisPathExist
