@@ -64,14 +64,14 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
     //go through each data blocks
     //find the first open spot
 
-
+    char *emptyDir = BuildDirectoryEntry("",NULL);
     for (indexOfPointers; indexOfPointers < length; indexOfPointers++)
     {
         //we are looking for a directory with the pointer of -1
         for (indexInDataBlocks = 0; indexInDataBlocks < SECTOR_SIZE_1 / DIRECTORY_LENGTH; indexInDataBlocks++)
         {
             strncat(dirEntry, dataBlock + (indexInDataBlocks * DIRECTORY_LENGTH) + (DIRECTORY_LENGTH - sizeof(int)), sizeof(int)); //check for an off by one error
-            if (atoi(dirEntry) == -1)//is the dirEntry equal to negative one, an illegal pointer?
+            if (strcmp(dirEntry, emptyDir) == 0)//is the dirEntry equal to negative one, an illegal pointer?
             {
                 //free spot!
 
@@ -182,7 +182,7 @@ int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
 int  DoesThisPathExist(char *path)
 {
 //return the absolute inode
-    int absoluteInodePointer = 0;
+    int absoluteInodePointer = 0; //the root's absolute inode, the first part on our trip
     char *dirNames[strlen(path)];
     int depth = BreakDownPathName(path, dirNames);//dirNames is being modified, do I need to pass with the & key
     int index;
@@ -194,7 +194,7 @@ int  DoesThisPathExist(char *path)
             return -1;//the file does not exist in this inode
         }
     }
-    free(dirNames);//deallocate
+    //free(dirNames);//deallocate
     return absoluteInodePointer;//this is the last inode pointer, since it is positive it answers
     //the question "Does this path exist" while also providing data useful for modification of this path
 }

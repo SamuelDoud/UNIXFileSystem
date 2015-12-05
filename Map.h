@@ -16,7 +16,7 @@ int FindFirstOpenAndSetToClosed(Map *mapArg);
 int IndexOfFirstZero(int n, int b);
 bool FreeTableOf(Map *mapArg, int *pointers, int lengthOfArray);
 bool FreeTableOfOne(Map *mapArg, int pointer);
-
+int intPow(int base, int num);
 
 
 #endif // MAP_H_INCLUDED

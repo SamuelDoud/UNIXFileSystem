@@ -34,14 +34,13 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
         {
             //this is it!
             //convert bytemap[index] to a string
-            int firstZero = IndexOfFirstZero(mapArg->bytemap[index], mapArg->length);
+            int firstZero = IndexOfFirstZero(mapArg->bytemap[index], mapArg->bitsPerChar);// returning the longest onee......
             //set this spot to closed
 
-            int charRepAsInt = (int) mapArg->bytemap[index];
-            charRepAsInt = charRepAsInt + pow(2,mapArg->bitsPerChar - 1 - firstZero);
-            mapArg->bytemap[index] = charRepAsInt;
+            int charRepAsInt = mapArg->bytemap[index] +intPow(2,mapArg->bitsPerChar - 1 - firstZero);
+            mapArg->bytemap[index] = charRepAsInt;//this should close this spot
 
-            return index * mapArg->length + firstZero;
+            return index * mapArg->bitsPerChar + firstZero;
         }
     }
     //osErrno = E_NO_SPACE; //if we get here all the files are loaded in memory.
@@ -52,12 +51,13 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
 //1 (0001) shoulld return 0
 int IndexOfFirstZero(int n, int b)
 {
-    while (n > b)
+    int index;
+    for(index = 0; n > b; index++)
     {
         n = n % b;
         b = b / 2;
     }
-    return b;
+    return index;
 }
 
 bool FreeTableOf(Map *mapArg, int *pointers, int lengthOfArray)
@@ -81,4 +81,23 @@ bool FreeTableOfOne(Map *mapArg, int pointer)
     int indexInChar = pointerwithOffsetAccounted % mapArg->bitsPerChar; //if 33 is passed to the inode map, then it is the 8th char in the 2nd bit of the 4 bit char
     mapArg->bytemap[pointerwithOffsetAccounted] = mapArg->bytemap[pointerwithOffsetAccounted] - pow(2, mapArg->bitsPerChar - 1 - indexInChar); //TODO (Evan#1#): Verify this works
     return mapArg->bytemap[pointerwithOffsetAccounted] < mapArg->full; //if this is greater than full, then we have a critical error
+}
+int intPow(int base, int num)
+{
+    if (num == 0)
+    {
+        return 1;
+    }
+    if (num == 1)
+    {
+        return base;
+    }
+    int index;
+    int result = base;
+    for (index = 1; index < num; index++)
+    {
+        result *= base;
+    }
+    return result;
+
 }

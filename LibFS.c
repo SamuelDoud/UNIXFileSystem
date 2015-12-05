@@ -86,27 +86,28 @@ File_Create(char *file)
         return -1;
     }
     //if we get here the file does not exist!
-    int thisAbsoluteInodePointer = FindFirstOpenAndSetToClosed(&InodeMap);//find an inode to allocate for the file. Divi
+    int thisAbsoluteInodePointer = FindFirstOpenAndSetToClosed(&inodeMap);//find an inode to allocate for the file. Divi
     int thisInodeSector = thisAbsoluteInodePointer / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //this iss the inode sector
     int thisInodeSectorIndex = thisAbsoluteInodePointer % NUM_INODES_PER_BLOCK;//need to know where in the sector it is going to go
-    char *inodeSectorData;//make a character array. Does it need to be initailized?
-    char *inodeEntry; //inode Entry is the individual inode
-    Disk_Read(thisInodeSector, inodeSectorData); //Read the sector to InodeSector
+    char *inodeSectorData = malloc(SECTOR_SIZE_1);//make a character array. Does it need to be initailized?
+    char *inodeEntry = malloc(SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //inode Entry is the individual inode
+
     //inject the inode into the inode char array
     inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
     InjectInode(thisInodeSector, inodeEntry, thisInodeSectorIndex); //write the inode entry to the inode block
-    Disk_Write(thisInodeSector, inodeSectorData); //write the inode data to the disk
+
 
     //write the entry to the directory
     int parentInodeSector = absoluteInodeOfParent / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //get the sector this inode is on. This maybe should be a function
+    int test = 1 % 4;
     int parentInodeSectorIndex = absoluteInodeOfParent % NUM_INODES_PER_BLOCK; //get the index of the inode in the sector
     char *inodeOfDirectory = GetInode(parentInodeSector, parentInodeSectorIndex); //get the inode of the parent directoy
-
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(filename, thisAbsoluteInodePointer);//build an entry for the directory
     int result = InsertDirectory(&inodeOfDirectory, thisFilesDirectoryEntry, &dataMap, &inodeMap); //this puts the directory into the inode
     if (result != -1)
     {
-        Disk_Write(parentInodeSector, inodeOfDirectory);
+        InjectInode(parentInodeSector, inodeOfDirectory, parentInodeSectorIndex);
+        //Disk_Write(parentInodeSector, inodeOfDirectory);
         return 0;
     }
     osErrno = E_NO_SPACE; //if we get here then the directory couldn't allocate the space req'd to place a new directory

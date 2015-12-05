@@ -3,15 +3,15 @@
 #include "Params.h"
 
 
-bool InjectInode(char *inodeBlock, char *thisInodeData, int index)
+bool InjectInode(int thisInodeSector, char *thisInodeData, int index)
 { //writes an inode to a block given by index
     int writeLength = (SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
     int startIndexOfBlock = index * writeLength;
     int startIndexOfData;
-    for (startIndexOfData = 0; startIndexOfData < writeLength; startIndexOfData++)
-    {
-        inodeBlock[startIndexOfData + startIndexOfBlock] = thisInodeData[startIndexOfData];
-    }
+    char *thisInode = malloc(SECTOR_SIZE_1);
+    Disk_Read(thisInodeSector, thisInode); //Read the sector to InodeSector
+    strncat(thisInode + startIndexOfBlock, thisInodeData, writeLength);
+    Disk_Write(thisInodeSector, thisInode);
     return true; //return that this successfully completed
 }//put an inode into a inode block based on the index passed
 int ReadInodeSectors(char *thisInodeData, int *pointersBuffer)
@@ -37,25 +37,17 @@ bool AddPointer(char *thisInodeData, int pointerToAdd)//adds the pointerToAdd to
 {
     //find the first zero...
     //write the pointer to the zero spot
-    char *pointerChar = "0000"; //strings which are equal to "empty"
-    char *comparator = "0000";
+    int *pointers = malloc(sizeof(int) * MAX_NUM_SECTORS_PER_FILE);
+    int numPointers = ReadInodeSectors(thisInodeData, pointers); //
     int index;
-    for (index = 2 * sizeof(int); index < SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK; index+=sizeof(int))
+    if (numPointers == MAX_NUM_SECTORS_PER_FILE)
     {
-        strncat(pointerChar, thisInodeData + index, sizeof(int));
-        if (strcmp(pointerChar, comparator) == 0)
-        {
-            //free space found, place that pointer here
-            snprintf(thisInodeData + index, sizeof(int), "%d", pointerToAdd);//wrote the number to the slot
-            //add one to the size
-            index = SizeOfInode() + 1;
-            //index is now the new size of the file/directory
-            //set size to index
-            snprintf(thisInodeData, sizeof(int), "%d", index);
-            return true;//function complleted successfully
-        }
+        return false;
     }
-    return false; //no free space
+    snprintf(thisInodeData + (2 * sizeof(int)) + numPointers, sizeof(int), "%d", pointerToAdd);
+    Disk_Write(pointerToAdd, BuildDataBlock());
+    free(pointers);
+    return true; //no free space
 }
 int SizeOfInode(char *thisInodeData) //return the size of the inode
 {
@@ -78,7 +70,7 @@ int GetParentInodes(int *pointers, int originInode)
 char *GetInode(int sector, int index)
 {
     char* inodeBuffer = malloc (sizeof(char) * SECTOR_SIZE_1);
-    char thisInode;
+    char* thisInode = malloc(sizeof(char) * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
     Disk_Read(sector, inodeBuffer);
     strncat(thisInode, inodeBuffer + (index * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
     return thisInode;
