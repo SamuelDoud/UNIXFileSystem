@@ -2,7 +2,7 @@
 #include <string.h>
 #include "Directory.h"
 #include "LibFS.h"
-
+#include "Params.h"
 void
 usage(char *prog)
 {
@@ -13,6 +13,9 @@ usage(char *prog)
 int
 main(int argc, char *argv[])
 {
+    char *testDir = malloc(DIRECTORY_LENGTH);
+    testDir = BuildDirectoryEntry("a file", 1234);
+    printf("%s\n", testDir);
     char *path = "testLib";
     char *makeADirNAME = "\\usr\\";
     char *aFilePath = "\\usr\\fileX\\";

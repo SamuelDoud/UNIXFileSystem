@@ -99,7 +99,6 @@ File_Create(char *file)
 
     //write the entry to the directory
     int parentInodeSector = absoluteInodeOfParent / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //get the sector this inode is on. This maybe should be a function
-    int test = 1 % 4;
     int parentInodeSectorIndex = absoluteInodeOfParent % NUM_INODES_PER_BLOCK; //get the index of the inode in the sector
     char *inodeOfDirectory = GetInode(parentInodeSector, parentInodeSectorIndex); //get the inode of the parent directoy
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(filename, thisAbsoluteInodePointer);//build an entry for the directory
@@ -122,7 +121,8 @@ File_Open(char *file)
     //if it exists, move it the open file table and return the File Descrriptor
     //doesthisPathExist is not functional at this point
     int absoluteInode;
-    if (absoluteInode = DoesThisPathExist(file) == -1)
+    printf("FS_Open\n");
+    if (absoluteInode = DoesThisPathExist(file) == -1)//check if the file passed actually exists while also getting the location of its inode
     {
         osErrno = E_NO_SUCH_FILE;//the file does not exist
         return -1;
@@ -139,7 +139,7 @@ File_Open(char *file)
     int length = BreakDownPathName(file, &paths);
     filename = paths[length - 1];
     FileTableOpen(&fileTable[fileDes], absoluteInode, filename);//opens the file table element as defined in FileTable.h.. shouldd make the size
-    printf("FS_Open\n");
+
     return fileDes; //return the file descriptor to the user
 }
 //other than the charAt function, this method is complete
@@ -402,7 +402,6 @@ Dir_Read(char *path, void *buffer, int size)
 int
 Dir_Unlink(char *path)
 {
-
     char *rootPath = "\\"; //this is what the root is
     if (strcmp(path, rootPath) == 0)//cannot delete the root
     {

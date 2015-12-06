@@ -11,31 +11,23 @@
 //Function takes a path and a pointer and gives it back in the form of a directory entry
 char *BuildDirectoryEntry(char *name, int pointer)
 {
-    char ZERO = '0';
-    int lengthOfDir = 20;
-    char *directoryData = malloc( lengthOfDir * sizeof(char));//this is definitional. 16 chars for name (one for null term) and pointer data (this could be 2 chars using base 256!!)
-    char *integerPart = malloc(sizeof(char) * (lengthOfDir - MAX_PATH_LENGTH));//there is this many characters availible for the pointer!
-    sprintf(integerPart, "%d", pointer);//place pointer into a string integerPart
-    //test me!! I need to verify that this inputs pointer in a way that it goes 00## instead of ##00 if there is only two digits!
+    char *directoryData = calloc( sizeof(char), DIRECTORY_LENGTH + 1);
+    memset(directoryData, 0, DIRECTORY_LENGTH);//$ is an illegal character
+    directoryData[DIRECTORY_LENGTH] = 0;
+    char *intStr = malloc(4);
+    sprintf(intStr, "%d", pointer);
 
-    int index = 0;
-    for (index = 0; index < MAX_PATH_LENGTH; index++)
+    int index;
+    for (index = 0; index < strlen(name); index++)
     {
         directoryData[index] = name[index];
     }
-    int numOfDigits = (int)(ceil(log10(pointer))+1);
-    for (index = lengthOfDir - 1; index >= MAX_PATH_LENGTH; index--)
+
+    for(index = 15; index < DIRECTORY_LENGTH; index++)
     {
-        if (numOfDigits > 0)
-        {
-            directoryData[index] = integerPart[numOfDigits - 1];
-            numOfDigits--;
-        }
-        else
-        {
-            directoryData[index] = ZERO;
-        }
+        directoryData[index] = intStr[index - 15];
     }
+    char x = directoryData[18];
     return directoryData;
 }
 int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
@@ -164,7 +156,7 @@ int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
     for(index = 0; token != NULL; index++)
     {
         EmptyArrayOfNames[index] = token;
-        printf("%s\n",EmptyArrayOfNames[index]);
+        //printf("%s\n",EmptyArrayOfNames[index]);
         token = strtok(NULL, delimiter);
     }
     return index;
@@ -178,11 +170,11 @@ int  DoesThisPathExist(char *path)
     char *dirNames[strlen(path)];
     int depth = BreakDownPathName(path, dirNames);//dirNames is being modified, do I need to pass with the & key
     int index;
-    for (index = 1; index < depth; index++)
+    for (index = 0; index < depth; index++)
     {
+        char *temp = dirNames[index];
         if (absoluteInodePointer = Lookup(absoluteInodePointer, dirNames[index]) == -1); //look in the current inode for the next part of the file
         {
-            free(dirNames);//deallocate
             return -1;//the file does not exist in this inode
         }
     }
@@ -229,8 +221,6 @@ int Lookup(int absoluteInodePointer, char *searchTerm)
     }
     free(inode);
     free(dataBlock);
-    free(inode);
     free(dirEntry);
-    free(dataPointers);
     return -1; //not found
 }

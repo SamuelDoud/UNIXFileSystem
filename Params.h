@@ -25,4 +25,5 @@ extern int NUM_INODE_BLOCKS;
 extern int INODE_BYTEMAP_LENGTH; //should be 250
 extern int NUM_DATA_BLOCKS_PER_CHAR;
 extern int DATA_BLOCK_BYTEMAP_LENGTH;
+extern int MAX_FILENAME_LENGTH;
 #endif // PARAMS_H_INCLUDED
