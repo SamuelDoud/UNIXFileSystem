@@ -223,7 +223,7 @@ File_Write(int fd, void *buffer, int size)
     inodeBlock = GetInode(sectorOfInode, indexOfInode); //write the inode at the given location to the inodeBlock string
     for (count = 0 ; count < size; count+=countBy)
     {
-        if (currentSector = GetSectorAt(inodeBlock, (count + offset) / SECTOR_SIZE_1, &dataMap) == -1) //this sector is empty, therefore we need a new one
+        if (currentSector = GetSectorAt(inodeBlock, (count + offset) / SECTOR_SIZE_1, &dataMap) < FIRST_DATA_BLOCK_INDEX) //this sector is empty, therefore we need a new one
         {
             //Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
             if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap

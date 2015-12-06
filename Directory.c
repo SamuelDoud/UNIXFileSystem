@@ -55,7 +55,7 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
     char *dataBlockStr = malloc(SECTOR_SIZE_1 * sizeof(char));
     char *directoryEntryStr = malloc(pathLength * sizeof(char));
     char *emptyDirectory = malloc(pathLength * sizeof(char)); //the ideal empty directory str
-    emptyDirectory = "\377";
+    emptyDirectory = "";
     numOfDataBlocks = ReadInodeSectors(inodeOfParent, dataBlocksArr); //datablocks array now has the sector nummbers
     size = SizeOfInode(inodeOfParent);
     //go through each data block and find an open spot
@@ -86,7 +86,13 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
         for (directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += directoryIndex)
         {//write an entry to the directoryEntryStr
             memset(directoryEntryStr, NULL, sizeof(directoryEntryStr));
-            strncat(directoryEntryStr, dataBlocksArr + directoryIndex, pathLength);
+
+            int iter;
+            for (iter = 0; iter < DIRECTORY_LENGTH; iter++)
+            {
+                directoryEntryStr[iter] = dataBlockStr[iter + directoryIndex];
+            }//this routine writes the directory on dataBlockStr to directoryEntryStr
+            //probably should make a function to handle this.. I'm doing it a lot
             if (strcmp(directoryEntryStr, emptyDirectory) == 0)//a empty spot
             {
                 int absInode = WriteNewInodeToDisk(inodes, DIRECTORY_ID);
