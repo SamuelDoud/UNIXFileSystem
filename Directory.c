@@ -30,6 +30,21 @@ char *BuildDirectoryEntry(char *name, int pointer)
     char x = directoryData[18];
     return directoryData;
 }
+char *getFilename(char *dir)
+{
+    char *file = calloc(sizeof(char), MAX_FILENAME_LENGTH);
+    file[MAX_FILENAME_LENGTH - 1] = 0;
+    strncat(file, dir, MAX_FILENAME_LENGTH);
+    return file;
+}
+int GetDirPointer(char *dir)
+{
+    int pointer;
+    char *pointerStr = calloc(sizeof(char), DIRECTORY_LENGTH - MAX_FILENAME_LENGTH);
+    strncat(pointerStr, dir + MAX_FILENAME_LENGTH, DIRECTORY_LENGTH - MAX_FILENAME_LENGTH);//verify
+    pointer = atoi(pointerStr);
+    return pointer;
+}
 int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
 {
     int pathLength = 16;
@@ -74,7 +89,7 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
             strncat(directoryEntryStr, dataBlocksArr + directoryIndex, pathLength);
             if (strcmp(directoryEntryStr, emptyDirectory) == 0)//a empty spot
             {
-                int absInode = WriteNewInodeToDisk(&inodes, DIRECTORY_ID);
+                int absInode = WriteNewInodeToDisk(inodes, DIRECTORY_ID);
                 if (absInode < 0) return -1; //the inode could not be created
                 char *newDir = malloc(DIRECTORY_LENGTH * sizeof(char));
                 newDir = BuildDirectoryEntry(filename, absInode); //make a directory entry
