@@ -21,7 +21,7 @@ Map DataMap()
     dataMapInit.length = DATA_BLOCK_BYTEMAP_LENGTH;
     dataMapInit.full = pow(2, NUM_DATA_BLOCKS_PER_CHAR) - 1;
     dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
-    dataMapInit.bitsPerChar = NUM_DATA_BLOCKS_PER_CHAR;
+    dataMapInit.bitsPerChar = NUM_DATA_BLOCKS_PER_CHAR;//uhhhhh
     return dataMapInit;
 }
 int FindFirstOpenAndSetToClosed(Map *mapArg)
@@ -36,10 +36,8 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
             //convert bytemap[index] to a string
             int firstZero = IndexOfFirstZero(mapArg->bytemap[index], mapArg->bitsPerChar);// returning the longest onee......
             //set this spot to closed
-
             int charRepAsInt = mapArg->bytemap[index] +intPow(2,mapArg->bitsPerChar - 1 - firstZero);
             mapArg->bytemap[index] = charRepAsInt;//this should close this spot
-
             return index * mapArg->bitsPerChar + firstZero;
         }
     }
@@ -59,7 +57,15 @@ int IndexOfFirstZero(int n, int b)
     }
     return index;
 }
-
+//two functions to convert an absolute inode to its real sector location and index
+int GetSector(int absoluteSector)
+{
+    return absoluteSector / NUM_INODES_PER_BLOCK + FIRST_INODE_BLOCK_INDEX;
+}
+int GetSectorIndex(int absoluteSector)
+{
+    return absoluteSector % NUM_INODES_PER_BLOCK;
+}
 bool FreeTableOf(Map *mapArg, int *pointers, int lengthOfArray)
 {
     //we have an array of pointers that are to be freeded from the table
