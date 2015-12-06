@@ -91,9 +91,14 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
             {
                 int absInode = WriteNewInodeToDisk(inodes, DIRECTORY_ID);
                 if (absInode < 0) return -1; //the inode could not be created
-                char *newDir = malloc(DIRECTORY_LENGTH * sizeof(char));
+                char *newDir = malloc(DIRECTORY_LENGTH * sizeof(char));//allocate space ffor a new directory
                 newDir = BuildDirectoryEntry(filename, absInode); //make a directory entry
-                strncat(inodeOfParent + directoryIndex, newDir, DIRECTORY_LENGTH); //this writes the directory to the parent inode
+                int iterator;
+                for (iterator = 0; iterator < DIRECTORY_LENGTH; iterator++)
+                {//write byte-by-byte
+                    inodeOfParent[directoryEntryStr + iterator] = newDir[iterator];
+                }
+                     //this writes the created directory to the parent inode
                 SetSizeOfInode(inodeOfParent, DIRECTORY_LENGTH); //increase the size flag on the inode of the parent
                 return 0;
             }
