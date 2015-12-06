@@ -107,18 +107,29 @@ int GetSectorAt(char *thisInodeData, int index, Map *dataMap)
     //AddPointer!
     return pointers[index]; //return the pointer at that index.... maybe need to check if its valid.. ie the index is not out of size
 }
-int GetParentInodes(int *pointers, int originInode)
-{
-    //
-}
+//get an inode from a specified location
 char *GetInode(int sector, int index)
 {
-    char* inodeBuffer = malloc (sizeof(char) * SECTOR_SIZE_1);
-    char* thisInode = malloc(sizeof(char) * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
-    Disk_Read(sector, inodeBuffer);
-    strncat(thisInode, inodeBuffer + (index * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
+    int writeLen = SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK; //how many bytes an inode is
+    char* inodeBuffer = malloc (sizeof(char) * SECTOR_SIZE_1); //will hold the entire inode
+    char* thisInode = malloc(sizeof(char) * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);//will hold the particular inode
+    Disk_Read(sector, inodeBuffer);//read from the secto
+    int start = index * writeLen;//the location on the sector we are starting at
+    int end = start + writeLen;//the location we are ending at
+    int index = start;
+    for (index = start; index < end; index++)
+    {
+        thisInode[index - start] = inodeBuffer[index]; //write the full inode byte-by-byte
+    }
     return thisInode;
 }
+//takes advantage of the conversion functions in map.h
+char *GetInode(int absPointer)
+{
+    return GetInode(GetSector(absPointer), GetSectorIndex(absPointer));
+}
+
+//write a new, blank inode with the passed flag to the disk
 int WriteNewInodeToDisk(Map *inodeMap, int ID)
 {
     int absInode = FindFirstOpenAndSetToClosed(inodeMap);//pass the inode map to allocate a inode to write
