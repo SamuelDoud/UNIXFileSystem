@@ -58,7 +58,7 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
     { //we know that the data blocks this inode has are full... no point of trying to write to them!
         if (numOfDataBlocks < MAX_NUM_SECTORS_PER_FILE)
         {//we can allocate a new data block as the inode is not full
-            int dataBlock = FindFirstOpenAndSetToClosed(&data) + FIRST_DATA_BLOCK_INDEX;
+            int dataBlock = FindFirstOpenAndSetToClosed(data) + FIRST_DATA_BLOCK_INDEX;
             if (!AddPointer(inodeOfParent, dataBlock))
             {
                 return -1;
