@@ -193,6 +193,7 @@ File_Read(int fd, void *buffer, int size)
 int
 File_Write(int fd, void *buffer, int size)
 {
+
     printf("FS_Write\n");
     //if the buffer is smaller than the size then an error should be thrown
     if (IsGarbage(fileTable[fd]))
@@ -205,20 +206,24 @@ File_Write(int fd, void *buffer, int size)
         osErrno = E_FILE_TOO_BIG;
         return -1;
     }
+    char *strBuffer = calloc(sizeof(char), size);
+    strBuffer = (char *) buffer; //cast as a string
     //also beware that new sectors maybe needed so we need a method to
     //know when we need a new sector
     int currentSector;
-    int writen;
+    int written = 0;
     int count;
     int countBy = 1;
     //size of file is not currently functional... not defineed to be how many bytes instead of sectors
     int offset = fileTable[fd].index; //offset because this the starting point of the write
-    char *inode;
+    char *inodeBlock = calloc(sizeof(char), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //where the inode will be
     char *substring;
-    Disk_Read(fileTable[fd].inodePointer, inode);//inode is now holds all the info about this inode SECTOR, still need to get the particular inode
+    int sectorOfInode = GetSector(fileTable[fd].inodePointer);
+    int indexOfInode = GetSectorIndex(fileTable[fd].inodePointer);
+    inodeBlock = GetInode(sectorOfInode, indexOfInode); //write the inode at the given location to the inodeBlock string
     for (count = 0 ; count < size; count+=countBy)
     {
-        if (currentSector = GetSectorAt(inode, (count + offset) / SECTOR_SIZE_1) == 0) //this sector is empty, therefore we need a new one
+        if (currentSector = GetSectorAt(inodeBlock, (count + offset) / SECTOR_SIZE_1, &dataMap) == -1) //this sector is empty, therefore we need a new one
         {
             //Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
             if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
@@ -229,7 +234,8 @@ File_Write(int fd, void *buffer, int size)
             }
         }
         substring = calloc(sizeof(char), SECTOR_SIZE_1);//make a string of Sector_size characters full of Zeros (not garbage as we cannot be sure how much is actually being written)
-        writen = strncpy(substring, buffer + (count + offset), SECTOR_SIZE_1 - (SECTOR_SIZE_1 -(count + offset) % SECTOR_SIZE_1));//take a substring of the buffer of size SECTOR_SIZE
+        strncat(substring, strBuffer, SECTOR_SIZE_1 -(count+offset));//take a substring of the buffer of size SECTOR_SIZE
+        written+=strlen(substring);//increment  written
         //this may go out of bounds on the last edge case
         //for example, we are given 513 bytes to write from pointer 0
         //the first write is great
@@ -240,12 +246,15 @@ File_Write(int fd, void *buffer, int size)
         if (countBy == 1)
         {
             //only called on the first run through, when we expect to be writing something that is not of SECTOR_SIZE
-            count += writen; //set the count to a multiple of SECTOR_SIZE so that it starts at the next Sector
+            count += written; //set the count to a multiple of SECTOR_SIZE so that it starts at the next Sector
             countBy = SECTOR_SIZE_1; //now we can increment by SECTOR_SIZE so that we always are writing from the begining of a sector
         }
     }
-    fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + count; //add how many writes where made to the file to the file table
-    return count - (SECTOR_SIZE - writen);//if all goes well then size is returned but this is how mny times there was a write made... I hopes
+    fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + written; //add how many writes where made to the file to the file table
+    //write the new size to the inode as well
+    SetSizeOfInode(inodeBlock, written);
+    InjectInode(sectorOfInode, inodeBlock, indexOfInode);
+    return written;//if all goes well then size is returned but this is how mny times there was a write made... I hopes
 }
 //I think this is done other than the helper functions!
 //size of a file is important
@@ -430,9 +439,6 @@ Dir_Unlink(char *path)
     parentInode = DoesThisPathExist(parentPath);//the inode of the parent
     RemoveDirectory(parentInode, filenameToRemove[length - 1], &dataMap);
     //now delete this inode by opening it up
-
-
-
     //remove the directory from its parent
     //free the inode
     //free the data blocks
