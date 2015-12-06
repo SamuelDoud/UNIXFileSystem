@@ -26,6 +26,14 @@ Map DataMap()
 }
 int FindFirstOpenAndSetToClosed(Map *mapArg)
 {
+    //this is a bad workaround to the fact that I'm not handling dataMap's offset in the program like I am with inodes
+    int offset = 0;//the base offset is zero
+
+    if (mapArg->firstSectorIndex == FIRST_DATA_BLOCK_INDEX)//we are looking at the dataMap
+    {
+        offset = mapArg->firstSectorIndex;
+    }
+
     //go through each entry in the bytemap
     int index;
     for (index = 0; index < mapArg->length; index++)
@@ -38,7 +46,7 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
             //set this spot to closed
             int charRepAsInt = mapArg->bytemap[index] +intPow(2,mapArg->bitsPerChar - 1 - firstZero);
             mapArg->bytemap[index] = charRepAsInt;//this should close this spot
-            return index * mapArg->bitsPerChar + firstZero;
+            return index * mapArg->bitsPerChar + firstZero + offset;
         }
     }
     //osErrno = E_NO_SPACE; //if we get here all the files are loaded in memory.
