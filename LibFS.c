@@ -36,8 +36,7 @@ FS_Boot(char *path)
         return -1;
     }
     Disk_Write(SUPER_BLOCK_INDEX, BuildSuperBlock()); //builds the super block by passing super block array to the Disk_Write
-
-
+    BuildRoot(); //build root is handled entirely by the Builder source
     // do all of the other stuff needed...
     fileTable = malloc(MAX_NUM_OPEN_FILES* sizeof(FileTableElement)); // make a new file table of garbage
     //set all the fileTable elements to the initial
@@ -95,8 +94,6 @@ File_Create(char *file)
     //inject the inode into the inode char array
     inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
     InjectInode(thisInodeSector, inodeEntry, thisInodeSectorIndex); //write the inode entry to the inode block
-
-
     //write the entry to the directory
     int parentInodeSector = absoluteInodeOfParent / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //get the sector this inode is on. This maybe should be a function
     int parentInodeSectorIndex = absoluteInodeOfParent % NUM_INODES_PER_BLOCK; //get the index of the inode in the sector
@@ -106,7 +103,6 @@ File_Create(char *file)
     if (result != -1)
     {
         InjectInode(parentInodeSector, inodeOfDirectory, parentInodeSectorIndex);
-        //Disk_Write(parentInodeSector, inodeOfDirectory);
         return 0;
     }
     osErrno = E_NO_SPACE; //if we get here then the directory couldn't allocate the space req'd to place a new directory

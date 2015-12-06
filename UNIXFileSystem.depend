@@ -118,11 +118,13 @@
 	<stdbool.h>
 	"Map.h"
 
-1449279173 source:/home/samuel/Desktop/UNIXFileSystem/Builder.c
+1449379877 source:/home/samuel/Desktop/UNIXFileSystem/Builder.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
 	"Params.h"
+	"LibDisk.h"
+	"Map.h"
 
 1449370525 /home/samuel/Desktop/UNIXFileSystem/Params.h
 
@@ -135,7 +137,7 @@
 	<stdlib.h>
 	<unistd.h>
 
-1449378343 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
+1449379910 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
 	"LibFS.h"
 	"LibDisk.h"
 	"Builder.h"

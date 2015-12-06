@@ -3,6 +3,8 @@
 #include <math.h>
 
 #include "Params.h"
+#include "LibDisk.h"
+#include "Map.h"
 
 char *BuildSuperBlock()
 {
@@ -22,6 +24,7 @@ char *BuildDataBlock()
     memset(dataBlock, '\0' ,SECTOR_SIZE_1);//set all the chars to null
     return dataBlock;//return dataBlock
 }
+//builds an inode with only a flag to indicate its file type
 char *BuildInode(int fileType)
 {
     int size = 0;
@@ -30,13 +33,21 @@ char *BuildInode(int fileType)
     char *inode = (char *) malloc(sizeof(char) * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //a string of the length of an Inode
     //need to set all to -1.....
     char *negativeOne = "-1";
-    inode[0] = (char)size;
-    inode[1] = (char)fileType;
+
+    inode[5] = fileType + 48;//48 is zero on the ASCII table. filetype is now on the inode as a char
     int index;
     for (index = 0; index < MAX_NUM_SECTORS_PER_FILE; index++)
     {
-        inode[index + 2] = negativeOne;
+        inode[index + 2] = negativeOne;//this isn't going to work
     }
     return inode; //return the inode to the user
 }
-//Function takes a path and a pointer and gives it back in the form of a directory entry
+
+bool BuildRoot(Map *inodeMap)
+{
+    char *root = calloc(sizeof(char), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
+    FindFirstOpenAndSetToClosed(inodeMap);//closes the first inode availible
+    root = BuildInode(DIRECTORY_ID);
+    return Disk_Write(FIRST_INODE_BLOCK_INDEX, root);//can only just write to the disk like this because the disk is empty if the root is being built
+
+}
