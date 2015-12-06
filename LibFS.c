@@ -169,14 +169,14 @@ File_Read(int fd, void *buffer, int size)
     char *data = malloc(SECTOR_SIZE_1 * sizeof(char));
     for (count = 0; count < size;)
     {
-        BlockWeAreReadingAt = (count + offset) / SECTOR_SIZE_1; //the index in dataBlocks we are interestedd in
+        BlockWeAreReadingAt = dataBlocks[(count + offset) / SECTOR_SIZE_1]; //the index in dataBlocks we are interestedd in
         howManyBytesToRead = SECTOR_SIZE_1 - (count + offset) % SECTOR_SIZE_1;
         //how many bytes we need to read from this sector, count + offset + howManyBytesToWrite should put us at the end of the sector
         if (count + howManyBytesToRead > size)
         {
             howManyBytesToRead = size - count; //prevent overflow
         }
-        Disk_Read(dataBlocks[BlockWeAreReadingAt], data);
+        Disk_Read(BlockWeAreReadingAt, data);
         //write this to the supplied buffer
         count += strncat(buffer + (count + offset), data, howManyBytesToRead);//increment count by how many bytes were writtent to the buffer
     }
@@ -219,15 +219,12 @@ File_Write(int fd, void *buffer, int size)
     inodeBlock = GetInode(sectorOfInode, indexOfInode); //write the inode at the given location to the inodeBlock string
     for (count = 0 ; count < size; count+=countBy)
     {
-        if (currentSector = GetSectorAt(inodeBlock, (count + offset) / SECTOR_SIZE_1, &dataMap) < FIRST_DATA_BLOCK_INDEX) //this sector is empty, therefore we need a new one
+        currentSector = GetSectorAt(inodeBlock, (count + offset) / SECTOR_SIZE_1, &dataMap);
+        if (currentSector < FIRST_DATA_BLOCK_INDEX) //couldn't allocate a valid sector
         {
-            //Data block at gets the data block we are writing to! If it is not allocated (as defined by the zero sector pointer) we need to allocate a new one sector to write to
-            if ((currentSector = FindFirstOpenAndSetToClosed(&dataMap)) < 0) //this gets a free sector from the datamap
-            {
-                //if we get here the Find function could not find a data block to allocate
-                osErrno = E_NO_SPACE;//error to show there is no space available
-                return FAILURE;//return the error code
-            }
+            osErrno = E_FILE_TOO_BIG;
+            return -1;
+
         }
         substring = calloc(sizeof(char), SECTOR_SIZE_1);//make a string of Sector_size characters full of Zeros (not garbage as we cannot be sure how much is actually being written)
         strncat(substring, strBuffer, SECTOR_SIZE_1 -(count+offset));//take a substring of the buffer of size SECTOR_SIZE
@@ -249,6 +246,7 @@ File_Write(int fd, void *buffer, int size)
     fileTable[fd].sizeOfFile = fileTable[fd].sizeOfFile + written; //add how many writes where made to the file to the file table
     //write the new size to the inode as well
     SetSizeOfInode(inodeBlock, written);
+    char temp = inodeBlock[10];
     InjectInode(sectorOfInode, inodeBlock, indexOfInode);
     return written;//if all goes well then size is returned but this is how mny times there was a write made... I hopes
 }
