@@ -82,7 +82,7 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
     for (blockIndex; blockIndex < numOfDataBlocks; blockIndex++)
     {
         //write hte data block to a string
-        Disk_Write(dataBlocksArr[blockIndex], dataBlockStr);
+        Disk_Read(dataBlocksArr[blockIndex], dataBlockStr);
         for (directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += directoryIndex)
         {//write an entry to the directoryEntryStr
             memset(directoryEntryStr, NULL, sizeof(directoryEntryStr));
@@ -96,9 +96,11 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
                 int iterator;
                 for (iterator = 0; iterator < DIRECTORY_LENGTH; iterator++)
                 {//write byte-by-byte
-                    inodeOfParent[directoryEntryStr + iterator] = newDir[iterator];
+                    dataBlockStr[directoryIndex + iterator] = newDir[iterator];
+
                 }
-                     //this writes the created directory to the parent inode
+                Disk_Write(dataBlocksArr[blockIndex], dataBlockStr);//since we made changes, write this
+                //this writes the created directory to the parent inode
                 SetSizeOfInode(inodeOfParent, DIRECTORY_LENGTH); //increase the size flag on the inode of the parent
                 return 0;
             }
