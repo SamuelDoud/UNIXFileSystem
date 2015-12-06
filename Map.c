@@ -40,12 +40,14 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
     {
         if (mapArg->bytemap[index] != mapArg->full)
         {
+            int moddedBytemap = (mapArg->bytemap[index] + (mapArg->full + 1)) % (mapArg->full + 1);
             //this is it!
             //convert bytemap[index] to a string
-            int firstZero = IndexOfFirstZero(mapArg->bytemap[index], mapArg->bitsPerChar);// returning the longest onee......
+            int firstZero = IndexOfFirstZero(moddedBytemap, mapArg->bitsPerChar);// returning the longest onee......
             //set this spot to closed
-            int charRepAsInt = mapArg->bytemap[index] +intPow(2,mapArg->bitsPerChar - 1 - firstZero);
+            int charRepAsInt = moddedBytemap +intPow(2,mapArg->bitsPerChar - 1 - firstZero);
             mapArg->bytemap[index] = charRepAsInt;//this should close this spot
+            int temp = index * mapArg->bitsPerChar + firstZero + offset;
             return index * mapArg->bitsPerChar + firstZero + offset;
         }
     }
