@@ -9,10 +9,14 @@ bool InjectInode(int thisInodeSector, char *thisInodeData, int index)
     int writeLength = (SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
     int startIndexOfBlock = index * writeLength;
     int startIndexOfData;
-    char *thisInode = malloc(SECTOR_SIZE_1);
-    Disk_Read(thisInodeSector, thisInode); //Read the sector to InodeSector
-    strncat(thisInode + startIndexOfBlock, thisInodeData, writeLength);
-    Disk_Write(thisInodeSector, thisInode);
+    char *thisInodeBlock = malloc(SECTOR_SIZE_1);
+    Disk_Read(thisInodeSector, thisInodeBlock); //Read the sector to InodeSector
+    int count;
+    for (count = index * writeLength; count  < ((index + 1) * writeLength); count++)
+    {
+        thisInodeBlock[count] = thisInodeData[count - (index * writeLength)];
+    }
+    Disk_Write(thisInodeSector, thisInodeBlock);
     return true; //return that this successfully completed
 }//put an inode into a inode block based on the index passed
 int ReadInodeSectors(char *thisInodeData, int *pointersBuffer)
@@ -24,11 +28,16 @@ int ReadInodeSectors(char *thisInodeData, int *pointersBuffer)
     for (index = 0; index < SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK; index++)
     {
         char *subStr = malloc(sizeof(int));
-        strncat(subStr, thisInodeData + ((index + 2) * sizeof(int)), sizeof(int));
-        pointersBuffer[index]= atoi(subStr);
-
-        if (pointersBuffer[index] == 0)
+        int start = (index + 2) * sizeof(int);
+        int end = start + sizeof(int);
+        int i;
+        for (i = (index + 2) * sizeof(int); i < end; i++)
         {
+            subStr[i - start] = thisInodeData[i];
+        }
+
+        if (pointersBuffer[index] = atoi(subStr) < FIRST_DATA_BLOCK_INDEX)//write that substring to the buffer as an integer
+        {//data blocks can never  be zero
             return index; //a zero was just written, any more writes are useless
         }
     }
@@ -59,10 +68,18 @@ int SizeOfInode(char *thisInodeData) //return the size of the inode
 }
 int SetSizeOfInode(char *thisInodeData, int increment)
 {
-    int writeLen = 4;
-    int currentSize = SizeOfInode(thisInodeData);
-    int newSize = currentSize + increment;
-    snprintf(thisInodeData, writeLen, "%d", newSize);
+    if (increment == 0) return increment;
+    int writeLen = 4; //how many chars we decided that size can occupy
+    int currentSize = SizeOfInode(thisInodeData); // the current size of the inode
+    int newSize = currentSize + increment; //this the new size of the inode
+    char *intStr = calloc(sizeof(char) , writeLen);
+    sprintf(intStr, "%d", newSize);//converting the new size to a string
+    int index;
+    for (index = 0; index < strlen(intStr); index++)
+    {
+        thisInodeData[index] = intStr[index];//writing the integer to the inode byte by byte
+    }
+    return newSize; //return the new size to the user... not really important
 }
 //return the sector that is the indexth element in the inode
 int GetSectorAt(char *thisInodeData, int index, Map *dataMap)

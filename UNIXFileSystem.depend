@@ -1,9 +1,10 @@
 # depslib dependency file v1.0
-1449279011 source:/home/samuel/Desktop/UNIXFileSystem/main.c
+1449374834 source:/home/samuel/Desktop/UNIXFileSystem/main.c
 	<stdio.h>
 	<string.h>
 	"Directory.h"
 	"LibFS.h"
+	"Params.h"
 
 1449198401 /home/samuel/Desktop/UNIXFileSystem/LibFS.h
 	<stdio.h>
@@ -123,7 +124,7 @@
 	<math.h>
 	"Params.h"
 
-1449025786 /home/samuel/Desktop/UNIXFileSystem/Params.h
+1449370525 /home/samuel/Desktop/UNIXFileSystem/Params.h
 
 1449025786 source:/home/samuel/Desktop/UNIXFileSystem/LibDisk.c
 	"LibDisk.h"
@@ -134,7 +135,7 @@
 	<stdlib.h>
 	<unistd.h>
 
-1449323535 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
+1449374943 source:/home/samuel/Desktop/UNIXFileSystem/LibFS.c
 	"LibFS.h"
 	"LibDisk.h"
 	"Builder.h"
@@ -148,13 +149,13 @@
 
 1449030575 /home/samuel/Desktop/UNIXFileSystem/FileTable.h
 
-1449280927 /home/samuel/Desktop/UNIXFileSystem/Map.h
+1449371950 /home/samuel/Desktop/UNIXFileSystem/Map.h
 
-1449276367 /home/samuel/Desktop/UNIXFileSystem/Directory.h
+1449370864 /home/samuel/Desktop/UNIXFileSystem/Directory.h
 	<stdbool.h>
 	"Map.h"
 
-1449323476 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
+1449371111 source:/home/samuel/Desktop/UNIXFileSystem/Directory.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
@@ -170,14 +171,14 @@
 	"Params.h"
 	"FileTable.h"
 
-1449281492 source:/home/samuel/Desktop/UNIXFileSystem/Map.c
+1449372282 source:/home/samuel/Desktop/UNIXFileSystem/Map.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
 	"Params.h"
 	"Map.h"
 
-1449025786 source:/home/samuel/Desktop/UNIXFileSystem/Params.c
+1449370525 source:/home/samuel/Desktop/UNIXFileSystem/Params.c
 	"Params.h"
 
 1449357185 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
@@ -185,7 +186,7 @@
 	"Params.h"
 	"Map.h"
 
-1449323263 source:/home/samuel/Desktop/UNIXFileSystem/Inode.c
+1449376601 source:/home/samuel/Desktop/UNIXFileSystem/Inode.c
 	<stdbool.h>
 	"Params.h"
 	"Map.h"

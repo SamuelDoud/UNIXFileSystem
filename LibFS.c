@@ -65,10 +65,10 @@ File_Create(char *file)
     printf("FS_Create\n");
     int length; // length is going to represent the number of parent directories and the file name
     char *paths[strlen(file)]; //the string array which will hold the paths and the file name
-    char *filename = malloc(16); //the name of the file
+    char *filename = calloc(sizeof(char), MAX_FILENAME_LENGTH); //the name of the file
     length = BreakDownPathName(file, paths);
     char *absolutePath = malloc(sizeof(file) - sizeof(filename) + 2); //the path of the file...
-    filename = paths[length - 1];
+    memcpy(filename, paths[length - 1], MAX_FILENAME_LENGTH);
     strncat(absolutePath, file, strlen(file) - strlen(filename) - 1);//this will concatente the entire file path ecept for the file name into absolute path
 
     int absoluteInodeOfParent;
@@ -160,27 +160,27 @@ File_Read(int fd, void *buffer, int size)
         return -1;
     }
     int *dataBlocks;
-    int inodeSector = fileTable[fd].inodePointer;
-    int inodeSectorIndex = fileTable[fd].indexOfInodeInSector;
+    int inodeSector = GetSector(fileTable[fd].inodePointer);
+    int inodeSectorIndex = GetSectorIndex(fileTable[fd].indexOfInodeInSector);//applying the logic in Map.c to get the information on this inode
     char *thisInode = GetInode(inodeSector, inodeSectorIndex);//get the particular inode
-    int numbeOfPointers = ReadInodeSectors(thisInode,dataBlocks); //read the pointers of the dataBlocks to ... dataBlocks.
+    int numberOfPointers = ReadInodeSectors(thisInode,dataBlocks); //read the pointers of the dataBlocks to ... dataBlocks.
 
     //read the data starting at the offset!
 
     int offset = fileTable[fd].index;
-    int BlockWeAreWritingAt;
+    int BlockWeAreReadingAt;
     int howManyBytesToRead;
     char *data = malloc(SECTOR_SIZE_1 * sizeof(char));
     for (count = 0; count < size;)
     {
-        BlockWeAreWritingAt = (count + offset) / SECTOR_SIZE_1; //the index in dataBlocks we are interestedd in
+        BlockWeAreReadingAt = (count + offset) / SECTOR_SIZE_1; //the index in dataBlocks we are interestedd in
         howManyBytesToRead = SECTOR_SIZE_1 - (count + offset) % SECTOR_SIZE_1;
         //how many bytes we need to read from this sector, count + offset + howManyBytesToWrite should put us at the end of the sector
         if (count + howManyBytesToRead > size)
         {
             howManyBytesToRead = size - count; //prevent overflow
         }
-        Disk_Read(dataBlocks[BlockWeAreWritingAt], data);
+        Disk_Read(dataBlocks[BlockWeAreReadingAt], data);
         //write this to the supplied buffer
         count += strncat(buffer + (count + offset), data, howManyBytesToRead);//increment count by how many bytes were writtent to the buffer
     }

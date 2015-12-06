@@ -20,15 +20,20 @@ main(int argc, char *argv[])
     char *makeADirNAME = "\\usr\\";
     char *aFilePath = "\\usr\\fileX\\";
     char *writeData = "A quick brown fox jumped over the lazy dog";
-    char *buffer = malloc(512);
+    void *buffer = calloc(sizeof(char), SECTOR_SIZE_1);
+    buffer = (char *) writeData;
     FS_Boot(path); //
     printf("Dir_Create returned %d\n", Dir_Create(makeADirNAME));
     printf("File_Create returned %d\n", File_Create(aFilePath));
     int fd = File_Open(aFilePath);
     printf("The fd of the file is: %d\n", fd);
-    File_Write(fd, buffer, 512);
+    File_Write(fd, buffer, SECTOR_SIZE_1);
+    //free(buffer);
+    buffer = calloc(sizeof(char), SECTOR_SIZE_1);
+    File_Read(fd, buffer, SECTOR_SIZE_1);
     printf("%s\n", buffer);
-    printf("%d\n", Dir_Size(makeADirNAME)); //should be 20
+    //printf("%s\n", buffer);
+//    printf("%d\n", Dir_Size(makeADirNAME)); //should be 20
     FS_Sync();//not sure what this does
     return 0;
 }
