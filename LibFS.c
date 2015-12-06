@@ -73,7 +73,8 @@ File_Create(char *file)
     int absoluteInodeOfParent;
     //TODO DoesThisPathExist
     //get the inode of the directory that this file will reside in
-    if (absoluteInodeOfParent = DoesThisPathExist(absolutePath) == -1) //absolute inode is the the inode of this files parent
+    absoluteInodeOfParent = DoesThisPathExist(absolutePath);
+    if (absoluteInodeOfParent == -1) //absolute inode is the the inode of this files parent
     {
         //if absoluteInode is equal to -1, the parent directorry does not exist
         osErrno = E_CREATE;
@@ -88,8 +89,8 @@ File_Create(char *file)
     int thisAbsoluteInodePointer = FindFirstOpenAndSetToClosed(&inodeMap);//find an inode to allocate for the file. Divi
     int thisInodeSector = thisAbsoluteInodePointer / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //this iss the inode sector
     int thisInodeSectorIndex = thisAbsoluteInodePointer % NUM_INODES_PER_BLOCK;//need to know where in the sector it is going to go
-    char *inodeSectorData = malloc(SECTOR_SIZE_1);//make a character array. Does it need to be initailized?
-    char *inodeEntry = malloc(SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //inode Entry is the individual inode
+    char *inodeSectorData = calloc(sizeof(char), SECTOR_SIZE_1);//make a character array. Does it need to be initailized?
+    char *inodeEntry = calloc(sizeof(char), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //inode Entry is the individual inode
 
     //inject the inode into the inode char array
     inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
@@ -189,7 +190,6 @@ File_Read(int fd, void *buffer, int size)
 int
 File_Write(int fd, void *buffer, int size)
 {
-
     printf("FS_Write\n");
     //if the buffer is smaller than the size then an error should be thrown
     if (IsGarbage(fileTable[fd]))
@@ -326,15 +326,44 @@ Dir_Create(char *path)
     //this is really similar the other file create
 //    char *myPaths = BreakDownPathName(path);//myPaths now contains the paths of the directory with the last being the one to be create
     // we need to make sure that the files before this are real.. use the first values in myPath to find this out
-    char *inode = BuildInode(DIRECTORY_ID);
+    char *inodeEntry = BuildInode(DIRECTORY_ID); //this builds an empty inode entry
+
+    int absInode;
+    char *parents[strlen(path)];
+    int depth = BreakDownPathName(path, parents);
+    int index;
     int sector;
-    if (sector = FindFirstOpenAndSetToClosed(&inodeMap) < 0)
+    char *dirName = parents[depth - 1];
+    char *parentPath = calloc(sizeof(char), (strlen(path) - strlen(dirName)));
+    strncat(parentPath, path, (strlen(path) - strlen(dirName) - 1));
+    absInode = FindFirstOpenAndSetToClosed(&inodeMap);
+    if (absInode < 0)
     {
         //could not find a valid sector to write to
         osErrno = E_CREATE;
         return FAILURE;
     }
-    Disk_Write(sector, inode);
+    sector = GetSector(absInode);
+    index = GetSectorIndex(absInode);
+    InjectInode(sector, inodeEntry, index); //the inode of the new directory is now in place
+    //get the parent path ... \usr\temp\ is \usr\
+
+
+    int parentInode;
+    if (depth == 1)//useless to do anything else, we are on the root
+    {
+        parentInode = 0;
+    }
+    else
+    {
+        parentInode = DoesThisPathExist(parentPath);
+    }
+    int parentInodeSector = GetSector(parentInode);
+    int parentInodeSectorIndex = GetSectorIndex(parentInode);
+    char *inode = calloc(sizeof(char), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
+    inode = GetInode(parentInodeSector, parentInodeSectorIndex);
+    int loc = InsertDirectory(inode, parents[depth - 1], &dataMap, &inodeMap);//insert a directory on to the disk
+    //this method puts teh
     printf("Dir_Create %s\n", path);
     return 0;
 }
