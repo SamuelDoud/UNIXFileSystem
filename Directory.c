@@ -95,7 +95,7 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
             //probably should make a function to handle this.. I'm doing it a lot
             if (strcmp(directoryEntryStr, emptyDirectory) == 0)//a empty spot
             {
-                int absInode = WriteNewInodeToDisk(inodes, DIRECTORY_ID);
+                int absInode = WriteNewInodeToDisk(inodes, DIRECTORY_ID); //write a new inode to the disk
                 if (absInode < 0) return -1; //the inode could not be created
                 char *newDir = malloc(DIRECTORY_LENGTH * sizeof(char));//allocate space ffor a new directory
                 newDir = BuildDirectoryEntry(filename, absInode); //make a directory entry
@@ -103,12 +103,11 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
                 for (iterator = 0; iterator < DIRECTORY_LENGTH; iterator++)
                 {//write byte-by-byte
                     dataBlockStr[directoryIndex + iterator] = newDir[iterator];
-
                 }
                 Disk_Write(dataBlocksArr[blockIndex], dataBlockStr);//since we made changes, write this
                 //this writes the created directory to the parent inode
                 SetSizeOfInode(inodeOfParent, DIRECTORY_LENGTH); //increase the size flag on the inode of the parent
-                return 0;
+                return absInode;
             }
         }
     }
@@ -197,11 +196,12 @@ int  DoesThisPathExist(char *path)
     int absoluteInodePointer = 0; //the root's absolute inode, the first part on our trip
     char *dirNames[strlen(path)];
     int depth = BreakDownPathName(path, dirNames);//dirNames is being modified, do I need to pass with the & key
-    int index;
-    for (index = 0; index < depth; index++)
+    int index = 0;
+    for (index; index < depth; index++)
     {
         char *temp = dirNames[index];
-        if (absoluteInodePointer = Lookup(absoluteInodePointer, dirNames[index]) == -1); //look in the current inode for the next part of the file
+        absoluteInodePointer = Lookup(absoluteInodePointer, dirNames[index]);
+        if (absoluteInodePointer == -1); //look in the current inode for the next part of the file
         {
             return -1;//the file does not exist in this inode
         }
