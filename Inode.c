@@ -65,10 +65,19 @@ int SetSizeOfInode(char *thisInodeData, int increment)
     snprintf(thisInodeData, writeLen, "%d", newSize);
 }
 //return the sector that is the indexth element in the inode
-int GetSectorAt(char *thisInodeData, int index)
+int GetSectorAt(char *thisInodeData, int index, Map *dataMap)
 {
     int *pointers;//an array that will hold the pointers
-    ReadInodeSectors(thisInodeData, pointers); //read all the pointers to the array
+    int numOfBlocks = ReadInodeSectors(thisInodeData, pointers); //read all the pointers to the array
+    if (numOfBlocks == 0 || numOfBlocks == index)
+    {
+        int newDataPointer;
+        //there are no data blocks or it is asking for the next data block
+        if (newDataPointer = FindFirstOpenAndSetToClosed(dataMap) == -1) return -1;//get a data pointer
+        AddPointer(thisInodeData, newDataPointer);
+        return newDataPointer;//return that pointer
+    }
+    //AddPointer!
     return pointers[index]; //return the pointer at that index.... maybe need to check if its valid.. ie the index is not out of size
 }
 int GetParentInodes(int *pointers, int originInode)
