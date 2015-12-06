@@ -21,13 +21,13 @@ Map DataMap()
     dataMapInit.length = DATA_BLOCK_BYTEMAP_LENGTH;
     dataMapInit.full = pow(2, NUM_DATA_BLOCKS_PER_CHAR) - 1;
     dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
-    dataMapInit.bytemap = NUM_DATA_BLOCKS_PER_CHAR;
+    dataMapInit.bitsPerChar = NUM_DATA_BLOCKS_PER_CHAR;
     return dataMapInit;
 }
 int FindFirstOpenAndSetToClosed(Map *mapArg)
 {
     //go through each entry in the bytemap
-    int index = 0;
+    int index;
     for (index = 0; index < mapArg->length; index++)
     {
         if (mapArg->bytemap[index] != mapArg->full)
