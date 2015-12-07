@@ -21,8 +21,8 @@ main(int argc, char *argv[])
     char *makeADirNAME = "\\usr\\";
     char *makeAfile = "\\usr\\test\\";
     char *aFilePath = "\\usr\\fileX\\";
-    char *writeData = "A quick brown fox jumped over the lazy dog";
-    void *buffer = calloc(sizeof(char), SECTOR_SIZE_1);
+    char *writeData = "A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. !!!!";
+    void *buffer = calloc(sizeof(char), strlen(writeData));
     buffer = (char *) writeData;
     FS_Boot(path); //
     printf("Dir_Create returned %d\n", Dir_Create(makeADirNAME));
@@ -31,11 +31,14 @@ main(int argc, char *argv[])
     int fd = File_Open(aFilePath);
     int fd2 = File_Open(makeAfile);
     printf("The fd of the file is: %d\n", fd);
-    File_Write(fd, buffer, SECTOR_SIZE_1);
+    File_Write(fd, buffer, strlen(writeData));
     //free(buffer);
-    void *readBuffer = calloc(sizeof(char), SECTOR_SIZE_1);
-    File_Read(fd, readBuffer, SECTOR_SIZE_1);
+    void *readBuffer = calloc(sizeof(char), strlen(writeData));
+    File_Read(fd, readBuffer, strlen(writeData));
     printf("%s\n", readBuffer);
+    File_Close(fd);
+    File_Close(12);
+    File_Unlink(makeAfile);
     //printf("%s\n", buffer);
 //    printf("%d\n", Dir_Size(makeADirNAME)); //should be 20
     FS_Sync();//not sure what this does
