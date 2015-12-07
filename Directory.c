@@ -184,7 +184,7 @@ int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
     int index;
     char str[strlen(file)];
     strcpy(str, file);
-    const char delimiter[2] = "/";
+    const char delimiter[1] = "/";
     char *token;
     token = strtok(str, delimiter);
     for(index = 0; token != NULL; index++)
@@ -206,7 +206,9 @@ int  DoesThisPathExist(char *path)
     int index = 0;
     for (index; index < depth; index++)
     {
-        char *temp = dirNames[index];
+        BreakDownPathName(path, dirNames);//copied here because the memory deallocates
+        char temp[strlen(dirNames[index])];
+        strcpy(temp, dirNames[index]);
         absoluteInodePointer = Lookup(absoluteInodePointer, temp);
 
         if (absoluteInodePointer == -1) //look in the current inode for the next part of the file
@@ -218,7 +220,7 @@ int  DoesThisPathExist(char *path)
     return absoluteInodePointer;//this is the last inode pointer, since it is positive it answers
     //the question "Does this path exist" while also providing data useful for modification of this path
 }
-int Lookup(int absoluteInodePointer, char *searchTerm)
+int Lookup(int absoluteInodePointer, char searchTerm[])
 {
     char searchTermCpy[strlen(searchTerm)];
     memcpy(searchTermCpy, searchTerm, strlen(searchTerm));
