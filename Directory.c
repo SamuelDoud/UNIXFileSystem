@@ -23,7 +23,7 @@ char *BuildDirectoryEntry(char *name, int pointer)
         directoryData[index] = name[index];
     }
 
-    for(index = 15; index < DIRECTORY_LENGTH; index++)
+    for(index = 16; index < DIRECTORY_LENGTH; index++)
     {
         directoryData[index] = intStr[index - 15];
     }
@@ -83,7 +83,7 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
     {
         //write hte data block to a string
         Disk_Read(dataBlocksArr[blockIndex], dataBlockStr);
-        for (directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += directoryIndex)
+        for (directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += DIRECTORY_LENGTH)
         {//write an entry to the directoryEntryStr
             memset(directoryEntryStr, NULL, sizeof(directoryEntryStr));
 
@@ -200,7 +200,7 @@ int  DoesThisPathExist(char *path)
     for (index; index < depth; index++)
     {
         char *temp = dirNames[index];
-        absoluteInodePointer = Lookup(absoluteInodePointer, dirNames[index]);
+        absoluteInodePointer = Lookup(absoluteInodePointer, temp);
         if (absoluteInodePointer == -1); //look in the current inode for the next part of the file
         {
             return -1;//the file does not exist in this inode
@@ -212,6 +212,8 @@ int  DoesThisPathExist(char *path)
 }
 int Lookup(int absoluteInodePointer, char *searchTerm)
 {
+    char searchTermCpy[strlen(searchTerm)];
+    memcpy(searchTermCpy, searchTerm, strlen(searchTerm));
     //look into an directory and see if it contains the filename passed, give that filenames inode number
     int blockIndex;
     int directoryIndex;
@@ -221,29 +223,44 @@ int Lookup(int absoluteInodePointer, char *searchTerm)
     char *dirEntry = malloc(16 * sizeof(char)); // the name of a directory
     char *dataBlock = malloc(sizeof(char) * SECTOR_SIZE_1);//data blocks data will be stored here
     char *inode = malloc(sizeof(char) *SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);//this is where the inode will be written
-    int *dataPointers;
+    int *dataPointers = calloc(sizeof(int), MAX_NUM_SECTORS_PER_FILE);
+    Disk_Read(inodeSector, dataBlock);
     inode = GetInode(inodeSector, inodeSectorIndex);
     numOfDataBlocks = ReadInodeSectors(inode, dataPointers);//writer the inode's data sectors to the dataPointers array with a length of numOfDataBlcoks
+    int currentPointer;
+    int start;
+    int end;
+    int writeIndex;
     for (blockIndex = 0; blockIndex < numOfDataBlocks; blockIndex++)
     {
-        Disk_Read(dataPointers[blockIndex], dataBlock);
+        currentPointer = dataPointers[blockIndex];
+        Disk_Read(currentPointer, dataBlock);//read the sector in order of teh inode's data pointers!
         for(directoryIndex = 0; directoryIndex < SECTOR_SIZE_1 - DIRECTORY_LENGTH; directoryIndex += DIRECTORY_LENGTH)
         {
-            strncat(dirEntry, dataBlock + directoryIndex, 16);
-
-            if (strcmp(dirEntry, searchTerm)==0)
+            memset(dirEntry, 0, MAX_FILENAME_LENGTH);//wipe the dirEntry
+            start = directoryIndex;
+            end = start + MAX_FILENAME_LENGTH;
+            for (writeIndex = start; writeIndex < end; writeIndex++)
+            {
+                dirEntry[writeIndex - start] = dataBlock[writeIndex];//writing and reading byte-by-byte
+            }
+            if (strcmp(dirEntry, searchTermCpy)==0)
             {
                 //match
-                char *number = malloc(sizeof(char) * sizeof(int));
-                strncat(number, dirEntry + 16, sizeof(int));//should write the absolute inode to the string number
-                int absChildInode = atoi(number);
+                int count;
+                char *number = calloc(sizeof(char), sizeof(int));
+                for (count = 0; count < sizeof(int); count++)
+                {
+                    number[count] = dataBlock[count + writeIndex];
+                }
+
                 free(number);
                 free(inode);
                 free(dataBlock);
                 free(inode);
                 free(dirEntry);
                 free(dataPointers);
-                int atoi(number);//return the integer form of that
+                return atoi(number);//return the integer form of that
             }
         }
     }

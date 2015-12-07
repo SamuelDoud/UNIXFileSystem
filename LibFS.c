@@ -333,22 +333,10 @@ Dir_Create(char *path)
     int depth = BreakDownPathName(path, parents);
     int index;
     int sector;
-    char *dirName = parents[depth - 1];
+    char *dirName = malloc(MAX_FILENAME_LENGTH);
+    memccpy(dirName, parents[depth - 1], strlen(parents[depth - 1]));
     char *parentPath = calloc(sizeof(char), (strlen(path) - strlen(dirName)));
     strncat(parentPath, path, (strlen(path) - strlen(dirName) - 1));
-    absInode = FindFirstOpenAndSetToClosed(&inodeMap);
-    if (absInode < 0)
-    {
-        //could not find a valid sector to write to
-        osErrno = E_CREATE;
-        return FAILURE;
-    }
-    sector = GetSector(absInode);
-    index = GetSectorIndex(absInode);
-    InjectInode(sector, inodeEntry, index); //the inode of the new directory is now in place
-    //get the parent path ... \usr\temp\ is \usr\
-
-
     int parentInode;
     if (depth == 1)//useless to do anything else, we are on the root
     {
@@ -362,7 +350,11 @@ Dir_Create(char *path)
     int parentInodeSectorIndex = GetSectorIndex(parentInode);
     char *inode = calloc(sizeof(char), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
     inode = GetInode(parentInodeSector, parentInodeSectorIndex);
-    int loc = InsertDirectory(inode, parents[depth - 1], &dataMap, &inodeMap);//insert a directory on to the disk
+    int loc = InsertDirectory(inode, dirName, &dataMap, &inodeMap);//insert a directory on to the disk
+    InjectInode(parentInodeSector, inode, parentInodeSectorIndex);//put the inode back in to the disk!
+    char *debug = malloc(SECTOR_SIZE);
+    Disk_Read(parentInodeSector, debug);
+    char x = debug[8];
     //this method puts teh
     printf("Dir_Create %s\n", path);
     return 0;

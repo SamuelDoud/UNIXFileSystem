@@ -32,9 +32,9 @@ char *BuildInode(int fileType)
     //it needs the file size, the file type, and its pointers.
     char *inode = (char *) malloc(sizeof(char) * SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //a string of the length of an Inode
     //need to set all to -1.....
-    char *negativeOne = "-1";
+    char *negativeOne = '\0';
 
-    inode[5] = fileType + 48;//48 is zero on the ASCII table. filetype is now on the inode as a char
+    inode[5] = fileType + 4;//48 is zero on the ASCII table. filetype is now on the inode as a char
     int index;
     for (index = 0; index < MAX_NUM_SECTORS_PER_FILE; index++)
     {
@@ -48,6 +48,6 @@ bool BuildRoot(Map *inodeMap)
     char *root = calloc(sizeof(char), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK);
     FindFirstOpenAndSetToClosed(inodeMap);//closes the first inode availible
     root = BuildInode(DIRECTORY_ID);
-    return Disk_Write(FIRST_INODE_BLOCK_INDEX, root);//can only just write to the disk like this because the disk is empty if the root is being built
-
+    Disk_Write(FIRST_INODE_BLOCK_INDEX, root);//can only just write to the disk like this because the disk is empty if the root is being built
+    return true;
 }

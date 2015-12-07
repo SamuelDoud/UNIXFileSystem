@@ -18,14 +18,17 @@ main(int argc, char *argv[])
     printf("%s\n", testDir);
     char *path = "testLib";
     char *makeADirNAME = "\\usr\\";
+    char *makeAfile = "\\usr\\test\\";
     char *aFilePath = "\\usr\\fileX\\";
     char *writeData = "A quick brown fox jumped over the lazy dog";
     void *buffer = calloc(sizeof(char), SECTOR_SIZE_1);
     buffer = (char *) writeData;
     FS_Boot(path); //
     printf("Dir_Create returned %d\n", Dir_Create(makeADirNAME));
+    printf("File_Create returned %d\n", File_Create(makeAfile));
     printf("File_Create returned %d\n", File_Create(aFilePath));
     int fd = File_Open(aFilePath);
+    int fd2 = File_Open(makeAfile);
     printf("The fd of the file is: %d\n", fd);
     File_Write(fd, buffer, SECTOR_SIZE_1);
     //free(buffer);

@@ -11,11 +11,13 @@
 	<stdlib.h>
 	<unistd.h>
 
-1449357185 source:/home/samuel/C projects/UNIXFileSystem/Builder.c
+1449444684 source:/home/samuel/C projects/UNIXFileSystem/Builder.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
 	"Params.h"
+	"LibDisk.h"
+	"Map.h"
 
 1449246339 /home/samuel/C projects/UNIXFileSystem/LibFS.h
 	<stdio.h>
@@ -29,15 +31,15 @@
 
 1449066544 /home/samuel/C projects/UNIXFileSystem/FileTable.h
 
-1449357185 /home/samuel/C projects/UNIXFileSystem/Map.h
+1449389012 /home/samuel/C projects/UNIXFileSystem/Map.h
 
-1449016380 /home/samuel/C projects/UNIXFileSystem/Params.h
+1449364415 /home/samuel/C projects/UNIXFileSystem/Params.h
 
 1448991415 source:/home/samuel/C projects/UNIXFileSystem/LibDisk.c
 	"LibDisk.h"
 	<string.h>
 
-1449357185 source:/home/samuel/C projects/UNIXFileSystem/LibFS.c
+1449444079 source:/home/samuel/C projects/UNIXFileSystem/LibFS.c
 	"LibFS.h"
 	"LibDisk.h"
 	"Builder.h"
@@ -52,11 +54,12 @@
 	<math.h>
 	"Params.h"
 
-1449357185 source:/home/samuel/C projects/UNIXFileSystem/main.c
+1449437577 source:/home/samuel/C projects/UNIXFileSystem/main.c
 	<stdio.h>
 	<string.h>
 	"Directory.h"
 	"LibFS.h"
+	"Params.h"
 
 1449066544 source:/home/samuel/C projects/UNIXFileSystem/FileTable.c
 	<stdio.h>
@@ -65,7 +68,7 @@
 	"Params.h"
 	"FileTable.h"
 
-1449361438 source:/home/samuel/C projects/UNIXFileSystem/Directory.c
+1449443346 source:/home/samuel/C projects/UNIXFileSystem/Directory.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
@@ -98,14 +101,14 @@
 	<math.h>
 	"Params.h"
 
-1449361573 source:/home/samuel/C projects/UNIXFileSystem/Map.c
+1449389012 source:/home/samuel/C projects/UNIXFileSystem/Map.c
 	<stdio.h>
 	<stdbool.h>
 	<math.h>
 	"Params.h"
 	"Map.h"
 
-1449016362 source:/home/samuel/C projects/UNIXFileSystem/Params.c
+1449364441 source:/home/samuel/C projects/UNIXFileSystem/Params.c
 	"Params.h"
 
 1448992307 /home/samuel/C projects/UNIXFileSystem/Params.c
@@ -114,7 +117,7 @@
 1449016491 /home/samuel/C projects/UNIXFileSystem/Builder.h
 	<stdbool.h>
 
-1449252050 /home/samuel/C projects/UNIXFileSystem/Directory.h
+1449389012 /home/samuel/C projects/UNIXFileSystem/Directory.h
 	<stdbool.h>
 	"Map.h"
 
@@ -183,7 +186,7 @@
 1449370525 source:/home/samuel/Desktop/UNIXFileSystem/Params.c
 	"Params.h"
 
-1449357185 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
+1449444945 source:/home/samuel/C projects/UNIXFileSystem/Inode.c
 	<stdbool.h>
 	"Params.h"
 	"Map.h"
