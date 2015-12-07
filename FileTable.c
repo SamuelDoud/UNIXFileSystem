@@ -26,6 +26,7 @@ FileTableElement initFileTableElement()
     ft.sizeOfFile = GARBAGE;
     return ft;
 }
+
 bool FileTableOpen(FileTableElement *element, int inode, char *filename)
 {
     if (element->fileOpenCount == 0)

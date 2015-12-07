@@ -19,13 +19,15 @@ main(int argc, char *argv[])
     printf("%s\n", testDir);
     char *path = "testLib";
     char *makeADirNAME = "/usr/";
+    char *secondDir = "/usr/nextDir/";
     char *makeAfile = "/usr/test/";
-    char *aFilePath = "/usr/fileX/";
+    char *aFilePath = "/usr/nextDir/fileX/";
     char *writeData = "A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. !!!!";
     void *buffer = calloc(sizeof(char), strlen(writeData));
     buffer = (char *) writeData;
     FS_Boot(path); //
     printf("Dir_Create returned %d\n", Dir_Create(makeADirNAME));
+    printf("The dir %s has been created with result %d\n", secondDir, Dir_Create(secondDir));
     printf("File_Create returned %d\n", File_Create(makeAfile));
     printf("File_Create returned %d\n", File_Create(aFilePath));
     int fd = File_Open(aFilePath);
