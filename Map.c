@@ -38,9 +38,10 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
     int index;
     for (index = 0; index < mapArg->length; index++)
     {
-        if (mapArg->bytemap[index] != mapArg->full)
+        if (mapArg->bytemap[index] != mapArg->full)//if the bytemap is not full at this index, we write here
         {
             int moddedBytemap = (mapArg->bytemap[index] + (mapArg->full + 1)) % (mapArg->full + 1);
+            //applying modular arithmetic to ensure that the we don't get a negative number
             //this is it!
             //convert bytemap[index] to a string
             int firstZero = IndexOfFirstZero(moddedBytemap, mapArg->bitsPerChar);// returning the longest onee......
@@ -60,7 +61,8 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
 int IndexOfFirstZero(int n, int b)
 {
     int index;
-    for(index = 0; n > b; index++)
+    b = intPow(2, b - 1);
+    for(index = 0; n >= b; index++)
     {
         n = n % b;
         b = b / 2;

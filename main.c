@@ -33,9 +33,9 @@ main(int argc, char *argv[])
     printf("The fd of the file is: %d\n", fd);
     File_Write(fd, buffer, SECTOR_SIZE_1);
     //free(buffer);
-    buffer = calloc(sizeof(char), SECTOR_SIZE_1);
-    File_Read(fd, buffer, SECTOR_SIZE_1);
-    printf("%s\n", buffer);
+    void *readBuffer = calloc(sizeof(char), SECTOR_SIZE_1);
+    File_Read(fd, readBuffer, SECTOR_SIZE_1);
+    printf("%s\n", readBuffer);
     //printf("%s\n", buffer);
 //    printf("%d\n", Dir_Size(makeADirNAME)); //should be 20
     FS_Sync();//not sure what this does

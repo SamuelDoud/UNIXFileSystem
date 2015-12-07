@@ -97,7 +97,7 @@ int SetSizeOfInode(char *thisInodeData, int increment)
 //return the sector that is the indexth element in the inode
 int GetSectorAt(char *thisInodeData, int index, Map *dataMap)
 {
-    int *pointers;//an array that will hold the pointers
+    int *pointers = calloc(sizeof(int), MAX_NUM_SECTORS_PER_FILE);//an array that will hold the pointers
     int numOfBlocks = ReadInodeSectors(thisInodeData, pointers); //read all the pointers to the array
     if (numOfBlocks == 0 || numOfBlocks == index)
     {

@@ -94,8 +94,8 @@ File_Create(char *file)
     inodeEntry = BuildInode(FILE_ID); // build an inode with the file type of file
     InjectInode(thisInodeSector, inodeEntry, thisInodeSectorIndex); //write the inode entry to the inode block
     //write the entry to the directory
-    int parentInodeSector = absoluteInodeOfParent / NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex; //get the sector this inode is on. This maybe should be a function
-    int parentInodeSectorIndex = absoluteInodeOfParent % NUM_INODES_PER_BLOCK; //get the index of the inode in the sector
+    int parentInodeSector = GetSector(absoluteInodeOfParent); //get the sector this inode is on. This maybe should be a function
+    int parentInodeSectorIndex = GetSectorIndex(absoluteInodeOfParent); //get the index of the inode in the sector
     char *inodeOfDirectory = GetInode(parentInodeSector, parentInodeSectorIndex); //get the inode of the parent directoy
     char *thisFilesDirectoryEntry = BuildDirectoryEntry(filename, thisAbsoluteInodePointer);//build an entry for the directory
     int result = InsertDirectory(inodeOfDirectory, thisFilesDirectoryEntry, &dataMap, &inodeMap); //this puts the directory into the inode
@@ -115,27 +115,32 @@ File_Open(char *file)
     //if it does not exist, return a not found error
     //if it exists, move it the open file table and return the File Descrriptor
     //doesthisPathExist is not functional at this point
-    int absoluteInode;
+    char *filename = calloc(sizeof(char), MAX_FILENAME_LENGTH);
+    char *paths[strlen(file)];
+    int length = BreakDownPathName(file, &paths);
+    memcpy(filename, paths[length - 1], MAX_FILENAME_LENGTH);
+    char *parentPath =  calloc(sizeof(char), strlen(file));
+    strncat(parentPath, file, strlen(file) - strlen(paths[length - 1]) - 1);
+    int absoluteInode = DoesThisPathExist(parentPath);
+
     printf("FS_Open\n");
-    if (absoluteInode = DoesThisPathExist(file) == -1)//check if the file passed actually exists while also getting the location of its inode
+    if (absoluteInode == -1)//check if the file passed actually exists while also getting the location of its inode
     {
         osErrno = E_NO_SUCH_FILE;//the file does not exist
         return -1;
     }
     //if we get here, we know the file exists
-    int fileDes; //variable to be the file descriptor
-    if ((fileDes = FirstOpenSpotOnTheFileTable()) < 0)
+    int fileDes = FirstOpenSpotOnTheFileTable(); //variable to be the file descriptor
+    if (fileDes < 0)
     {
         osErrno = E_TOO_MANY_OPEN_FILES;
         return fileDes; // file des is already -1 and osErrno is arledy set
     }
-    char *filename;
-    char *paths[strlen(file)];
-    int length = BreakDownPathName(file, &paths);
-    filename = paths[length - 1];
-    FileTableOpen(&fileTable[fileDes], absoluteInode, filename);//opens the file table element as defined in FileTable.h.. shouldd make the size
 
+    FileTableOpen(&fileTable[fileDes], absoluteInode, filename);//opens the file table element as defined in FileTable.h.. shouldd make the size
     return fileDes; //return the file descriptor to the user
+    free(parentPath);
+    free(filename);
 }
 //other than the charAt function, this method is complete
 int
@@ -156,7 +161,7 @@ File_Read(int fd, void *buffer, int size)
     }
     int *dataBlocks;
     int inodeSector = GetSector(fileTable[fd].inodePointer);
-    int inodeSectorIndex = GetSectorIndex(fileTable[fd].indexOfInodeInSector);//applying the logic in Map.c to get the information on this inode
+    int inodeSectorIndex = GetSectorIndex(fileTable[fd].inodePointer);//applying the logic in Map.c to get the information on this inode
     char *thisInode = GetInode(inodeSector, inodeSectorIndex);//get the particular inode
     int numberOfPointers = ReadInodeSectors(thisInode,dataBlocks); //read the pointers of the dataBlocks to ... dataBlocks.
 
@@ -179,7 +184,6 @@ File_Read(int fd, void *buffer, int size)
         //write this to the supplied buffer
         count += strncat(buffer + (count + offset), data, howManyBytesToRead);//increment count by how many bytes were writtent to the buffer
     }
-    free(data);
     free(thisInode);
     free(dataBlocks);//deallocate unneded memory
     return count;
@@ -211,7 +215,7 @@ File_Write(int fd, void *buffer, int size)
     //size of file is not currently functional... not defineed to be how many bytes instead of sectors
     int offset = fileTable[fd].index; //offset because this the starting point of the write
     char *inodeBlock = calloc(sizeof(char), SECTOR_SIZE_1 / NUM_INODES_PER_BLOCK); //where the inode will be
-    char *substring;
+    char *substring = calloc(sizeof(char), SECTOR_SIZE_1);
     int sectorOfInode = GetSector(fileTable[fd].inodePointer);
     int indexOfInode = GetSectorIndex(fileTable[fd].inodePointer);
     inodeBlock = GetInode(sectorOfInode, indexOfInode); //write the inode at the given location to the inodeBlock string
@@ -222,9 +226,8 @@ File_Write(int fd, void *buffer, int size)
         {
             osErrno = E_FILE_TOO_BIG;
             return -1;
-
         }
-        substring = calloc(sizeof(char), SECTOR_SIZE_1);//make a string of Sector_size characters full of Zeros (not garbage as we cannot be sure how much is actually being written)
+        memset(substring, 0, SECTOR_SIZE_1);//reset the substring
         strncat(substring, strBuffer, SECTOR_SIZE_1 -(count+offset));//take a substring of the buffer of size SECTOR_SIZE
         written+=strlen(substring);//increment  written
         //this may go out of bounds on the last edge case
@@ -233,7 +236,7 @@ File_Write(int fd, void *buffer, int size)
         //write two will write 512 bytes to the current sector but (buffer + 512) only has one char...
         //This might cause a crash
         Disk_Write(currentSector, substring);//write substring to the currentSector on the disk
-        free(substring); //deallocate the memory for substring
+        //free(substring); //deallocate the memory for substring
         if (countBy == 1)
         {
             //only called on the first run through, when we expect to be writing something that is not of SECTOR_SIZE
