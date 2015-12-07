@@ -38,9 +38,10 @@ int FindFirstOpenAndSetToClosed(Map *mapArg)
     int index;
     for (index = 0; index < mapArg->length; index++)
     {
-        if (mapArg->bytemap[index] != mapArg->full)//if the bytemap is not full at this index, we write here
+         int moddedBytemap = (mapArg->bytemap[index] + (mapArg->full + 1)) % (mapArg->full + 1);
+        if (moddedBytemap != mapArg->full)//if the bytemap is not full at this index, we write here
         {
-            int moddedBytemap = (mapArg->bytemap[index] + (mapArg->full + 1)) % (mapArg->full + 1);
+
             //applying modular arithmetic to ensure that the we don't get a negative number
             //this is it!
             //convert bytemap[index] to a string
