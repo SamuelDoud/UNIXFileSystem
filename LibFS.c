@@ -70,7 +70,7 @@ FS_Sync()
     }
 
     //write the data map
-    for (sectorIndex = FIRST_DATA_BLOCK_INDEX; sectorIndex + < NUM_DATA_BITMAP_BLOCKS + FIRST_DATA_BLOCK_INDEX; sectorIndex++)
+    for (sectorIndex = FIRST_DATA_BLOCK_INDEX; sectorIndex < NUM_DATA_BITMAP_BLOCKS + FIRST_DATA_BLOCK_INDEX; sectorIndex++)
     {
         memset(sectorBuffer, 0, SECTOR_SIZE_1);
         for (index = 0; index < SECTOR_SIZE_1; index++)
