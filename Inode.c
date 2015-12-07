@@ -44,7 +44,6 @@ int ReadInodeSectors(char *thisInodeData, int *pointersBuffer)
         {//data blocks can never  be zero
             return index; //a zero was just written, any more writes are useless
         }
-        int temp = pointersBuffer[index];
     }
     return index;//index is the number of buffers read
 }//take an inode and read out its pointers to a buffer returning an integer that is the size of the buffer
@@ -60,7 +59,7 @@ char *AddPointer(char *thisInodeData, int pointerToAdd)//adds the pointerToAdd t
     {
         return false;
     }
-    int start = numPointers + (sizeof(int) * 2);
+    int start = numPointers * sizeof(int) + (sizeof(int) * 2);
     int end = start + sizeof(int);
     int index;
     for (index = 0; index < end; index++)
@@ -69,7 +68,7 @@ char *AddPointer(char *thisInodeData, int pointerToAdd)//adds the pointerToAdd t
     }
     //TODO ensure proper allocation... just tacking on to the end here
     Disk_Write(pointerToAdd, BuildDataBlock());//creates the new data block
-    free(pointers);//deallocate the pointer array
+    //free(pointers);//deallocate the pointer array
     return thisInodeData; //no free space
 }
 int SizeOfInode(char *thisInodeData) //return the size of the inode
@@ -99,12 +98,13 @@ int GetSectorAt(char *thisInodeData, int index, Map *dataMap)
 {
     int *pointers = calloc(sizeof(int), MAX_NUM_SECTORS_PER_FILE);//an array that will hold the pointers
     int numOfBlocks = ReadInodeSectors(thisInodeData, pointers); //read all the pointers to the array
-    if (numOfBlocks == 0 || numOfBlocks == index)
+    if (numOfBlocks == 0 || numOfBlocks <= index)
     {
         int newDataPointer= FindFirstOpenAndSetToClosed(dataMap);
         //there are no data blocks or it is asking for the next data block
         if (newDataPointer  == -1) return -1;//get a data pointer
         thisInodeData = AddPointer(thisInodeData, newDataPointer);
+        free(pointers);
         return newDataPointer;//return that pointer
     }
     //AddPointer!
