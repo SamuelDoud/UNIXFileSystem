@@ -15,16 +15,16 @@ char *BuildDirectoryEntry(char *name, int pointer)
     memset(directoryData, 0, DIRECTORY_LENGTH);//$ is an illegal character
     directoryData[DIRECTORY_LENGTH] = 0;
     char *intStr = malloc(4);
-    sprintf(intStr, "%d", pointer);
+    sprintf(intStr, "%d", pointer); //write the pointer to a string
 
     int index;
     for (index = 0; index < strlen(name); index++)
-    {
+    {//write the filename to the entry
         directoryData[index] = name[index];
     }
 
     for(index = MAX_FILENAME_LENGTH; index < DIRECTORY_LENGTH; index++)
-    {
+    {//write the integer pointer to the entry
         directoryData[index] = intStr[index - MAX_FILENAME_LENGTH];
     }
     char x = directoryData[18];
@@ -100,7 +100,10 @@ int InsertDirectory(char *inodeOfParent, char *filename, Map *data, Map *inodes)
             if (strcmp(directoryEntryStr, emptyDirectory) == 0)//a empty spot
             {
                 int absInode = WriteNewInodeToDisk(inodes, DIRECTORY_ID); //write a new inode to the disk
-                if (absInode < 0) return -1; //the inode could not be created
+                if (absInode < 0)
+                {
+                    return -1; //the inode could not be created
+                }
                 char *newDir = malloc(DIRECTORY_LENGTH * sizeof(char));//allocate space ffor a new directory
                 newDir = BuildDirectoryEntry(filename, absInode); //make a directory entry
                 int iterator;

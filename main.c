@@ -15,6 +15,7 @@ main(int argc, char *argv[])
 {
     char *testDir = malloc(DIRECTORY_LENGTH);
     testDir = BuildDirectoryEntry("a file", 1234);
+    char test = testDir[18];
     printf("%s\n", testDir);
     char *path = "testLib";
     char *makeADirNAME = "\\usr\\";
