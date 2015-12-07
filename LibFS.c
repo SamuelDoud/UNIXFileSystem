@@ -15,15 +15,11 @@ int osErrno;
 
 //Function definitions
 int FirstOpenSpotOnTheFileTable();
-bool DoesThisPathExist(char *);//probabbly not needed
-char charAt(int fd, int index); //probably not needed
-char *GetFilename(char *); //gets the file name from the BreakDownPathName function
-char *DataBlockAt(char *inode, int index);
 
-static FileTableElement *fileTable;
+static FileTableElement *fileTable;//the open file table
 static Map inodeMap;
-static Map dataMap;
-static char *globalPath;
+static Map dataMap;//the bitmaps for the blocks
+static char *globalPath; //the path passed in FS_BOOT
 int
 FS_Boot(char *path)
 {
@@ -58,7 +54,34 @@ int
 FS_Sync()
 {
     printf("FS_Sync\n");
+    //write the bitmaps to the disk
+    int sectorIndex;
+    int index;
+    char *sectorBuffer = calloc(sizeof(char), SECTOR_SIZE_1);
+    //write the inode map
+    for (sectorIndex = FIRST_INODE_BLOCK_INDEX; sectorIndex < NUM_INODE_BITMAP_BLOCKS + FIRST_INODE_BLOCK_INDEX; sectorIndex++)
+    {
+        memset(sectorBuffer, 0, SECTOR_SIZE_1);
+        for (index = 0; index < SECTOR_SIZE_1; index++)
+        {
+            sectorBuffer[index] = inodeMap.bytemap[index + (sectorIndex - FIRST_INODE_BLOCK_INDEX) * SECTOR_SIZE_1];
+        }
+        Disk_Write(sectorIndex, sectorBuffer);
+    }
+
+    //write the data map
+    for (sectorIndex = FIRST_DATA_BLOCK_INDEX; sectorIndex + < NUM_DATA_BITMAP_BLOCKS + FIRST_DATA_BLOCK_INDEX; sectorIndex++)
+    {
+        memset(sectorBuffer, 0, SECTOR_SIZE_1);
+        for (index = 0; index < SECTOR_SIZE_1; index++)
+        {
+            sectorBuffer[index] = dataMap.bytemap[index + (sectorIndex - FIRST_DATA_BLOCK_INDEX) * SECTOR_SIZE_1];
+        }
+        Disk_Write(sectorIndex, sectorBuffer);
+    }
+
     Disk_Save(globalPath);
+
     return 0;
 }
 int
@@ -499,42 +522,7 @@ Dir_Unlink(char *path)
     printf("Dir_Unlink\n");
     return 0;
 }
-
-
-//OUR METHODS
-
-//split the paths into parts
-//for example, the path /usr/sam/etc/
-//turns into {, usr, sam, etc, \0}
-
-int IsAChildOf(int sectorNum, char *childName)
-{
-    //TODO (Nick#6#): I give you a sector that is asssumed to be a directory
-    //give me the inode of the child that is passed
-    //if it does not exist, return -1
-
-    //for example, /usr/ has children evan, nick, and sam
-    //if I send the call IsAChildOf(/usr, evan) return  evan's inode num
-    //if I send the call IsAChildOf(/usr, notReal), return -1
-    return -1;
-}
-//how deep does this path go?
-//for example, the path /usr/sam/etc/ has a depth of 4
-int GetDepthOfPath(char *file)
-{
-    char delimiter = '/';
-    int index;
-    int count = 0;
-    for (index = 0; file[index] != '\0'; index++)
-    {
-        if (file[index] == delimiter)
-        {
-            count++;
-        }
-    }
-    return count;
-}
-//we may need to move this function
+//Searches for the first junk fileTableElement on the fileTable
 int FirstOpenSpotOnTheFileTable()
 {
     int index;
@@ -547,11 +535,4 @@ int FirstOpenSpotOnTheFileTable()
     }
     osErrno = E_TOO_MANY_OPEN_FILES;
     return -1;//if this is reached, return -1 as there are no availible spots on the file table
-}
-//read the data block by using the inode and an index
-char *DataBlockAt(char *inode, int index)
-{
-    char *buffer = calloc(SECTOR_SIZE_1 , sizeof(char)); //make a string of size SECTOR_SIZE
-    Disk_Read(buffer, GetSectorAt(inode, index));//read the Sector found by the GetSectorAt function from the disk to the buffer
-    return buffer; //return the buffer
 }
