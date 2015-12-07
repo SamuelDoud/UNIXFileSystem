@@ -210,7 +210,7 @@ int  DoesThisPathExist(char *path)
         absoluteInodePointer = Lookup(absoluteInodePointer, temp);
         if (absoluteInodePointer == -1); //look in the current inode for the next part of the file
         {
-            return -1;//the file does not exist in this inode
+            return absoluteInodePointer;//the file does not exist in this inode
         }
     }
     //free(dirNames);//deallocate
@@ -260,14 +260,12 @@ int Lookup(int absoluteInodePointer, char *searchTerm)
                 {
                     number[count] = dataBlock[count + writeIndex];
                 }
-
-                free(number);
                 free(inode);
                 free(dataBlock);
-                free(inode);
                 free(dirEntry);
                 free(dataPointers);
-                return atoi(number);//return the integer form of that
+                writeIndex = atoi(number);
+                return writeIndex;//return the integer form of that
             }
         }
     }

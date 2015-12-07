@@ -70,10 +70,8 @@ File_Create(char *file)
     memcpy(filename, paths[length - 1], MAX_FILENAME_LENGTH);
     strncat(absolutePath, file, strlen(file) - strlen(filename) - 1);//this will concatente the entire file path ecept for the file name into absolute path
 
-    int absoluteInodeOfParent;
-    //TODO DoesThisPathExist
+    int absoluteInodeOfParent = DoesThisPathExist(absolutePath);
     //get the inode of the directory that this file will reside in
-    absoluteInodeOfParent = DoesThisPathExist(absolutePath);
     if (absoluteInodeOfParent == -1) //absolute inode is the the inode of this files parent
     {
         //if absoluteInode is equal to -1, the parent directorry does not exist
