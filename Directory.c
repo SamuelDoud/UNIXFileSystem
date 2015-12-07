@@ -23,9 +23,9 @@ char *BuildDirectoryEntry(char *name, int pointer)
         directoryData[index] = name[index];
     }
 
-    for(index = 16; index < DIRECTORY_LENGTH; index++)
+    for(index = MAX_FILENAME_LENGTH; index < DIRECTORY_LENGTH; index++)
     {
-        directoryData[index] = intStr[index - 15];
+        directoryData[index] = intStr[index - MAX_FILENAME_LENGTH];
     }
     char x = directoryData[18];
     return directoryData;
@@ -41,7 +41,11 @@ int GetDirPointer(char *dir)
 {
     int pointer;
     char *pointerStr = calloc(sizeof(char), DIRECTORY_LENGTH - MAX_FILENAME_LENGTH);
-    strncat(pointerStr, dir + MAX_FILENAME_LENGTH, DIRECTORY_LENGTH - MAX_FILENAME_LENGTH);//verify
+    int index = MAX_FILENAME_LENGTH;
+    for (; index < DIRECTORY_LENGTH; index++)
+    {
+        pointerStr[index - MAX_FILENAME_LENGTH] = dir[index];
+    }
     pointer = atoi(pointerStr);
     return pointer;
 }
