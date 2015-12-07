@@ -24,3 +24,4 @@ FIRST_INODE_BLOCK_INDEX = 5;
 FIRST_DATA_BLOCK_INDEX = 255;//Data blocks begin after inodes
 NUM_DATA_BLOCKS_PER_CHAR = 8;
 DATA_BLOCK_BYTEMAP_LENGTH = 1219;//hopefully this evenly divides.... its actually 1218.125....
+MAX_FILENAME_LENGTH = 16;

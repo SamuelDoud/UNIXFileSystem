@@ -9,6 +9,7 @@ int InsertDirectory(char *inodeOfParent, char *newDirectoryEntry, Map *data, Map
 int GetSize(char *directory);
 bool RemoveDirectory(int parentInodeSector, char *filenameToRemove, Map *dataMap);
 int BreakDownPathName(char *filename, char *emptyStrArray);
-
+char *getFilename(char *dir);
+int GetDirPointer(char *dir);
 
 #endif // DIRECTORY_H_INCLUDED

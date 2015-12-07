@@ -2,10 +2,10 @@
 CC     = gcc
 OPTS   = -O -Wall 
 INCS   = 
-LIBS   = -R. -L. -lFS -lDisk
+LIBS   = -L. -lFS -lDisk
 
 # files we need
-SRCS   = main.c 
+SRCS   = main.c Directory.c Map.c Inode.c Builder.c LibDisk.c FileTable.c Params.c LibFS.c 
 OBJS   = $(SRCS:.c=.o)
 TARGET = main 
 
