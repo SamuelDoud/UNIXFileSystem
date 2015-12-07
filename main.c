@@ -41,6 +41,10 @@ main(int argc, char *argv[])
     File_Close(fd);
     File_Close(12);
     File_Unlink(makeAfile);
+    void *dirReadout = malloc(1000);
+    int size = 1000;
+    Dir_Read(makeADirNAME, dirReadout, size);
+    printf("Dir_Read: %s\n", dirReadout);
     //printf("%s\n", buffer);
 //    printf("%d\n", Dir_Size(makeADirNAME)); //should be 20
     FS_Sync();//not sure what this does

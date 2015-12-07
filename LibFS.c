@@ -460,7 +460,7 @@ Dir_Read(char *path, void *buffer, int size)
     int inodeSector = absoluteInode /NUM_INODES_PER_BLOCK + inodeMap.firstSectorIndex;
     int inodeSectorIndex = absoluteInode % NUM_INODES_PER_BLOCK;
     char *thisInode = GetInode(inodeSector, inodeSectorIndex);
-    int *pointers;
+    int *pointers = calloc(sizeof(int), MAX_NUM_SECTORS_PER_FILE);
     int length = ReadInodeSectors(thisInode, pointers); //this function needs to be verified that it returns the actual sectors of data blocks
     //read the data
     char *dataBlock = malloc(SECTOR_SIZE_1 * sizeof(char));
@@ -473,15 +473,25 @@ Dir_Read(char *path, void *buffer, int size)
         Disk_Read(pointers[index], dataBlock);
         for (subIndex = 0; subIndex + DIRECTORY_LENGTH < SECTOR_SIZE_1; subIndex+=DIRECTORY_LENGTH)
         {
-            strncat(directoryEntries, dataBlock + subIndex, DIRECTORY_LENGTH);
-            strncat(buffer + (SECTOR_SIZE_1 * index + subIndex), directoryEntries, DIRECTORY_LENGTH);//this should write a directory entry to the buffer
+            //subIndex is the index of the data block we are on in terms of directories
+            int count;
+            for(count = 0; count < DIRECTORY_LENGTH; count++)
+            {
+                //write the directory from the data block
+                directoryEntries[count] = dataBlock[count + subIndex];
+            }
+            if (directoryEntries != NULL)//make sure the directory is real
+            {
+                //concatenate the recently collected directory onto the buffer
+                strncat(buffer, directoryEntries, DIRECTORY_LENGTH);
+            }
         }
     }
     free(dataBlock);
     free(pointers);
     free(thisInode);
-    free(directoryEntries);//deallocate the memory assigned
-    return 0;
+    //deallocate the memory assigned
+    return DirSize;
 }
 
 int
