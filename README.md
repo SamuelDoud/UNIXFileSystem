@@ -5,15 +5,13 @@ Nick Bohay, 4151111
 Samuel Doud, 3728396
 Evan Russenberger-Rosica, 3401093
 
-In your README file you should have the following five sections:
-	-The names and id for all team members.
-	-A brief description of how you divided the work between you.
-	-Design overview: A few simple paragraphs describing the overall structure of your code and
-	any important structures and algorithms. For example, include a brief description of the data structures you use to map between addresses and memory objects, a brief description of the policy that use to perform allocations (e.g., first-fit, best-fit, rotating first-fit, buddy, etc).
-	-Known bugs or problems: A list of any features that you did not implement or that you know are not working correctly
+Team Work Division:
+	Samuel Doud wrote nearly all of the C. Sam also figured out the implimentation of dirctories and the OFT. 
+	Evan RR wrote the readme, and sketched out the structure of important functions and the file system, and gave 
+	logical proofs seen below. 
+	Nick Bohay: 
 
-
-Logic:
+Logic/Design Overview:
 
 Sector Allocation Rationale
 
@@ -53,7 +51,7 @@ Inode Bitmap:
 	-4 bits to a byte. 8 bits are not used as each byte is representative of a data sector, which can contain four inodes
 	
 Data bitmap:
-	-A data bitmap is 8 bits per byte
+	-1 bit corresponds to 1 data block. Both inodes and data blocks are allocated on a first fit first basis. 
 
 Function Behavior Sketches in FILE API:
 
@@ -152,14 +150,15 @@ Function Behavior Sketches in Directory API:
 
 	int Dir_Create(char *path)
 		*creates a new directory as named by absolute path.
-		-check if parent exists
+		-check if parent inode (that is the inode of the parent directory) exists
 			if not return -1 and set osErrno to E_CREATE.
 
 		-call FindFirstOpenAndSetToClosed to find an open space for our inode. 
 		-create an inode in this space with BuildInode. 
 
 
-		-add a new directory entry in the current directory’s parent. 
+		-add a new directory entry in the current directory’s parent with the new directory name and the inode number 
+		of the newly allocated inode. 
 		-Upon failure of any sort, return -1 and set osErrno to E_CREATE. Upon success, return 0. Note that for simplicity Dir Create() is not recursive - that is, if only ”/” exists, and you want to create a directory ”/a/b/”, you must first create ”/a”, and then create ”/a/b”.
 
 
@@ -179,20 +178,15 @@ Function Behavior Sketches in Directory API:
 		-int Dir Unlink(char *path) removes a directory referred to by path, freeing up its inode and data blocks, and removing its entry from the parent directory. Upon success, return 0. Note: Dir Unlink() should only be successful if there are no files or directories within the directory. If there are still files within the directory, return -1 and set osErrno to E DIR NOT EMPTY. If someone tries to remove the root directory (”/”), don’t allow it!!! Return -1 and set osErrno to E ROOT DIR.
 
 
-Q: What are directories?
+FAQ: What are directories?
 	-directories are a special kind of file denoted by a 1 byte (typo in notes says b) flag. 
 	-A many to 1 map between sets of names, and inodes. 
 	-format: a fixed 16-byte field for the name, and a 4-byte entry as the inode number.
 	-Each entry in directory has a total size of 20 bytes. This is made up of 16-byte names of the directories and files within the directory named by path, followed by the 4-byte integer inode number.
 	Useful sites:
-		http://teaching.idallen.com/dat2330/04f/notes/links_and_inodes.html
-		http://teaching.idallen.com/cst8207/13w/notes/450_file_system.html#path-traversal
+
+
+-Known bugs or problems: A list of any features that you did not implement or that you know are not working correctly
 
 
 
-
-Questions: 
-	Do we need 2 makefiles?
-
-NOTES ON CODE:
-	BreakDownPathName(path); commented out in Dir_Create. Need this to check if PIPD (= Parent inode of parent directory) exists. 
