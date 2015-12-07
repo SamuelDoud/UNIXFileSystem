@@ -54,15 +54,15 @@ Data bimap:
 
 Function Behavior Sketches in FILE API:
 
-	create
+	int File Create(char *file)
 		- Look if exist/parent exist/etc. if exist fail. if parent doesnt, fail.
 		-need to create inode to preserve bijection, done via 
 		*BuildInode(int index, int type)
 		-modify inode-bitmap, directory (inode + data) accordingly. 
-	Open
+	int File Open(char *file)
 		-modify open file table (will include lookup for inode num)
 		-return file handle (entry num in table)
-	Read(file discriptor, buffer, sizer)
+	Read(file discriptor, buffer, size)
 		-Look in opentable, if entry is valid
 		-get file pointer (reports current location in file) from file table.
 		-from file pointer calculate data block, read inode, and get number from inode
@@ -82,13 +82,13 @@ Function Behavior Sketches in FILE API:
 			Write returns -1 and set osErrno to E NO SPACE. 
 			-copy to sector.
 			-disk_write sector
-	seek
+	int File Seek(int fd, int o↵set) 
 		-file needs to be open
 		-change value of the pointer in the open file table
-	close
+	int File Close(int fd)
 		-file needs to be open
 		-remove the file from the open file table (or decrease counter, approach dependent)
-	unlink
+	int File Unlink(char *file)
 		-file needs to be closed. (iterate open file table)
 		-modify directory by removing entry
 		-remove bit from bitmap. 
@@ -190,3 +190,6 @@ Q: What are directories?
 
 Questions: 
 	Do we need 2 makefiles?
+
+NOTES ON CODE:
+	BreakDownPathName(path); commented out in Dir_Create. Need this to check if PIPD (= Parent inode of parent directory) exists. 
