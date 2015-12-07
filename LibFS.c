@@ -467,6 +467,9 @@ Dir_Read(char *path, void *buffer, int size)
     char *directoryEntries = malloc(DIRECTORY_LENGTH * sizeof(char));
     int index;
     int subIndex;
+    int end;
+    int start = 0;
+    char *strBuf = calloc(sizeof(char), size);
     for (index = 0; index < length; index++)
     {
         //index is each data block
@@ -483,15 +486,20 @@ Dir_Read(char *path, void *buffer, int size)
             if (directoryEntries != NULL)//make sure the directory is real
             {
                 //concatenate the recently collected directory onto the buffer
-                strncat(buffer, directoryEntries, DIRECTORY_LENGTH);
+                end = start + DIRECTORY_LENGTH;
+                for (start; start < end; start++)
+                {
+                    strBuf[start] = directoryEntries[start - (end - DIRECTORY_LENGTH)];
+                }
             }
         }
     }
+    memcpy(buffer, strBuf, size); //copy the char pointer to aa void pointer
     free(dataBlock);
     free(pointers);
     free(thisInode);
     //deallocate the memory assigned
-    return DirSize;
+    return start / DIRECTORY_LENGTH; //ther iterator serves as the count of directories
 }
 
 int
