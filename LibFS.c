@@ -241,6 +241,9 @@ File_Write(int fd, void *buffer, int size)
     int indexOfInode = GetSectorIndex(fileTable[fd].inodePointer);
     inodeBlock = GetInode(sectorOfInode, indexOfInode); //write the inode at the given location to the inodeBlock string
     int writeLen;
+    int index;
+    int start;
+    int end;
     for (count = 0 ; count < size; count+=countBy)
     {
         writeLen = SECTOR_SIZE_1;
@@ -259,7 +262,12 @@ File_Write(int fd, void *buffer, int size)
             return -1;
         }
         memset(substring, 0, SECTOR_SIZE_1);//reset the substring
-        strncat(substring, strBuffer, writeLen);//take a substring of the buffer of size SECTOR_SIZE
+        start = count;
+        end = start + writeLen;
+        for(index = 0; index < end - start; index++)
+        {
+            substring[index] = strBuffer[start + index];
+        }
         written+=(writeLen);//increment  written
         Disk_Write(currentSector, substring);//write substring to the currentSector on the disk
         //free(substring); //deallocate the memory for substring
