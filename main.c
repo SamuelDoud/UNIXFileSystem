@@ -18,9 +18,9 @@ main(int argc, char *argv[])
     char test = testDir[18];
     printf("%s\n", testDir);
     char *path = "testLib";
-    char *makeADirNAME = "\\usr\\";
-    char *makeAfile = "\\usr\\test\\";
-    char *aFilePath = "\\usr\\fileX\\";
+    char *makeADirNAME = "/usr/";
+    char *makeAfile = "/usr/test/";
+    char *aFilePath = "/usr/fileX/";
     char *writeData = "A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. A quick brown fox jumped over the lazy dog. !!!!";
     void *buffer = calloc(sizeof(char), strlen(writeData));
     buffer = (char *) writeData;

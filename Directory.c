@@ -184,7 +184,7 @@ int BreakDownPathName(char *file, char *EmptyArrayOfNames[])
     int index;
     char str[strlen(file)];
     strcpy(str, file);
-    const char delimiter[2] = "\\";
+    const char delimiter[2] = "/";
     char *token;
     token = strtok(str, delimiter);
     for(index = 0; token != NULL; index++)

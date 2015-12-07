@@ -9,7 +9,7 @@ Map InodeMap()
     Map inodeMapInit;
     inodeMapInit.firstSectorIndex = FIRST_INODE_BLOCK_INDEX;
     inodeMapInit.length = INODE_BYTEMAP_LENGTH;
-    inodeMapInit.full = pow(2, NUM_INODES_PER_BLOCK) - 1;
+    inodeMapInit.full = intPow(2, NUM_INODES_PER_BLOCK) - 1;
     inodeMapInit.bytemap = calloc(inodeMapInit.length, sizeof(char));//should set all of these to zero
     inodeMapInit.bitsPerChar = NUM_INODES_PER_BLOCK;
     return inodeMapInit;
@@ -19,7 +19,7 @@ Map DataMap()
     Map dataMapInit;
     dataMapInit.firstSectorIndex = FIRST_DATA_BLOCK_INDEX;
     dataMapInit.length = DATA_BLOCK_BYTEMAP_LENGTH;
-    dataMapInit.full = pow(2, NUM_DATA_BLOCKS_PER_CHAR) - 1;
+    dataMapInit.full = intPow(2, NUM_DATA_BLOCKS_PER_CHAR) - 1;
     dataMapInit.bytemap = calloc(dataMapInit.length, sizeof(char));
     dataMapInit.bitsPerChar = NUM_DATA_BLOCKS_PER_CHAR;//uhhhhh
     return dataMapInit;
@@ -98,7 +98,7 @@ bool FreeTableOfOne(Map *mapArg, int pointer)
 {
     int pointerwithOffsetAccounted = pointer + mapArg->firstSectorIndex;
     int indexInChar = pointerwithOffsetAccounted % mapArg->bitsPerChar; //if 33 is passed to the inode map, then it is the 8th char in the 2nd bit of the 4 bit char
-    mapArg->bytemap[pointerwithOffsetAccounted] = mapArg->bytemap[pointerwithOffsetAccounted] - pow(2, mapArg->bitsPerChar - 1 - indexInChar); //TODO (Evan#1#): Verify this works
+    mapArg->bytemap[pointerwithOffsetAccounted] = mapArg->bytemap[pointerwithOffsetAccounted] - intPow(2, mapArg->bitsPerChar - 1 - indexInChar); //TODO (Evan#1#): Verify this works
     return mapArg->bytemap[pointerwithOffsetAccounted] < mapArg->full; //if this is greater than full, then we have a critical error
 }
 int intPow(int base, int num)

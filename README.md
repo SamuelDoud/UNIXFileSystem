@@ -45,12 +45,15 @@ Sector Allocation Rationale
 
 
 Map Struct: 
-	-defines the data sturcutr for both inode and data bitmaps. 
+	-defines the data stucture for both inode and data bitmaps. If a inode or data block is occupied, its status is reflected on the bitmap. This bitmap serves the purpose of allowing allocation of unique blocks of data to the requester through the function call FindFirstAndSetToClosed(map) which returns an integer sector (or absolute sector for inodes) and sets that position to closed on the bitmap
+
+	-the map struct is not stored on the disk. Possible implementations could include storing on the disk on close; and initializing on loading
 
 Inode Bitmap:
-	-4 bits
-
-Data bimap:
+	-4 bits to a byte. 8 bits are not used as each byte is representative of a data sector, which can contain four inodes
+	
+Data bitmap:
+	-A data bitmap is 8 bits per byte
 
 Function Behavior Sketches in FILE API:
 

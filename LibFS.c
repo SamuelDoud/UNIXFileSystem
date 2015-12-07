@@ -456,7 +456,7 @@ Dir_Read(char *path, void *buffer, int size)
 int
 Dir_Unlink(char *path)
 {
-    char *rootPath = "\\"; //this is what the root is
+    char *rootPath = "/"; //this is what the root is
     if (strcmp(path, rootPath) == 0)//cannot delete the root
     {
         osErrno = E_ROOT_DIR;
@@ -514,7 +514,7 @@ int IsAChildOf(int sectorNum, char *childName)
 //for example, the path /usr/sam/etc/ has a depth of 4
 int GetDepthOfPath(char *file)
 {
-    char delimiter = '\\';
+    char delimiter = '/';
     int index;
     int count = 0;
     for (index = 0; file[index] != '\0'; index++)
